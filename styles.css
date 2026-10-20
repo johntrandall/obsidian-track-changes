@@ -269,7 +269,14 @@ body {
 }
 .tc-scope-note {
   background: var(--background-modifier-border);
-  color: var(--text-muted);
+  color: var(--text-normal);
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 0.95em;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   margin-bottom: 2px;
 }
 .tc-scope-vault {
