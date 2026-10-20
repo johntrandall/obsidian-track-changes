@@ -23,6 +23,7 @@ Your agent needs to know the mark format. Two starting points:
 - Accept / reject per mark, reply inline, delete per message or thread
 - Comment on a suggestion — the comment shows inside the suggestion's card and goes away when the suggestion is accepted or rejected
 - **Human authoring** — insert or mark selections as any of the five CriticMarkup forms yourself, from the command palette or the *Track changes* right-click submenu, stamped with your name and date like a reply
+- **Resolve without deleting** — mark a comment thread resolved and it drops out of the panel, the counts and the overview into a folded *Resolved* section, while the comment stays in the note as `resolved="<date>"` on its root; reopen it at any time. An agent that has processed a thread marks it `acknowledged="<date>" acknowledged-by="<name>"` instead, shown as a badge on the card; the two flags are independent, and a reply from either side clears both
 - **Finalize for publish** — resolves all remaining markup in one pass
 - **Pending changes overview** — a vault-wide list of every note that still has suggestions, comments or highlights, most to review first, with per-file counts; click a row to open the note and its review panel. A status-bar item shows the vault-wide total (hidden when there is nothing to review) and opens the overview
 - Reading mode: accepted preview or raw side-by-side
@@ -43,7 +44,7 @@ Your agent needs to know the mark format. Two starting points:
 - *Rescan vault for pending changes* — the overview keeps itself current from vault events; this forces a full re-read
 - *Finalize for publish* — accept additions, drop deletions and comments, etc.
 - *Insert addition*, *Mark selection as deletion*, *Mark selection for substitution*, *Highlight selection*, *Insert comment* — also under *Track changes* in the editor's right-click menu
-- *Accept change at cursor*, *Reject change at cursor*, *Remove highlight at cursor*, *Delete comment at cursor* — act on the mark the cursor is in; bind hotkeys for fast review. Also under *Track changes* in the right-click menu when the cursor is on a matching mark
+- *Accept change at cursor*, *Reject change at cursor*, *Remove highlight at cursor*, *Delete comment at cursor*, *Mark comment thread at cursor resolved*, *Reopen comment thread at cursor* — act on the mark the cursor is in; bind hotkeys for fast review. Also under *Track changes* in the right-click menu when the cursor is on a matching mark
 
 ## Install
 

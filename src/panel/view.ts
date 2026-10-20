@@ -36,15 +36,17 @@ import { authorHueIndex } from "../authors";
 import { diffChars, type DiffRun } from "../diff";
 import {
   appendComment,
-  appendReply,
+  replyEdits,
   deleteCommentNode,
   deleteThread,
+  formatReplyDate,
   removeHighlight,
   resolveChange,
   validateReplyText,
   type SourceEdit,
   type ReplyDateStyle,
 } from "../operations";
+import { isResolved, reopenThread, resolveThread, threadStatus } from "../resolution";
 
 export const REVIEW_VIEW_TYPE = "tc-review-panel";
 
@@ -102,6 +104,9 @@ export class ReviewPanelView extends ItemView {
   private replyDrafts = new Map<number, string>(); // thread.from -> draft text
   private commentDrafts = new Map<number, string>(); // change.from -> open comment box draft
   private collapsedCards = new Set<number>(); // card-offset values that are collapsed
+  // Resolved threads live in a section of their own below the cards, folded
+  // away by default: out of the queue, still in the note.
+  private showResolved = false;
   // Bumped on every refresh() entry. Lets an in-flight refresh detect that a
   // newer one started while it was awaiting the file read, and bail before
   // touching the DOM — otherwise overlapping refreshes append duplicate cards.
@@ -255,7 +260,8 @@ export class ReviewPanelView extends ItemView {
 
     const anchored = anchorNodeIndexes(parsed);
     const onChange = changeThreads(parsed);
-    this.renderHeader(file, parsed, anchored, onChange);
+    const resolvedThreads = parsed.threads.filter((t) => isResolved(parsed, t));
+    this.renderHeader(file, parsed, anchored, onChange, resolvedThreads.length);
 
     // `aitext` marks render no card (visual-only), so a file with only those
     // would otherwise leave an empty card list — show the empty state instead.
@@ -273,7 +279,10 @@ export class ReviewPanelView extends ItemView {
     // index); one card per non-comment node. A thread anchored on a change
     // renders inside that change's card; the numbering still counts it so it
     // matches the inline chips.
+    // Resolved threads keep their number (it matches the inline chip) but
+    // render in the folded section after the active cards.
     const seenThreads = new Set<number>();
+    const resolvedCards: Array<[Thread, number]> = [];
     let threadNumber = 0;
     for (let i = 0; i < parsed.nodes.length; i++) {
       const n = parsed.nodes[i];
@@ -282,7 +291,9 @@ export class ReviewPanelView extends ItemView {
         if (seenThreads.has(tIdx)) continue;
         seenThreads.add(tIdx);
         threadNumber++;
-        this.renderThreadCard(list, file, source, parsed, parsed.threads[tIdx], threadNumber);
+        const thread = parsed.threads[tIdx];
+        if (isResolved(parsed, thread)) resolvedCards.push([thread, threadNumber]);
+        else this.renderThreadCard(list, file, source, parsed, thread, threadNumber);
       } else if (isChangeNode(n)) {
         const tIdx = onChange.get(i);
         if (tIdx === undefined) {
@@ -297,6 +308,41 @@ export class ReviewPanelView extends ItemView {
         if (!anchored.has(i)) this.renderHighlightCard(list, file, source, n);
       }
     }
+
+    if (resolvedCards.length > 0) {
+      this.renderResolvedSection(list, file, source, parsed, resolvedCards);
+    }
+  }
+
+  /** "Resolved (n)" fold at the end of the list; open state persists across refreshes. */
+  private renderResolvedSection(
+    list: HTMLElement,
+    file: TFile,
+    source: string,
+    parsed: ParseResult,
+    cards: Array<[Thread, number]>,
+  ): void {
+    const section = list.createDiv({ cls: "tc-resolved-section" });
+    if (!this.showResolved) section.addClass("tc-resolved-section-folded");
+    const header = section.createDiv({ cls: "tc-resolved-header" });
+    const toggle = header.createEl("button", {
+      cls: "clickable-icon tc-icon-btn tc-resolved-toggle",
+      attr: { "aria-label": "Toggle resolved comments" },
+    });
+    setIcon(toggle, this.showResolved ? "chevron-down" : "chevron-right");
+    header.createSpan({
+      cls: "tc-resolved-title",
+      text: `Resolved (${cards.length})`,
+    });
+    header.addEventListener("click", () => {
+      this.showResolved = !this.showResolved;
+      section.toggleClass("tc-resolved-section-folded", !this.showResolved);
+      setIcon(toggle, this.showResolved ? "chevron-down" : "chevron-right");
+    });
+    const body = section.createDiv({ cls: "tc-resolved-body" });
+    for (const [thread, number] of cards) {
+      this.renderThreadCard(body, file, source, parsed, thread, number);
+    }
   }
 
   private renderHeader(
@@ -304,13 +350,14 @@ export class ReviewPanelView extends ItemView {
     parsed: ParseResult,
     anchored: Set<number>,
     onChange: Map<number, number>,
+    resolved: number,
   ): void {
     const header = this.contentEl.createDiv({ cls: "tc-header" });
     // The file name is the scope label: this panel is about one note, and
     // the vault-wide overview carries its own "Whole vault" label.
     header.createDiv({ cls: "tc-header-title tc-scope tc-scope-note", text: file.basename });
     const counts = {
-      threads: parsed.threads.length - onChange.size,
+      threads: parsed.threads.length - onChange.size - resolved,
       suggestions: parsed.nodes.filter(isChangeNode).length,
       highlights: parsed.nodes.filter(
         (n, i) => n.kind === "highlight" && !anchored.has(i),
@@ -322,6 +369,7 @@ export class ReviewPanelView extends ItemView {
     if (counts.highlights > 0) {
       parts.push(`${counts.highlights} ${counts.highlights === 1 ? "highlight" : "highlights"}`);
     }
+    if (resolved > 0) parts.push(`${resolved} resolved`);
     header.createDiv({ cls: "tc-header-counts", text: parts.join(" · ") });
   }
 
@@ -335,7 +383,9 @@ export class ReviewPanelView extends ItemView {
   ): void {
     const anchor =
       thread.anchorIndex !== null ? (parsed.nodes[thread.anchorIndex] as HighlightNode) : null;
+    const resolved = isResolved(parsed, thread);
     const card = list.createDiv({ cls: "tc-card tc-card-thread" });
+    if (resolved) card.addClass("tc-card-resolved");
     card.setAttr("data-tc-card-offset", String(thread.from));
     // Clicking the anchored span inline focuses this card, not a highlight card.
     if (anchor) card.setAttr("data-tc-card-anchor", String(anchor.from));
@@ -358,7 +408,14 @@ export class ReviewPanelView extends ItemView {
     });
 
     const root = parsed.nodes[thread.rootIndex] as CommentNode;
-    this.renderThreadHeader(card, source, thread, threadNumber, root, () => {
+    const onToggleResolved = (): void => {
+      // Render-time source: a drifted doc makes the prefix edit fail closed.
+      const edit = resolved
+        ? reopenThread(source, parsed, thread)
+        : resolveThread(source, parsed, thread, formatReplyDate(this.host.replyDateStyle()));
+      if (edit) void this.host.applyEdits(file, [edit]);
+    };
+    this.renderThreadHeader(card, source, thread, threadNumber, root, resolved, onToggleResolved, () => {
       void (async () => {
         const confirmed = await this.confirmDestructiveAction(
           "Delete thread",
@@ -381,9 +438,10 @@ export class ReviewPanelView extends ItemView {
       this.renderTextInto(quote, anchor.text);
     }
 
+    this.renderStatusRow(card, parsed, thread);
     this.renderMessages(card, file, parsed, thread, anchor);
     this.renderComposer(card, file, "Reply…", "Reply", this.replyDrafts, thread.from, (text) =>
-      appendReply(
+      replyEdits(
         this.currentSource,
         thread,
         parsed,
@@ -392,6 +450,27 @@ export class ReviewPanelView extends ItemView {
         this.host.replyDateStyle(),
       ),
     );
+  }
+
+  /**
+   * "Resolved <stamp>" and "Acknowledged by <name> <stamp>" badges. Nothing is
+   * rendered for a thread carrying neither flag.
+   */
+  private renderStatusRow(card: HTMLElement, parsed: ParseResult, thread: Thread): void {
+    const status = threadStatus(parsed, thread);
+    if (status.resolved === null && status.acknowledged === null) return;
+    const row = card.createDiv({ cls: "tc-thread-status" });
+    if (status.resolved !== null && thread.changeIndex === null) {
+      const badge = row.createSpan({ cls: "tc-status-badge tc-status-resolved" });
+      setIcon(badge.createSpan({ cls: "tc-status-icon" }), "check-circle");
+      badge.appendText(`Resolved ${status.resolved}`);
+    }
+    if (status.acknowledged !== null) {
+      const badge = row.createSpan({ cls: "tc-status-badge tc-status-acknowledged" });
+      setIcon(badge.createSpan({ cls: "tc-status-icon" }), "eye");
+      const who = status.acknowledgedBy ? ` by ${status.acknowledgedBy}` : "";
+      badge.appendText(`Acknowledged${who} ${status.acknowledged}`);
+    }
   }
 
   /**
@@ -456,7 +535,7 @@ export class ReviewPanelView extends ItemView {
     submitText: string,
     drafts: Map<number, string>,
     key: number,
-    buildEdit: (text: string) => SourceEdit,
+    buildEdits: (text: string) => SourceEdit[],
   ): HTMLElement {
     const box = parent.createDiv({ cls: "tc-reply" });
     const ta = box.createEl("textarea", {
@@ -482,7 +561,7 @@ export class ReviewPanelView extends ItemView {
         return;
       }
       drafts.delete(key);
-      await this.host.applyEdits(file, [buildEdit(text)]);
+      await this.host.applyEdits(file, buildEdits(text));
     };
     const actions = box.createDiv({ cls: "tc-reply-actions" });
     const submitBtn = actions.createEl("button", { cls: "tc-btn-primary", text: submitText });
@@ -536,9 +615,9 @@ export class ReviewPanelView extends ItemView {
     this.iconButton(actions, "x", "Reject", () => void resolve("reject"), "tc-icon-reject");
     let commentBox: HTMLElement | null = null;
     const openCommentBox = (): HTMLElement =>
-      this.renderComposer(card, file, "Comment…", "Comment", this.commentDrafts, n.from, (text) =>
+      this.renderComposer(card, file, "Comment…", "Comment", this.commentDrafts, n.from, (text) => [
         appendComment(source, n, text, this.host.localAuthorName(), this.host.replyDateStyle()),
-      );
+      ]);
     if (!thread) {
       this.iconButton(
         actions,
@@ -563,9 +642,10 @@ export class ReviewPanelView extends ItemView {
     this.renderDiff(card, n);
 
     if (thread) {
+      this.renderStatusRow(card, parsed, thread);
       this.renderMessages(card, file, parsed, thread, null);
       this.renderComposer(card, file, "Reply…", "Reply", this.replyDrafts, thread.from, (text) =>
-        appendReply(
+        replyEdits(
           this.currentSource,
           thread,
           parsed,
@@ -699,6 +779,8 @@ export class ReviewPanelView extends ItemView {
     thread: Thread,
     threadNumber: number,
     root: CommentNode,
+    resolved: boolean,
+    onToggleResolved: () => void,
     onDelete: () => void,
   ): void {
     const header = card.createDiv({ cls: "tc-thread-header" });
@@ -718,6 +800,11 @@ export class ReviewPanelView extends ItemView {
     }
 
     const actions = header.createDiv({ cls: "tc-card-actions" });
+    if (resolved) {
+      this.iconButton(actions, "rotate-ccw", "Reopen thread", onToggleResolved, "tc-icon-neutral");
+    } else {
+      this.iconButton(actions, "check-circle", "Mark resolved", onToggleResolved, "tc-icon-accept");
+    }
     this.iconButton(actions, "trash-2", "Delete thread", onDelete);
 
     const toggle = header.createEl("button", {

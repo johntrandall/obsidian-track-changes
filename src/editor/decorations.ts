@@ -8,6 +8,7 @@ import { RangeSetBuilder, StateField, type EditorState, type Extension } from "@
 import { editorLivePreviewField } from "obsidian";
 
 import { parse, type CriticNode, type CommentNode, type Thread } from "../parser";
+import { isResolved } from "../resolution";
 import { authorHueIndex } from "../authors";
 import { diffChars } from "../diff";
 
@@ -65,6 +66,7 @@ class ThreadChipWidget extends WidgetType {
     readonly offset: number,
     readonly tooltip: string,
     readonly onClick: (offset: number) => void,
+    readonly resolved = false,
   ) {
     super();
   }
@@ -75,13 +77,16 @@ class ThreadChipWidget extends WidgetType {
       other.count === this.count &&
       other.authorName === this.authorName &&
       other.offset === this.offset &&
-      other.tooltip === this.tooltip
+      other.tooltip === this.tooltip &&
+      other.resolved === this.resolved
     );
   }
 
   toDOM(): HTMLElement {
     const chip = createSpan();
     chip.className = `tc-chip tc-chip-${this.authorName ? "named" : "you"}`;
+    // A resolved thread stays a chip (it is still in the note) but fades.
+    if (this.resolved) chip.addClass("tc-chip-resolved");
     chip.setAttr("data-tc-offset", String(this.offset));
     if (this.authorName) {
       chip.setAttr("data-author-hue", String(authorHueIndex(this.authorName)));
@@ -254,6 +259,7 @@ function buildDecorations(state: EditorState, callbacks: DecorationCallbacks): D
         t.from,
         threadTooltip(t, parsed.nodes, localAuthor),
         callbacks.onOpenPanel,
+        isResolved(parsed, t),
       );
       builder.add(
         t.from,

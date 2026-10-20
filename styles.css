@@ -754,3 +754,70 @@ body {
   gap: 8px;
   margin-top: 12px;
 }
+
+/* ---- Resolved threads: kept in the note, out of the queue ---- */
+.tc-chip-resolved {
+  opacity: 0.45;
+  filter: saturate(0.4);
+}
+.tc-chip-resolved:hover {
+  opacity: 0.8;
+}
+.tc-card-resolved {
+  opacity: 0.7;
+}
+.tc-card-resolved:hover {
+  opacity: 1;
+}
+.tc-thread-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tc-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75em;
+  border-radius: 8px;
+  padding: 1px 8px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  background: var(--background-modifier-border);
+}
+.tc-status-icon {
+  display: inline-flex;
+}
+.tc-status-icon svg {
+  width: 12px;
+  height: 12px;
+}
+.tc-status-resolved {
+  color: var(--text-success, var(--text-muted));
+}
+.tc-resolved-section {
+  margin-top: 8px;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 6px;
+}
+.tc-resolved-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.85em;
+  user-select: none;
+}
+.tc-resolved-header:hover {
+  color: var(--text-normal);
+}
+.tc-resolved-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.tc-resolved-section-folded .tc-resolved-body {
+  display: none;
+}

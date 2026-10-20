@@ -11,6 +11,7 @@
 
 import type { CriticNode, Thread, ParseResult, CommentNode, ChangeNode } from "./parser";
 import { isChangeNode } from "./parser";
+import { clearStatus, isResolved, reopenThread, resolveThread } from "./resolution";
 
 export interface SourceEdit {
   from: number;
@@ -212,7 +213,13 @@ export function resolveChange(
   ];
 }
 
-export type CursorAction = "accept" | "reject" | "remove-highlight" | "delete-comment";
+export type CursorAction =
+  | "accept"
+  | "reject"
+  | "remove-highlight"
+  | "delete-comment"
+  | "resolve-thread"
+  | "reopen-thread";
 
 function indexOfKindAt(nodes: CriticNode[], offset: number, kind: CriticNode["kind"]): number {
   return nodes.findIndex((n) => n.kind === kind && n.from <= offset && offset <= n.to);
@@ -223,13 +230,14 @@ function indexOfKindAt(nodes: CriticNode[], offset: number, kind: CriticNode["ki
  * text explaining why there are none. Mirrors the panel: an anchor highlight
  * is part of its thread's card, deleting a thread's only message takes an
  * anchor highlight (never a change) with it, and resolving a change takes its
- * thread with it.
+ * thread with it. `stamp` is the date written by "resolve-thread".
  */
 export function editsAtCursor(
   source: string,
   parsed: ParseResult,
   offset: number,
   action: CursorAction,
+  stamp = "",
 ): SourceEdit[] | string {
   switch (action) {
     case "accept":
@@ -255,6 +263,23 @@ export function editsAtCursor(
         edits.unshift(removeHighlight(parsed.nodes[thread.anchorIndex]));
       }
       return edits;
+    }
+    case "resolve-thread":
+    case "reopen-thread": {
+      const i = indexOfKindAt(parsed.nodes, offset, "comment");
+      if (i === -1) return "No comment at cursor.";
+      const thread = parsed.threads[parsed.nodeThread[i]];
+      if (thread.changeIndex !== null) {
+        return "This thread belongs to a suggestion; accept or reject the suggestion instead.";
+      }
+      if (action === "resolve-thread") {
+        if (isResolved(parsed, thread)) return "This thread is already resolved.";
+        const edit = resolveThread(source, parsed, thread, stamp);
+        return edit ? [edit] : "This thread is already resolved.";
+      }
+      if (!isResolved(parsed, thread)) return "This thread is not resolved.";
+      const edit = reopenThread(source, parsed, thread);
+      return edit ? [edit] : "This thread is not resolved.";
     }
   }
 }
@@ -310,7 +335,7 @@ export type ReplyDateStyle = "date" | "datetime";
 // UTC ISO. The bare "date" form has no zone marker, so it reflects the user's
 // local calendar day — UTC would read a day ahead in negative-offset zones near
 // midnight. "datetime" keeps Z because it carries an explicit zone.
-function formatReplyDate(style: ReplyDateStyle, now: Date = new Date()): string {
+export function formatReplyDate(style: ReplyDateStyle, now: Date = new Date()): string {
   if (style === "datetime") {
     return `${now.toISOString().slice(0, 19)}Z`;
   }
@@ -371,6 +396,24 @@ export function appendReply(
     expected: "",
     before: last.raw,
   };
+}
+
+/**
+ * A reply plus the edit that reopens the thread: a new message means neither
+ * the user's `resolved` nor an agent's `acknowledged` flag still holds. The
+ * prefix edit precedes the insertion, so the pair never overlaps.
+ */
+export function replyEdits(
+  source: string,
+  thread: Thread,
+  parsed: ParseResult,
+  text: string,
+  localAuthorName = "",
+  dateStyle: ReplyDateStyle = "date",
+): SourceEdit[] {
+  const reply = appendReply(source, thread, parsed, text, localAuthorName, dateStyle);
+  const reopen = clearStatus(source, parsed, thread);
+  return reopen ? [reopen, reply] : [reply];
 }
 
 const COMMENT_ANCHOR_CONTEXT = 40;
