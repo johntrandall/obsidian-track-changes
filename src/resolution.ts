@@ -60,6 +60,26 @@ export function resolvedThreadIndexes(parsed: ParseResult): Set<number> {
   return out;
 }
 
+/**
+ * A lone highlight (never a thread anchor: that one follows its thread) the
+ * user has resolved: `resolved=` in its own prefix. Hidden like a resolved
+ * thread (John, 2026-10-20).
+ */
+export function isResolvedHighlight(parsed: ParseResult, index: number): boolean {
+  const n = parsed.nodes[index];
+  if (!n || n.kind !== "highlight" || !(RESOLVED_KEY in n.metaAttrs)) return false;
+  return !parsed.threads.some((t) => t.anchorIndex === index);
+}
+
+/** Node indexes of resolved lone highlights (see `isResolvedHighlight`). */
+export function resolvedHighlightIndexes(parsed: ParseResult): Set<number> {
+  const out = new Set<number>();
+  parsed.nodes.forEach((_, i) => {
+    if (isResolvedHighlight(parsed, i)) out.add(i);
+  });
+  return out;
+}
+
 const PAIR_RE = /([A-Za-z][\w-]*)="([^"{}\n]*)"/g;
 const PREFIX_ANCHOR_CONTEXT = 40;
 
@@ -146,6 +166,16 @@ export function resolveThread(
 /** Clear the user's `resolved` flag. The agent's acknowledgement stays: it records a fact. */
 export function reopenThread(source: string, parsed: ParseResult, thread: Thread): SourceEdit | null {
   return setPrefixAttrs(source, threadRoot(parsed, thread), { [RESOLVED_KEY]: null });
+}
+
+/** Mark a highlight resolved for the user. */
+export function resolveHighlight(source: string, node: CriticNode, stamp: string): SourceEdit | null {
+  return setPrefixAttrs(source, node, { [RESOLVED_KEY]: stamp });
+}
+
+/** Clear a highlight's `resolved` flag. */
+export function reopenHighlight(source: string, node: CriticNode): SourceEdit | null {
+  return setPrefixAttrs(source, node, { [RESOLVED_KEY]: null });
 }
 
 /**

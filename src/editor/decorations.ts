@@ -8,7 +8,7 @@ import { RangeSetBuilder, StateField, type EditorState, type Extension } from "@
 import { editorLivePreviewField } from "obsidian";
 
 import { parse, type CriticNode, type CommentNode, type Thread } from "../parser";
-import { isResolved } from "../resolution";
+import { isResolved, isResolvedHighlight } from "../resolution";
 import { authorHueIndex } from "../authors";
 import { diffChars } from "../diff";
 
@@ -199,7 +199,10 @@ function buildDecorations(state: EditorState, callbacks: DecorationCallbacks): D
       } else if (n.kind === "deletion") {
         builder.add(n.innerFrom, n.innerTo, Decoration.mark({ class: "tc-deletion", attributes: authorAttrs() }));
       } else if (n.kind === "highlight") {
-        builder.add(n.innerFrom, n.innerTo, Decoration.mark({ class: "tc-highlight", attributes: authorAttrs() }));
+        builder.add(n.innerFrom, n.innerTo, Decoration.mark({
+          class: isResolvedHighlight(parsed, parsed.nodes.indexOf(n)) ? "tc-highlight tc-highlight-resolved" : "tc-highlight",
+          attributes: authorAttrs(),
+        }));
       } else if (n.kind === "aitext") {
         // Visual-only mark: tint the body, no author hue (rainbow replaces it).
         builder.add(n.innerFrom, n.innerTo, Decoration.mark({ class: "tc-aitext", attributes: { title: tip } }));
@@ -398,7 +401,9 @@ function buildDecorations(state: EditorState, callbacks: DecorationCallbacks): D
         innerFrom,
         innerTo,
         Decoration.mark({
-          class: "tc-highlight",
+          class: isResolvedHighlight(parsed, parsed.nodes.indexOf(n))
+            ? "tc-highlight tc-highlight-resolved"
+            : "tc-highlight",
           attributes: markAttrs(n, localAuthor),
         }),
       );

@@ -244,7 +244,7 @@ test("resolve-thread / reopen-thread at the cursor mirror the panel", () => {
   assert.equal(editsAtCursor(out, r2, 4, "resolve-thread", "2026-10-20"), "This thread is already resolved.");
   assert.equal(applyEdits(out, editsAtCursor(out, r2, 4, "reopen-thread")), src);
   assert.equal(editsAtCursor(src, r, 4, "reopen-thread"), "This thread is not resolved.");
-  assert.equal(editsAtCursor(src, r, 0, "resolve-thread", "2026-10-20"), "No comment at cursor.");
+  assert.equal(editsAtCursor(src, r, 0, "resolve-thread", "2026-10-20"), "No comment or highlight at cursor.");
 });
 
 test("resolve-thread refuses a thread anchored on a suggestion", () => {
@@ -254,6 +254,42 @@ test("resolve-thread refuses a thread anchored on a suggestion", () => {
     editsAtCursor(src, r, 12, "resolve-thread", "2026-10-20"),
     "This thread belongs to a suggestion; accept or reject the suggestion instead.",
   );
+});
+
+// ---- resolved highlights ----
+
+const { isResolvedHighlight, resolvedHighlightIndexes, resolveHighlight, reopenHighlight } =
+  await loadTs("../src/resolution.ts");
+
+test("a lone highlight with resolved= is resolved; an anchor never is", () => {
+  const src = 'a {resolved="2026-10-20"==lone==} b {resolved="2026-10-20"==anchor==}{>>c<<} d {==open==}';
+  const r = parse(src);
+  assert.equal(isResolvedHighlight(r, 0), true);
+  assert.equal(isResolvedHighlight(r, 1), false);
+  assert.equal(isResolvedHighlight(r, 3), false);
+  assert.deepEqual([...resolvedHighlightIndexes(r)], [0]);
+  assert.deepEqual(summarizeSource(src), { suggestions: 0, comments: 1, highlights: 1 });
+});
+
+test("resolveHighlight / reopenHighlight write and clear the flag", () => {
+  const src = "x {==hl==} y";
+  const r = parse(src);
+  const out = applyEdits(src, [resolveHighlight(src, r.nodes[0], "2026-10-20")]);
+  assert.equal(out, 'x {resolved="2026-10-20"==hl==} y');
+  const r2 = parse(out);
+  assert.equal(applyEdits(out, [reopenHighlight(out, r2.nodes[0])]), src);
+  assert.equal(reopenHighlight(src, r.nodes[0]), null);
+});
+
+test("cursor resolve/reopen work on a lone highlight and refuse an anchor", () => {
+  const src = "x {==hl==} y {==a==}{>>c<<}";
+  const r = parse(src);
+  const out = applyEdits(src, editsAtCursor(src, r, 4, "resolve-thread", "2026-10-20"));
+  assert.equal(out, 'x {resolved="2026-10-20"==hl==} y {==a==}{>>c<<}');
+  assert.equal(editsAtCursor(out, parse(out), 4, "resolve-thread", "2026-10-20"), "This highlight is already resolved.");
+  assert.equal(applyEdits(out, editsAtCursor(out, parse(out), 4, "reopen-thread")), src);
+  assert.equal(editsAtCursor(src, r, 15, "resolve-thread", "2026-10-20"), "This highlight belongs to a comment thread; resolve the thread.");
+  assert.equal(editsAtCursor(src, r, 0, "resolve-thread", "2026-10-20"), "No comment or highlight at cursor.");
 });
 
 if (failed > 0) {

@@ -92,6 +92,7 @@ A thread can be *done* for one party and still open for the other. Two independe
 - **Treat `resolved=` as information, not a reason to skip.** The user being done does not mean you are: a resolved thread you have not acknowledged still wants your pass. Once acknowledged and resolved, leave it alone; it is the record.
 - A thread anchored on a suggestion (`{++x++}{>>why<<}`) is never resolved by a flag while the suggestion is pending; when the user accepts or rejects it, the thread stays in the note as a resolved record. You may still acknowledge it. **A thread the user resolved is read-only for you**: never edit or remove its comments; a reply reopens it.
 - The stamp follows the `date` rules: `YYYY-MM-DD` or a `Z` timestamp, omitted-rather-than-guessed if you have no clock; `acknowledged="true"` is accepted if you truly cannot date it.
+- A lone `{==highlight==}` can carry `resolved=` too (the user's flag on it); treat it like a resolved thread: leave it alone.
 - Finalize strips the whole comment, flags included, like any other.
 
 ## Human-authored marks

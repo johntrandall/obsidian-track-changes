@@ -102,15 +102,15 @@ const CURSOR_COMMANDS: ReadonlyArray<{
   },
   {
     id: "resolve-thread-at-cursor",
-    name: "Mark comment thread at cursor resolved",
+    name: "Mark comment thread or highlight at cursor resolved",
     menuTitle: "Mark resolved",
     action: "resolve-thread",
     icon: "check-circle",
   },
   {
     id: "reopen-thread-at-cursor",
-    name: "Reopen comment thread at cursor",
-    menuTitle: "Reopen thread",
+    name: "Reopen comment thread or highlight at cursor",
+    menuTitle: "Reopen",
     action: "reopen-thread",
     icon: "rotate-ccw",
   },
