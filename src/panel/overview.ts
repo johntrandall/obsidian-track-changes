@@ -40,7 +40,7 @@ export class PendingOverviewView extends ItemView {
     return OVERVIEW_VIEW_TYPE;
   }
   getDisplayText(): string {
-    return "Pending changes";
+    return "Pending changes (whole vault)";
   }
   getIcon(): string {
     return "list-checks";
@@ -77,6 +77,7 @@ export class PendingOverviewView extends ItemView {
     const header = el.createDiv({ cls: "tc-header tc-overview-header" });
     const titleRow = header.createDiv({ cls: "tc-overview-title-row" });
     titleRow.createDiv({ cls: "tc-header-title", text: "Pending changes" });
+    titleRow.createSpan({ cls: "tc-scope tc-scope-vault", text: "Whole vault" });
     const rescan = titleRow.createEl("button", {
       cls: "clickable-icon tc-icon-btn tc-overview-rescan",
       attr: { "aria-label": "Rescan vault" },

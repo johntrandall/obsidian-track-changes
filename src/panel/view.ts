@@ -306,6 +306,7 @@ export class ReviewPanelView extends ItemView {
     onChange: Map<number, number>,
   ): void {
     const header = this.contentEl.createDiv({ cls: "tc-header" });
+    header.createSpan({ cls: "tc-scope tc-scope-note", text: "This note" });
     header.createDiv({ cls: "tc-header-title", text: file.basename });
     const counts = {
       threads: parsed.threads.length - onChange.size,
