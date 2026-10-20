@@ -23,6 +23,7 @@ import {
   applyEdits,
   rebaseEdits,
   buildAttributionPrefix,
+  formatReplyDate,
   editsAtCursor,
   type CursorAction,
   type SourceEdit,
@@ -93,6 +94,20 @@ const CURSOR_COMMANDS: ReadonlyArray<{
     menuTitle: "Delete comment",
     action: "delete-comment",
     icon: "trash-2",
+  },
+  {
+    id: "resolve-thread-at-cursor",
+    name: "Mark comment thread at cursor resolved",
+    menuTitle: "Mark resolved",
+    action: "resolve-thread",
+    icon: "check-circle",
+  },
+  {
+    id: "reopen-thread-at-cursor",
+    name: "Reopen comment thread at cursor",
+    menuTitle: "Reopen thread",
+    action: "reopen-thread",
+    icon: "rotate-ccw",
   },
 ];
 
@@ -209,7 +224,9 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
         const ctx = this.cursorContext(editor);
         if (typeof ctx === "string") return;
         const items: { title: string; icon: string; run: () => void }[] = CURSOR_COMMANDS.filter(
-          (c) => typeof editsAtCursor(ctx.source, ctx.parsed, ctx.offset, c.action) !== "string",
+          (c) =>
+            typeof editsAtCursor(ctx.source, ctx.parsed, ctx.offset, c.action, this.stamp()) !==
+            "string",
         ).map((c) => ({
           title: c.menuTitle,
           icon: c.icon,
@@ -608,6 +625,11 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
 
   // ---- actions at cursor (issue #44) ----
 
+  /** The date stamp written when a thread is marked resolved from the editor. */
+  private stamp(): string {
+    return formatReplyDate(this.settings.replyDateStyle);
+  }
+
   private cursorContext(
     editor: Editor,
   ): { source: string; parsed: ParseResult; offset: number } | string {
@@ -630,7 +652,9 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
   ): Promise<void> {
     const ctx = this.cursorContext(editor);
     const edits =
-      typeof ctx === "string" ? ctx : editsAtCursor(ctx.source, ctx.parsed, ctx.offset, action);
+      typeof ctx === "string"
+        ? ctx
+        : editsAtCursor(ctx.source, ctx.parsed, ctx.offset, action, this.stamp());
     if (typeof edits === "string") {
       new Notice(edits);
       return;

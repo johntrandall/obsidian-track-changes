@@ -70,11 +70,29 @@ Adjacent `{>>...<<}` blocks (no blank line between, same paragraph) form one thr
 When asked to "process replies" or "address my comments", make a pass and act only on threads the user has actually replied to. A comment with no reply is still waiting on them — leave it alone. A thread on a suggestion the user replied to counts like any other.
 
 - `{>>ignore<<}` / `{>>won't fix<<}` → leave the thread in place; it documents the decision.
-- `{>>done<<}` → verify the surrounding text actually addresses your comment. If yes, delete the whole thread. If not, push back with a new `{author="Claude">>follow-up<<}` adjacent to the thread.
+- `{>>done<<}` → verify the surrounding text actually addresses your comment. If yes, **acknowledge** the thread (below) rather than deleting it, so the record stays. If not, push back with a new `{author="Claude">>follow-up<<}` adjacent to the thread.
 - `{>>expand<<}` or any question → add an adjacent `{author="Claude">>answer<<}`.
 - Counter-argument → engage: concede (delete the thread; if it's anchored on your suggestion, withdraw the suggestion too — restore `old` for `~~old~>new~~` or `x` for `--x--`, drop `++x++`) or push back (new adjacent comment).
 
-Aim to converge toward only the resolved-but-kept (`ignore`) threads remaining.
+Aim to converge toward only acknowledged and resolved threads remaining.
+
+## Resolution flags: done without deleting
+
+A thread can be *done* for one party and still open for the other. Two independent flags live in the **root comment's prefix** (never on a reply); the body and the other pairs stay as they are:
+
+| Flag | Written by | Meaning | Who filters on it |
+|---|---|---|---|
+| `resolved="<stamp>"` | the user, through the plugin | the user has dealt with this thread | the plugin: hides the thread in the panel, drops it from the pending counts |
+| `acknowledged="<stamp>" acknowledged-by="<your name>"` | you | you have received and processed this thread | you: skip threads you already acknowledged |
+
+- **To acknowledge a thread** you have processed (a `done` you verified, a question you answered, a decision you recorded), add `acknowledged="<stamp>" acknowledged-by="Claude"` to the root comment's prefix: `{author="John" date="2026-10-20">>Tighten this<<}` becomes `{author="John" date="2026-10-20" acknowledged="2026-10-20" acknowledged-by="Claude">>Tighten this<<}`. The user sees an *Acknowledged by Claude* badge on the card and knows it landed. Rewrite only the prefix; leave the body, the replies and the anchor untouched.
+- **Never write `resolved=`.** That is the user's flag. Never remove it either, except as part of a reply (next point).
+- **A reply reopens the thread for everyone:** when you add a reply to a thread, remove both `resolved` and `acknowledged`/`acknowledged-by` from the root. The plugin does the same when the user replies, so a thread you acknowledged that later shows no `acknowledged=` has new discussion on it.
+- **Skip threads you already acknowledged** when processing replies, unless they carry a reply newer than your acknowledgement (which, by the previous rule, will have cleared the flag).
+- **Treat `resolved=` as information, not a reason to skip.** The user being done does not mean you are: a resolved thread you have not acknowledged still wants your pass. Once acknowledged and resolved, leave it alone; it is the record.
+- A thread anchored on a suggestion (`{++x++}{>>why<<}`) is never resolved by a flag: accept or reject the suggestion, which removes the thread. You may still acknowledge it.
+- The stamp follows the `date` rules: `YYYY-MM-DD` or a `Z` timestamp, omitted-rather-than-guessed if you have no clock; `acknowledged="true"` is accepted if you truly cannot date it.
+- Finalize strips the whole comment, flags included, like any other.
 
 ## Human-authored marks
 

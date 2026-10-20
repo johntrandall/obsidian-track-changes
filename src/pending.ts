@@ -6,14 +6,16 @@
 // The counts mirror the review panel's header exactly (same parse, same
 // anchor rules): a thread anchored on a change is part of that suggestion,
 // not a comment of its own; a highlight anchoring a thread is part of the
-// thread; `aitext` marks are visual-only and never count.
+// thread; `aitext` marks are visual-only and never count; a thread the user
+// has resolved (`resolved=` on its root) is kept in the note but not pending.
 
 import { anchorNodeIndexes, changeThreads, isChangeNode, parse } from "./parser";
+import { resolvedThreadIndexes } from "./resolution";
 
 export interface FileSummary {
   /** Additions, deletions and substitutions awaiting accept/reject. */
   suggestions: number;
-  /** Comment threads not anchored on a suggestion. */
+  /** Comment threads not anchored on a suggestion and not resolved by the user. */
   comments: number;
   /** Highlights that are not a thread's anchor. */
   highlights: number;
@@ -48,7 +50,7 @@ export function summarizeSource(source: string): FileSummary {
   });
   return {
     suggestions,
-    comments: parsed.threads.length - onChange.size,
+    comments: parsed.threads.length - onChange.size - resolvedThreadIndexes(parsed).size,
     highlights,
   };
 }
