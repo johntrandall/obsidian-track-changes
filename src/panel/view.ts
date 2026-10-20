@@ -48,7 +48,15 @@ import {
   type SourceEdit,
   type ReplyDateStyle,
 } from "../operations";
-import { isResolved, reopenThread, resolveThread, threadStatus } from "../resolution";
+import {
+  isResolved,
+  isResolvedHighlight,
+  reopenHighlight,
+  reopenThread,
+  resolveHighlight,
+  resolveThread,
+  threadStatus,
+} from "../resolution";
 
 export const REVIEW_VIEW_TYPE = "tc-review-panel";
 
@@ -263,7 +271,8 @@ export class ReviewPanelView extends ItemView {
     const anchored = anchorNodeIndexes(parsed);
     const onChange = changeThreads(parsed);
     const resolvedThreads = parsed.threads.filter((t) => isResolved(parsed, t));
-    this.renderHeader(file, parsed, anchored, onChange, resolvedThreads.length);
+    const resolvedHighlights = parsed.nodes.filter((_, i) => isResolvedHighlight(parsed, i)).length;
+    this.renderHeader(file, parsed, anchored, onChange, resolvedThreads.length + resolvedHighlights);
 
     // `aitext` marks render no card (visual-only), so a file with only those
     // would otherwise leave an empty card list — show the empty state instead.
@@ -284,7 +293,8 @@ export class ReviewPanelView extends ItemView {
     // Resolved threads keep their number (it matches the inline chip) but
     // render in the folded section after the active cards.
     const seenThreads = new Set<number>();
-    const resolvedCards: Array<[Thread, number]> = [];
+    // Resolved threads and highlights render in the folded section, in document order.
+    const resolvedCards: Array<(parent: HTMLElement) => void> = [];
     let threadNumber = 0;
     for (let i = 0; i < parsed.nodes.length; i++) {
       const n = parsed.nodes[i];
@@ -294,8 +304,10 @@ export class ReviewPanelView extends ItemView {
         seenThreads.add(tIdx);
         threadNumber++;
         const thread = parsed.threads[tIdx];
-        if (isResolved(parsed, thread)) resolvedCards.push([thread, threadNumber]);
-        else this.renderThreadCard(list, file, source, parsed, thread, threadNumber);
+        const num = threadNumber;
+        if (isResolved(parsed, thread)) {
+          resolvedCards.push((parent) => this.renderThreadCard(parent, file, source, parsed, thread, num));
+        } else this.renderThreadCard(list, file, source, parsed, thread, threadNumber);
       } else if (isChangeNode(n)) {
         const tIdx = onChange.get(i);
         if (tIdx === undefined) {
@@ -307,7 +319,10 @@ export class ReviewPanelView extends ItemView {
         }
       } else if (n.kind === "highlight") {
         // An anchored highlight is rendered by its thread's card.
-        if (!anchored.has(i)) this.renderHighlightCard(list, file, source, n);
+        if (anchored.has(i)) continue;
+        if (isResolvedHighlight(parsed, i)) {
+          resolvedCards.push((parent) => this.renderHighlightCard(parent, file, source, n, true));
+        } else this.renderHighlightCard(list, file, source, n, false);
       }
     }
 
@@ -322,7 +337,7 @@ export class ReviewPanelView extends ItemView {
     file: TFile,
     source: string,
     parsed: ParseResult,
-    cards: Array<[Thread, number]>,
+    cards: Array<(parent: HTMLElement) => void>,
   ): void {
     const section = list.createDiv({ cls: "tc-resolved-section" });
     if (!this.showResolved) section.addClass("tc-resolved-section-folded");
@@ -342,9 +357,7 @@ export class ReviewPanelView extends ItemView {
       setIcon(toggle, this.showResolved ? "chevron-down" : "chevron-right");
     });
     const body = section.createDiv({ cls: "tc-resolved-body" });
-    for (const [thread, number] of cards) {
-      this.renderThreadCard(body, file, source, parsed, thread, number);
-    }
+    for (const render of cards) render(body);
   }
 
   private renderHeader(
@@ -362,7 +375,7 @@ export class ReviewPanelView extends ItemView {
       threads: parsed.threads.length - onChange.size - resolved,
       suggestions: parsed.nodes.filter(isChangeNode).length,
       highlights: parsed.nodes.filter(
-        (n, i) => n.kind === "highlight" && !anchored.has(i),
+        (n, i) => n.kind === "highlight" && !anchored.has(i) && !isResolvedHighlight(parsed, i),
       ).length,
     };
     const parts: string[] = [];
@@ -739,8 +752,10 @@ export class ReviewPanelView extends ItemView {
     file: TFile,
     source: string,
     n: HighlightNode,
+    resolved: boolean,
   ): void {
     const card = list.createDiv({ cls: "tc-card tc-card-highlight" });
+    if (resolved) card.addClass("tc-card-resolved");
     card.setAttr("data-tc-card-offset", String(n.from));
     const isCollapsed = this.collapsedCards.has(n.from);
     if (isCollapsed) card.addClass("tc-card-collapsed");
@@ -764,6 +779,17 @@ export class ReviewPanelView extends ItemView {
     }
     header.createDiv({ cls: "tc-line-ref", text: `Highlight · Line ${line}` });
     const actions = header.createDiv({ cls: "tc-card-actions" });
+    if (resolved) {
+      this.iconButton(actions, "rotate-ccw", "Reopen highlight", () => {
+        const edit = reopenHighlight(source, n);
+        if (edit) void this.host.applyEdits(file, [edit]);
+      }, "tc-icon-neutral");
+    } else {
+      this.iconButton(actions, "check-circle", "Mark resolved", () => {
+        const edit = resolveHighlight(source, n, formatReplyDate(this.host.replyDateStyle()));
+        if (edit) void this.host.applyEdits(file, [edit]);
+      }, "tc-icon-accept");
+    }
     this.iconButton(actions, "eraser", "Remove highlight", () => {
       void this.host.applyEdits(file, [removeHighlight(n)]);
     });
@@ -782,6 +808,12 @@ export class ReviewPanelView extends ItemView {
     preview.setText(previewText || "(empty)");
 
     const body = card.createDiv({ cls: "tc-card-body" });
+    if (resolved) {
+      const row = body.createDiv({ cls: "tc-thread-status" });
+      const badge = row.createSpan({ cls: "tc-status-badge tc-status-resolved" });
+      setIcon(badge.createSpan({ cls: "tc-status-icon" }), "check-circle");
+      badge.appendText(`Resolved ${n.metaAttrs.resolved ?? ""}`.trim());
+    }
     this.renderMetaRow(body, card, n.metaAuthor, null, n.metaDate, "tc-card-meta");
     const diff = body.createDiv({ cls: "tc-diff" });
     const diffBody = diff.createDiv({ cls: "tc-diff-highlight" });

@@ -11,7 +11,16 @@
 
 import type { CriticNode, Thread, ParseResult, CommentNode, ChangeNode } from "./parser";
 import { isChangeNode } from "./parser";
-import { clearStatus, isResolved, reopenThread, resolveThread, threadStatus } from "./resolution";
+import {
+  clearStatus,
+  isResolved,
+  isResolvedHighlight,
+  reopenHighlight,
+  reopenThread,
+  resolveHighlight,
+  resolveThread,
+  threadStatus,
+} from "./resolution";
 
 export interface SourceEdit {
   from: number;
@@ -319,7 +328,23 @@ export function editsAtCursor(
     case "resolve-thread":
     case "reopen-thread": {
       const i = indexOfKindAt(parsed.nodes, offset, "comment");
-      if (i === -1) return "No comment at cursor.";
+      if (i === -1) {
+        // A lone highlight resolves the same way; an anchor follows its thread.
+        const h = indexOfKindAt(parsed.nodes, offset, "highlight");
+        if (h === -1) return "No comment or highlight at cursor.";
+        if (parsed.threads.some((t) => t.anchorIndex === h)) {
+          return "This highlight belongs to a comment thread; resolve the thread.";
+        }
+        const resolved = isResolvedHighlight(parsed, h);
+        if (action === "resolve-thread") {
+          if (resolved) return "This highlight is already resolved.";
+          const edit = resolveHighlight(source, parsed.nodes[h], stamp);
+          return edit ? [edit] : "This highlight is already resolved.";
+        }
+        if (!resolved) return "This highlight is not resolved.";
+        const edit = reopenHighlight(source, parsed.nodes[h]);
+        return edit ? [edit] : "This highlight is not resolved.";
+      }
       const thread = parsed.threads[parsed.nodeThread[i]];
       if (thread.changeIndex !== null) {
         return "This thread belongs to a suggestion; accept or reject the suggestion instead.";

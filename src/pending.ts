@@ -10,14 +10,14 @@
 // has resolved (`resolved=` on its root) is kept in the note but not pending.
 
 import { anchorNodeIndexes, changeThreads, isChangeNode, parse } from "./parser";
-import { resolvedThreadIndexes } from "./resolution";
+import { resolvedHighlightIndexes, resolvedThreadIndexes } from "./resolution";
 
 export interface FileSummary {
   /** Additions, deletions and substitutions awaiting accept/reject. */
   suggestions: number;
   /** Comment threads not anchored on a suggestion and not resolved by the user. */
   comments: number;
-  /** Highlights that are not a thread's anchor. */
+  /** Highlights that are not a thread's anchor and not resolved by the user. */
   highlights: number;
 }
 
@@ -42,11 +42,12 @@ export function summarizeSource(source: string): FileSummary {
   if (parsed.nodes.length === 0) return { ...EMPTY_SUMMARY };
   const anchored = anchorNodeIndexes(parsed);
   const onChange = changeThreads(parsed);
+  const resolvedHl = resolvedHighlightIndexes(parsed);
   let suggestions = 0;
   let highlights = 0;
   parsed.nodes.forEach((n, i) => {
     if (isChangeNode(n)) suggestions++;
-    else if (n.kind === "highlight" && !anchored.has(i)) highlights++;
+    else if (n.kind === "highlight" && !anchored.has(i) && !resolvedHl.has(i)) highlights++;
   });
   return {
     suggestions,

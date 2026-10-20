@@ -23,7 +23,7 @@ Your agent needs to know the mark format. Two starting points:
 - Accept / reject per mark, reply inline, delete per message or thread
 - Comment on a suggestion — the comment shows inside the suggestion's card and goes away when the suggestion is accepted or rejected
 - **Human authoring** — insert or mark selections as any of the five CriticMarkup forms yourself, from the command palette or the *Track changes* right-click submenu, stamped with your name and date like a reply
-- **Resolve without deleting** — mark a comment thread resolved and it drops out of the panel, the counts and the overview into a folded *Resolved* section, while the comment stays in the note as `resolved="<date>"` on its root; reopen it at any time. An agent that has processed a thread marks it `acknowledged="<date>" acknowledged-by="<name>"` instead, shown as a badge on the card; the two flags are independent, and a reply from either side clears both
+- **Resolve without deleting** — mark a comment thread (or a lone highlight) resolved and it drops out of the panel, the counts and the overview into a folded *Resolved* section, while the comment stays in the note as `resolved="<date>"` on its root; reopen it at any time. An agent that has processed a thread marks it `acknowledged="<date>" acknowledged-by="<name>"` instead, shown as a badge on the card; the two flags are independent, and a reply from either side clears both
 - **Accept all / Reject all** — two buttons in the review panel header (and commands) resolve every suggestion in the note at once, after a confirmation that names the count; comments and highlights stay, a thread attached to a suggestion goes with it
 - **Accept or reject the changes in a selection** — select text in the editor and right-click: *Accept changes in selection* / *Reject changes in selection* act on every suggestion the selection touches (also commands)
 - **Comments are the record** — accepting or rejecting a suggestion keeps the thread attached to it, marked resolved, so nothing is deleted and nothing asks for confirmation
@@ -64,7 +64,7 @@ The repository is shared into the VM over VirtioFS, so the test vault's `.obsidi
 - *Rescan vault for pending changes* — the overview keeps itself current from vault events; this forces a full re-read
 - *Finalize for publish* — accept additions, drop deletions and comments, etc.
 - *Insert addition*, *Mark selection as deletion*, *Mark selection for substitution*, *Highlight selection*, *Insert comment* — also under *Track changes* in the editor's right-click menu
-- *Accept change at cursor*, *Reject change at cursor*, *Remove highlight at cursor*, *Delete comment at cursor*, *Mark comment thread at cursor resolved*, *Reopen comment thread at cursor* — act on the mark the cursor is in; bind hotkeys for fast review. Also under *Track changes* in the right-click menu when the cursor is on a matching mark
+- *Accept change at cursor*, *Reject change at cursor*, *Remove highlight at cursor*, *Delete comment at cursor*, *Mark comment thread or highlight at cursor resolved*, *Reopen comment thread or highlight at cursor* — act on the mark the cursor is in; bind hotkeys for fast review. Also under *Track changes* in the right-click menu when the cursor is on a matching mark
 - *Accept changes in selection*, *Reject changes in selection* — every suggestion the selection touches; also in the right-click menu whenever the selection contains one
 - *Accept all changes in note*, *Reject all changes in note* — the panel header's buttons as commands; always ask first
 

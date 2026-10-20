@@ -801,6 +801,10 @@ body {
 .tc-card-resolved {
   opacity: 0.7;
 }
+.tc-highlight-resolved {
+  opacity: 0.5;
+  filter: saturate(0.3);
+}
 .tc-card-resolved:hover {
   opacity: 1;
 }
