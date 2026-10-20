@@ -40,6 +40,7 @@ import {
   deleteCommentNode,
   deleteThread,
   formatReplyDate,
+  removeAllComments,
   removeHighlight,
   resolveAllChanges,
   resolveChange,
@@ -383,18 +384,41 @@ export class ReviewPanelView extends ItemView {
           const label = action === "accept" ? "Accept" : "Reject";
           const confirmed = await this.confirmDestructiveAction(
             `${label} all ${noun}`,
-            `${label} all ${counts.suggestions} ${noun} in this note. Comment threads attached to them are removed too; other comments and highlights stay.`,
+            `${label} all ${counts.suggestions} ${noun} in this note. Threads attached to them stay as resolved records; comments and highlights are not removed.`,
             `${label} all`,
             true,
           );
           if (!confirmed) return;
-          await this.host.applyEdits(file, resolveAllChanges(this.currentSource, parsed, action));
+          await this.host.applyEdits(
+            file,
+            resolveAllChanges(this.currentSource, parsed, action, formatReplyDate(this.host.replyDateStyle())),
+          );
         })();
       };
       const acceptAll = actions.createEl("button", { cls: "tc-btn-small tc-btn-accept-all", text: "Accept all" });
       acceptAll.addEventListener("click", () => bulk("accept"));
       const rejectAll = actions.createEl("button", { cls: "tc-btn-small tc-btn-reject-all", text: "Reject all" });
       rejectAll.addEventListener("click", () => bulk("reject"));
+    }
+    if (parsed.threads.length > 0) {
+      const actions =
+        header.querySelector<HTMLElement>(".tc-header-actions") ??
+        header.createDiv({ cls: "tc-header-actions" });
+      const n = parsed.threads.length;
+      const noun = n === 1 ? "comment thread" : "comment threads";
+      const btn = actions.createEl("button", { cls: "tc-btn-small tc-btn-remove-comments", text: "Remove comments" });
+      btn.addEventListener("click", () => {
+        void (async () => {
+          const confirmed = await this.confirmDestructiveAction(
+            "Remove all comments",
+            `Delete all ${n} ${noun} in this note, resolved ones included, and unhighlight the text they point at. Suggestions stay. For a clean copy without touching the note, use the command "Copy clean markdown".`,
+            "Remove comments",
+            true,
+          );
+          if (!confirmed) return;
+          await this.host.applyEdits(file, removeAllComments(this.currentSource, parsed));
+        })();
+      });
     }
   }
 
@@ -624,17 +648,12 @@ export class ReviewPanelView extends ItemView {
     this.renderLineRef(header, source, n.from, thread ? `#${threadNumber}` : undefined);
     const actions = header.createDiv({ cls: "tc-card-actions" });
     const resolve = async (action: "accept" | "reject"): Promise<void> => {
-      // Resolving takes the thread with it; replies are discussion worth a prompt.
-      if (thread && thread.replyIndexes.length > 0) {
-        const label = action === "accept" ? "Accept" : "Reject";
-        const confirmed = await this.confirmDestructiveAction(
-          `${label} suggestion`,
-          "This also removes the comment thread on this suggestion, including its replies.",
-          label,
-        );
-        if (!confirmed) return;
-      }
-      await this.host.applyEdits(file, resolveChange(source, parsed, n, action));
+      // The anchored thread stays as the record, marked resolved; nothing is
+      // deleted, so nothing to confirm.
+      await this.host.applyEdits(
+        file,
+        resolveChange(source, parsed, n, action, formatReplyDate(this.host.replyDateStyle())),
+      );
     };
     // Comment (when offered) sits LEFT of Accept/Reject: the two decision
     // buttons keep the same spot on every card, whether or not Comment shows,

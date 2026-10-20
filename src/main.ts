@@ -28,6 +28,8 @@ import {
   resolveAllChanges,
   resolveChangesInRange,
   changesInRange,
+  removeAllComments,
+  finalizeEdits,
   type CursorAction,
   type SourceEdit,
 } from "./operations";
@@ -196,6 +198,26 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
         },
       });
     }
+    this.addCommand({
+      id: "remove-all-comments",
+      name: "Remove all comments in note",
+      checkCallback: (checking) => {
+        const file = this.app.workspace.getActiveFile();
+        if (!file || file.extension !== "md") return false;
+        if (!checking) void this.removeAllCommentsInFile(file);
+        return true;
+      },
+    });
+    this.addCommand({
+      id: "copy-clean-markdown",
+      name: "Copy clean markdown (all markup resolved, comments removed)",
+      checkCallback: (checking) => {
+        const file = this.app.workspace.getActiveFile();
+        if (!file || file.extension !== "md") return false;
+        if (!checking) void this.copyCleanMarkdown(file);
+        return true;
+      },
+    });
     this.addCommand({
       id: "finalize-for-publish",
       name: "Finalize for publish",
@@ -695,7 +717,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
     }
     const from = editor.posToOffset(editor.getCursor("from"));
     const to = editor.posToOffset(editor.getCursor("to"));
-    const edits = resolveChangesInRange(ctx.source, ctx.parsed, from, to, action);
+    const edits = resolveChangesInRange(ctx.source, ctx.parsed, from, to, action, this.stamp());
     if (typeof edits === "string") {
       new Notice(edits);
       return;
@@ -704,15 +726,50 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
     await this.applyEditsToFile(view.file, edits, { editor });
   }
 
-  /** Accept or reject every suggestion in the note, after a confirmation naming the count. */
-  private async resolveAllInFile(file: TFile, action: "accept" | "reject"): Promise<void> {
+  /** The note's current text: the live editor when open, else the vault. */
+  private async currentSourceOf(file: TFile): Promise<string> {
     const editor = this.findEditorForFile(file);
     const cm = (editor as unknown as { cm?: EditorView } | null)?.cm;
-    const source = editor
-      ? cm ? cm.state.doc.toString() : editor.getValue()
-      : await this.app.vault.cachedRead(file);
+    return editor ? (cm ? cm.state.doc.toString() : editor.getValue()) : this.app.vault.cachedRead(file);
+  }
+
+  /** Strip every comment thread (and its highlight anchor) from the note, after a confirmation. */
+  private async removeAllCommentsInFile(file: TFile): Promise<void> {
+    const source = await this.currentSourceOf(file);
     const parsed = parse(source);
-    const edits = resolveAllChanges(source, parsed, action);
+    const edits = removeAllComments(source, parsed);
+    if (edits.length === 0) {
+      new Notice("No comments in this note.");
+      return;
+    }
+    const n = parsed.threads.length;
+    const ok = await confirmAction(
+      this.app,
+      "Remove all comments",
+      `Delete all ${n} comment ${n === 1 ? "thread" : "threads"} in ${file.basename}, resolved ones included, and unhighlight the text they point at. Suggestions stay.`,
+      "Remove comments",
+    );
+    if (!ok) return;
+    await this.applyEditsToFile(file, edits);
+  }
+
+  /**
+   * Put a clean copy of the note on the clipboard: every suggestion resolved
+   * per the finalize settings, every comment and highlight gone. The note
+   * itself is untouched.
+   */
+  private async copyCleanMarkdown(file: TFile): Promise<void> {
+    const source = await this.currentSourceOf(file);
+    const clean = applyEdits(source, finalizeEdits(parse(source), this.settings.finalize));
+    await navigator.clipboard.writeText(clean);
+    new Notice("Clean markdown copied to the clipboard.");
+  }
+
+  /** Accept or reject every suggestion in the note, after a confirmation naming the count. */
+  private async resolveAllInFile(file: TFile, action: "accept" | "reject"): Promise<void> {
+    const source = await this.currentSourceOf(file);
+    const parsed = parse(source);
+    const edits = resolveAllChanges(source, parsed, action, this.stamp());
     if (edits.length === 0) {
       new Notice("No suggestions in this note.");
       return;
@@ -723,7 +780,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
     const ok = await confirmAction(
       this.app,
       `${label} all ${noun}`,
-      `${label} all ${n} ${noun} in ${file.basename}. Comment threads attached to them are removed too; other comments and highlights stay.`,
+      `${label} all ${n} ${noun} in ${file.basename}. Comment threads attached to them stay as resolved records; comments and highlights are not removed.`,
       `${label} all`,
     );
     if (!ok) return;

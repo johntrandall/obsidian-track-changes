@@ -686,6 +686,9 @@ body {
 .tc-btn-reject-all {
   color: var(--text-error, var(--text-normal));
 }
+.tc-btn-remove-comments {
+  color: var(--text-muted);
+}
 
 /* Diff blocks */
 .tc-diff {

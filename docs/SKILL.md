@@ -90,7 +90,7 @@ A thread can be *done* for one party and still open for the other. Two independe
 - **A reply reopens the thread for everyone:** when you add a reply to a thread, remove both `resolved` and `acknowledged`/`acknowledged-by` from the root. The plugin does the same when the user replies, so a thread you acknowledged that later shows no `acknowledged=` has new discussion on it.
 - **Skip threads you already acknowledged** when processing replies, unless they carry a reply newer than your acknowledgement (which, by the previous rule, will have cleared the flag).
 - **Treat `resolved=` as information, not a reason to skip.** The user being done does not mean you are: a resolved thread you have not acknowledged still wants your pass. Once acknowledged and resolved, leave it alone; it is the record.
-- A thread anchored on a suggestion (`{++x++}{>>why<<}`) is never resolved by a flag: accept or reject the suggestion, which removes the thread. You may still acknowledge it.
+- A thread anchored on a suggestion (`{++x++}{>>why<<}`) is never resolved by a flag while the suggestion is pending; when the user accepts or rejects it, the thread stays in the note as a resolved record. You may still acknowledge it. **A thread the user resolved is read-only for you**: never edit or remove its comments; a reply reopens it.
 - The stamp follows the `date` rules: `YYYY-MM-DD` or a `Z` timestamp, omitted-rather-than-guessed if you have no clock; `acknowledged="true"` is accepted if you truly cannot date it.
 - Finalize strips the whole comment, flags included, like any other.
 
