@@ -23,7 +23,7 @@ To load the dev build into Obsidian: symlink or copy `main.js`, `manifest.json`,
 
 ## Architecture
 
-Entry point `src/main.ts` is the `Plugin` subclass. It wires four things into Obsidian and owns nothing else of substance:
+Entry point `src/main.ts` is the `Plugin` subclass. It wires five things into Obsidian and owns nothing else of substance:
 
 1. **Right-side panel view** (`src/panel/view.ts`, `REVIEW_VIEW_TYPE`) — the review UI. `main.ts` constructs a `PanelHost` adapter so the panel never imports the `Plugin` directly; the panel calls back through `host.applyEdits`, `host.revealOffset`.
 2. **CodeMirror 6 decoration extension** (`src/editor/decorations.ts`) — inline highlighting of CriticMarkup ranges in Live Preview / Source mode. Click handler routes back into `main.handleInlineClick` which opens the panel and focuses the offset.
