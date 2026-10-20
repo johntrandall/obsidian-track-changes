@@ -344,45 +344,63 @@ test("appendComment: no author name → date only", () => {
   assert.equal(appendComment("{++a++}", change, "c").insert, `{date="${localDay()}">>c<<}`);
 });
 
-test("resolveChange: accept/reject remove the anchored thread", () => {
+test("resolveChange: accept/reject keep the anchored thread as a resolved record", () => {
   const cases = [
-    ["x {++ins++}{>>why<<} y", "x ins y", "x  y"],
-    ["x {--gone--} \t{>>a<<} {>>b<<} y", "x  y", "x gone y"],
-    ['x {~~old~>new~~}{author="AI">>r<<}{>>ok<<} y', "x new y", "x old y"],
+    ["x {++ins++}{>>why<<} y", 'x ins{resolved="2026-10-20">>why<<} y', 'x {resolved="2026-10-20">>why<<} y'],
+    ["x {--gone--} \t{>>a<<} {>>b<<} y", 'x  \t{resolved="2026-10-20">>a<<} {>>b<<} y', 'x gone \t{resolved="2026-10-20">>a<<} {>>b<<} y'],
+    ['x {~~old~>new~~}{author="AI">>r<<}{>>ok<<} y', 'x new{author="AI" resolved="2026-10-20">>r<<}{>>ok<<} y', 'x old{author="AI" resolved="2026-10-20">>r<<}{>>ok<<} y'],
   ];
   for (const [src, accepted, rejected] of cases) {
     const parsed = parse(src);
     const change = parsed.nodes[0];
-    const acc = resolveChange(src, parsed, change, "accept");
-    assert.equal(acc.length, 1);
-    assert.equal(applyEdits(src, acc), accepted);
-    assert.equal(applyEdits(src, resolveChange(src, parsed, change, "reject")), rejected);
+    const acc = resolveChange(src, parsed, change, "accept", "2026-10-20");
+    assert.equal(acc.length, 2);
+    const out = applyEdits(src, acc);
+    assert.equal(out, accepted);
+    // The kept thread is a plain, resolved thread now: out of the queue, in the note.
+    const r2 = parse(out);
+    assert.equal(r2.threads.length, 1);
+    assert.equal(r2.threads[0].changeIndex, null);
+    assert.equal(r2.threads[0].replyIndexes.length, parsed.threads[0].replyIndexes.length);
+    assert.equal(applyEdits(src, resolveChange(src, parsed, change, "reject", "2026-10-20")), rejected);
   }
 });
 
-test("resolveChange: change + thread rebase as one unit", () => {
+test("resolveChange: an already-resolved thread gets no second flag edit", () => {
+  const src = 'x {++ins++}{resolved="2026-10-19">>why<<} y';
+  const parsed = parse(src);
+  const edits = resolveChange(src, parsed, parsed.nodes[0], "accept", "2026-10-20");
+  assert.equal(edits.length, 1);
+  assert.equal(applyEdits(src, edits), 'x ins{resolved="2026-10-19">>why<<} y');
+});
+
+test("resolveChange: the change edit fails closed under drift; the flag edit relocates by context", () => {
   const src = "x {++ins++}{>>why<<} y";
   const parsed = parse(src);
-  const edits = resolveChange(src, parsed, parsed.nodes[0], "accept");
+  const edits = resolveChange(src, parsed, parsed.nodes[0], "accept", "2026-10-20");
   assert.equal(rebaseEdits(src, edits).dropped, 0);
-  assert.equal(applyEdits(src, rebaseEdits(src, edits).edits), "x ins y");
-  for (const drifted of [
-    `PREFIX ${src}`,
-    "x {++ins++} {>>why<<} y",
-    "x {++ins++}{>>wht<<} y",
-    "x {++int++}{>>why<<} y",
-  ]) {
-    const r = rebaseEdits(drifted, edits);
-    assert.equal(r.edits.length, 0, drifted);
-  }
+  assert.equal(applyEdits(src, rebaseEdits(src, edits).edits), 'x ins{resolved="2026-10-20">>why<<} y');
+  // The change itself changed: its raw-mark edit is dropped (no `before`), never misapplied.
+  const r = rebaseEdits("x {++int++}{>>why<<} y", edits);
+  assert.ok(!r.edits.some((e) => e.insert === "ins"));
+  // Only the thread moved: the change still verifies in place and resolves; the
+  // flag edit's context no longer matches, so it is dropped and the thread
+  // simply stays open (the user clicks again), never flagged by guesswork.
+  assert.equal(
+    applyEdits("x {++ins++} {>>why<<} y", rebaseEdits("x {++ins++} {>>why<<} y", edits).edits),
+    "x ins {>>why<<} y",
+  );
 });
 
-test("resolveChange: a drifted rationale can't re-anchor on the neighbouring change", () => {
+test("resolveChange: nothing is deleted any more, so a drifted rationale is at worst flagged, never removed", () => {
   const src = "{--old--}{++new++}{>>why<<}";
   const parsed = parse(src);
-  const edits = resolveChange(src, parsed, parsed.nodes[1], "reject");
-  assert.equal(applyEdits(src, edits), "{--old--}");
-  assert.equal(rebaseEdits("{--old--}{++new++}{>>why!<<}", edits).edits.length, 0);
+  const edits = resolveChange(src, parsed, parsed.nodes[1], "reject", "2026-10-20");
+  assert.equal(applyEdits(src, edits), '{--old--}{resolved="2026-10-20">>why<<}');
+  const drifted = "{--old--}{++new++}{>>why!<<}";
+  const out = applyEdits(drifted, rebaseEdits(drifted, edits).edits);
+  assert.ok(out.includes("why!"), "the comment text survives");
+  assert.ok(!out.includes("{++new++}"), "the unchanged change still resolves");
 });
 
 test("resolveChange: a change without a thread, or with an unanchored one, is just resolved", () => {
@@ -399,11 +417,11 @@ test("resolveChange: a highlight-anchored thread after the change is not taken",
   assert.equal(applyEdits(src, resolveChange(src, parsed, parsed.nodes[0], "accept")), "a{==h==}{>>c<<}");
 });
 
-test("editsAtCursor: accept/reject a change removes its thread", () => {
+test("editsAtCursor: accept/reject a change keeps its thread, resolved", () => {
   const src = "x {++ins++}{>>why<<} {>>ok<<} y";
   const parsed = parse(src);
-  assert.equal(applyEdits(src, editsAtCursor(src, parsed, 4, "accept")), "x ins y");
-  assert.equal(applyEdits(src, editsAtCursor(src, parsed, 4, "reject")), "x  y");
+  assert.equal(applyEdits(src, editsAtCursor(src, parsed, 4, "accept", "2026-10-20")), 'x ins{resolved="2026-10-20">>why<<} {>>ok<<} y');
+  assert.equal(applyEdits(src, editsAtCursor(src, parsed, 4, "reject", "2026-10-20")), 'x {resolved="2026-10-20">>why<<} {>>ok<<} y');
 });
 
 test("editsAtCursor: deleting the only comment on a change never touches the change", () => {

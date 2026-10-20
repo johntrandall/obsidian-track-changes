@@ -11,7 +11,7 @@
 
 import type { CriticNode, Thread, ParseResult, CommentNode, ChangeNode } from "./parser";
 import { isChangeNode } from "./parser";
-import { clearStatus, isResolved, reopenThread, resolveThread } from "./resolution";
+import { clearStatus, isResolved, reopenThread, resolveThread, threadStatus } from "./resolution";
 
 export interface SourceEdit {
   from: number;
@@ -188,29 +188,81 @@ export function rejectChange(node: ChangeNode): SourceEdit {
 }
 
 /**
- * Accept or reject a change, taking its anchored thread (its rationale) and
- * the whitespace before it along. The pair is one edit so a drifted doc
- * rebases it all-or-nothing: a half-applied pair could re-anchor the orphaned
- * thread on a neighbouring mark.
+ * Accept or reject a change. Its anchored thread (its rationale) is KEPT as
+ * the record and marked resolved for the user (`resolved="<stamp>"` on the
+ * root), so it leaves the queue without leaving the note (John, 2026-10-20:
+ * comments stay; nothing to confirm). The two edits never overlap: the root's
+ * prefix starts after the change ends.
  */
 export function resolveChange(
   source: string,
   parsed: ParseResult,
   node: ChangeNode,
   action: "accept" | "reject",
+  stamp: string = formatReplyDate("date"),
 ): SourceEdit[] {
   const edit = action === "accept" ? acceptChange(node) : rejectChange(node);
   const index = parsed.nodes.indexOf(node);
   const thread = parsed.threads.find((t) => t.changeIndex === index);
   if (!thread) return [edit];
-  return [
-    {
-      from: node.from,
-      to: thread.to,
-      insert: edit.insert,
-      expected: source.slice(node.from, thread.to),
-    },
-  ];
+  // Already carrying the user's flag (whatever its stamp): leave it as is.
+  if (threadStatus(parsed, thread).resolved !== null) return [edit];
+  const flag = resolveThread(source, parsed, thread, stamp);
+  return flag ? [edit, flag] : [edit];
+}
+
+/**
+ * Strip every comment thread from the note (for sharing clean markdown), each
+ * highlight anchor with its thread. Suggestions and lone highlights stay.
+ */
+export function removeAllComments(source: string, parsed: ParseResult): SourceEdit[] {
+  const out: SourceEdit[] = [];
+  for (const t of parsed.threads) {
+    if (t.anchorIndex !== null) out.push(removeHighlight(parsed.nodes[t.anchorIndex]));
+    out.push(deleteThread(source, t));
+  }
+  return out;
+}
+
+/** Accept or reject every suggestion in the note, each taking its anchored thread along. */
+export function resolveAllChanges(
+  source: string,
+  parsed: ParseResult,
+  action: "accept" | "reject",
+  stamp: string = formatReplyDate("date"),
+): SourceEdit[] {
+  const out: SourceEdit[] = [];
+  for (const n of parsed.nodes) {
+    if (isChangeNode(n)) out.push(...resolveChange(source, parsed, n, action, stamp));
+  }
+  return out;
+}
+
+/** Suggestions overlapping a selection `[from, to]`, ends inclusive: a selection that merely touches a mark counts. */
+export function changesInRange(parsed: ParseResult, from: number, to: number): ChangeNode[] {
+  const lo = Math.min(from, to);
+  const hi = Math.max(from, to);
+  return parsed.nodes.filter((n): n is ChangeNode => isChangeNode(n) && n.from <= hi && lo <= n.to);
+}
+
+/**
+ * Accept or reject every suggestion the selection touches, or the Notice text
+ * when it touches none. An empty selection is the cursor case: use `editsAtCursor`.
+ */
+export function resolveChangesInRange(
+  source: string,
+  parsed: ParseResult,
+  from: number,
+  to: number,
+  action: "accept" | "reject",
+  stamp: string = formatReplyDate("date"),
+): SourceEdit[] | string {
+  if (from === to) return "Select the text whose suggestions to " + action + ".";
+  const nodes = changesInRange(parsed, from, to);
+  if (nodes.length === 0) return "No suggestions in the selection.";
+  const out: SourceEdit[] = [];
+  for (const n of nodes) out.push(...resolveChange(source, parsed, n, action, stamp));
+  return out;
 }
 
 export type CursorAction =
@@ -244,7 +296,7 @@ export function editsAtCursor(
     case "reject": {
       const node = findChangeAt(parsed.nodes, offset);
       if (!node) return "No change at cursor.";
-      return resolveChange(source, parsed, node, action);
+      return resolveChange(source, parsed, node, action, stamp || undefined);
     }
     case "remove-highlight": {
       const i = indexOfKindAt(parsed.nodes, offset, "highlight");

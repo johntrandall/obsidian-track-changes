@@ -15,7 +15,7 @@ import { isolateHistory } from "@codemirror/commands";
 import type { Extension } from "@codemirror/state";
 
 import { criticDecorationsExtension } from "./editor/decorations";
-import { REVIEW_VIEW_TYPE, ReviewPanelView, type PanelHost } from "./panel/view";
+import { REVIEW_VIEW_TYPE, ReviewPanelView, confirmAction, type PanelHost } from "./panel/view";
 import { OVERVIEW_VIEW_TYPE, PendingOverviewView, type OverviewHost } from "./panel/overview";
 import { VaultIndex } from "./vault-index";
 import { describeSummary, totals } from "./pending";
@@ -25,10 +25,15 @@ import {
   buildAttributionPrefix,
   formatReplyDate,
   editsAtCursor,
+  resolveAllChanges,
+  resolveChangesInRange,
+  changesInRange,
+  removeAllComments,
+  finalizeEdits,
   type CursorAction,
   type SourceEdit,
 } from "./operations";
-import { parse, type ParseResult } from "./parser";
+import { parse, isChangeNode, type ParseResult } from "./parser";
 import { makeReadingPostProcessor } from "./reading";
 import { FinalizeModal } from "./finalize";
 import {
@@ -171,6 +176,48 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
       name: "Rescan vault for pending changes",
       callback: () => void this.index.scanAll(),
     });
+    for (const action of ["accept", "reject"] as const) {
+      const label = action === "accept" ? "Accept" : "Reject";
+      this.addCommand({
+        id: `${action}-all-changes`,
+        name: `${label} all changes in note`,
+        checkCallback: (checking) => {
+          const file = this.app.workspace.getActiveFile();
+          if (!file || file.extension !== "md") return false;
+          if (!checking) void this.resolveAllInFile(file, action);
+          return true;
+        },
+      });
+      this.addCommand({
+        id: `${action}-changes-in-selection`,
+        name: `${label} changes in selection`,
+        editorCheckCallback: (checking, editor, view) => {
+          if (!(view instanceof MarkdownView) || view.file?.extension !== "md") return false;
+          if (!checking) void this.applyInSelection(editor, view, action);
+          return true;
+        },
+      });
+    }
+    this.addCommand({
+      id: "remove-all-comments",
+      name: "Remove all comments in note",
+      checkCallback: (checking) => {
+        const file = this.app.workspace.getActiveFile();
+        if (!file || file.extension !== "md") return false;
+        if (!checking) void this.removeAllCommentsInFile(file);
+        return true;
+      },
+    });
+    this.addCommand({
+      id: "copy-clean-markdown",
+      name: "Copy clean markdown (all markup resolved, comments removed)",
+      checkCallback: (checking) => {
+        const file = this.app.workspace.getActiveFile();
+        if (!file || file.extension !== "md") return false;
+        if (!checking) void this.copyCleanMarkdown(file);
+        return true;
+      },
+    });
     this.addCommand({
       id: "finalize-for-publish",
       name: "Finalize for publish",
@@ -223,7 +270,19 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
         if (!(view instanceof MarkdownView) || view.file?.extension !== "md") return;
         const ctx = this.cursorContext(editor);
         if (typeof ctx === "string") return;
-        const items: { title: string; icon: string; run: () => void }[] = CURSOR_COMMANDS.filter(
+        const items: { title: string; icon: string; run: () => void }[] = [];
+        // A selection touching suggestions: accept or reject them all at once.
+        const selFrom = editor.posToOffset(editor.getCursor("from"));
+        const selTo = editor.posToOffset(editor.getCursor("to"));
+        if (selFrom !== selTo && changesInRange(ctx.parsed, selFrom, selTo).length > 0) {
+          const n = changesInRange(ctx.parsed, selFrom, selTo).length;
+          const noun = n === 1 ? "change" : `${n} changes`;
+          items.push(
+            { title: `Accept ${noun} in selection`, icon: "check-check", run: () => void this.applyInSelection(editor, view, "accept") },
+            { title: `Reject ${noun} in selection`, icon: "x", run: () => void this.applyInSelection(editor, view, "reject") },
+          );
+        }
+        items.push(...CURSOR_COMMANDS.filter(
           (c) =>
             typeof editsAtCursor(ctx.source, ctx.parsed, ctx.offset, c.action, this.stamp()) !==
             "string",
@@ -231,7 +290,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
           title: c.menuTitle,
           icon: c.icon,
           run: () => void this.applyAtCursor(editor, view, c.action),
-        }));
+        })));
         if (items.length === 0) {
           const from = editor.posToOffset(editor.getCursor("from"));
           const to = editor.posToOffset(editor.getCursor("to"));
@@ -643,6 +702,89 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
       parsed: parse(source),
       offset: editor.posToOffset(editor.getCursor("head")),
     };
+  }
+
+  /** Accept or reject every suggestion the selection touches (no confirmation: the user chose the range). */
+  private async applyInSelection(
+    editor: Editor,
+    view: MarkdownView,
+    action: "accept" | "reject",
+  ): Promise<void> {
+    const ctx = this.cursorContext(editor);
+    if (typeof ctx === "string") {
+      new Notice(ctx);
+      return;
+    }
+    const from = editor.posToOffset(editor.getCursor("from"));
+    const to = editor.posToOffset(editor.getCursor("to"));
+    const edits = resolveChangesInRange(ctx.source, ctx.parsed, from, to, action, this.stamp());
+    if (typeof edits === "string") {
+      new Notice(edits);
+      return;
+    }
+    if (!view.file) return;
+    await this.applyEditsToFile(view.file, edits, { editor });
+  }
+
+  /** The note's current text: the live editor when open, else the vault. */
+  private async currentSourceOf(file: TFile): Promise<string> {
+    const editor = this.findEditorForFile(file);
+    const cm = (editor as unknown as { cm?: EditorView } | null)?.cm;
+    return editor ? (cm ? cm.state.doc.toString() : editor.getValue()) : this.app.vault.cachedRead(file);
+  }
+
+  /** Strip every comment thread (and its highlight anchor) from the note, after a confirmation. */
+  private async removeAllCommentsInFile(file: TFile): Promise<void> {
+    const source = await this.currentSourceOf(file);
+    const parsed = parse(source);
+    const edits = removeAllComments(source, parsed);
+    if (edits.length === 0) {
+      new Notice("No comments in this note.");
+      return;
+    }
+    const n = parsed.threads.length;
+    const ok = await confirmAction(
+      this.app,
+      "Remove all comments",
+      `Delete all ${n} comment ${n === 1 ? "thread" : "threads"} in ${file.basename}, resolved ones included, and unhighlight the text they point at. Suggestions stay.`,
+      "Remove comments",
+    );
+    if (!ok) return;
+    await this.applyEditsToFile(file, edits);
+  }
+
+  /**
+   * Put a clean copy of the note on the clipboard: every suggestion resolved
+   * per the finalize settings, every comment and highlight gone. The note
+   * itself is untouched.
+   */
+  private async copyCleanMarkdown(file: TFile): Promise<void> {
+    const source = await this.currentSourceOf(file);
+    const clean = applyEdits(source, finalizeEdits(parse(source), this.settings.finalize));
+    await navigator.clipboard.writeText(clean);
+    new Notice("Clean markdown copied to the clipboard.");
+  }
+
+  /** Accept or reject every suggestion in the note, after a confirmation naming the count. */
+  private async resolveAllInFile(file: TFile, action: "accept" | "reject"): Promise<void> {
+    const source = await this.currentSourceOf(file);
+    const parsed = parse(source);
+    const edits = resolveAllChanges(source, parsed, action, this.stamp());
+    if (edits.length === 0) {
+      new Notice("No suggestions in this note.");
+      return;
+    }
+    const n = parsed.nodes.filter(isChangeNode).length;
+    const label = action === "accept" ? "Accept" : "Reject";
+    const noun = n === 1 ? "suggestion" : "suggestions";
+    const ok = await confirmAction(
+      this.app,
+      `${label} all ${noun}`,
+      `${label} all ${n} ${noun} in ${file.basename}. Comment threads attached to them stay as resolved records; comments and highlights are not removed.`,
+      `${label} all`,
+    );
+    if (!ok) return;
+    await this.applyEditsToFile(file, edits);
   }
 
   private async applyAtCursor(
