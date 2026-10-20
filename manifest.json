@@ -1,7 +1,7 @@
 {
   "id": "track-changes",
   "name": "Track Changes",
-  "version": "2.3.0-jtr.4",
+  "version": "2.3.0-jtr.5",
   "minAppVersion": "1.13.0",
   "description": "Review CriticMarkup suggestions in a side panel. Accept, reject, or reply.",
   "author": "Phil Baum",
