@@ -213,6 +213,45 @@ export function resolveChange(
   ];
 }
 
+/** Accept or reject every suggestion in the note, each taking its anchored thread along. */
+export function resolveAllChanges(
+  source: string,
+  parsed: ParseResult,
+  action: "accept" | "reject",
+): SourceEdit[] {
+  const out: SourceEdit[] = [];
+  for (const n of parsed.nodes) {
+    if (isChangeNode(n)) out.push(...resolveChange(source, parsed, n, action));
+  }
+  return out;
+}
+
+/** Suggestions overlapping a selection `[from, to]`, ends inclusive: a selection that merely touches a mark counts. */
+export function changesInRange(parsed: ParseResult, from: number, to: number): ChangeNode[] {
+  const lo = Math.min(from, to);
+  const hi = Math.max(from, to);
+  return parsed.nodes.filter((n): n is ChangeNode => isChangeNode(n) && n.from <= hi && lo <= n.to);
+}
+
+/**
+ * Accept or reject every suggestion the selection touches, or the Notice text
+ * when it touches none. An empty selection is the cursor case: use `editsAtCursor`.
+ */
+export function resolveChangesInRange(
+  source: string,
+  parsed: ParseResult,
+  from: number,
+  to: number,
+  action: "accept" | "reject",
+): SourceEdit[] | string {
+  if (from === to) return "Select the text whose suggestions to " + action + ".";
+  const nodes = changesInRange(parsed, from, to);
+  if (nodes.length === 0) return "No suggestions in the selection.";
+  const out: SourceEdit[] = [];
+  for (const n of nodes) out.push(...resolveChange(source, parsed, n, action));
+  return out;
+}
+
 export type CursorAction =
   | "accept"
   | "reject"

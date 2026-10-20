@@ -41,6 +41,7 @@ import {
   deleteThread,
   formatReplyDate,
   removeHighlight,
+  resolveAllChanges,
   resolveChange,
   validateReplyText,
   type SourceEdit,
@@ -371,6 +372,30 @@ export class ReviewPanelView extends ItemView {
     }
     if (resolved > 0) parts.push(`${resolved} resolved`);
     header.createDiv({ cls: "tc-header-counts", text: parts.join(" · ") });
+
+    // Bulk actions on every suggestion in the note. Comments and highlights
+    // stay; a thread anchored on a suggestion goes with it, as per card.
+    if (counts.suggestions > 0) {
+      const actions = header.createDiv({ cls: "tc-header-actions" });
+      const noun = counts.suggestions === 1 ? "suggestion" : "suggestions";
+      const bulk = (action: "accept" | "reject"): void => {
+        void (async () => {
+          const label = action === "accept" ? "Accept" : "Reject";
+          const confirmed = await this.confirmDestructiveAction(
+            `${label} all ${noun}`,
+            `${label} all ${counts.suggestions} ${noun} in this note. Comment threads attached to them are removed too; other comments and highlights stay.`,
+            `${label} all`,
+            true,
+          );
+          if (!confirmed) return;
+          await this.host.applyEdits(file, resolveAllChanges(this.currentSource, parsed, action));
+        })();
+      };
+      const acceptAll = actions.createEl("button", { cls: "tc-btn-small tc-btn-accept-all", text: "Accept all" });
+      acceptAll.addEventListener("click", () => bulk("accept"));
+      const rejectAll = actions.createEl("button", { cls: "tc-btn-small tc-btn-reject-all", text: "Reject all" });
+      rejectAll.addEventListener("click", () => bulk("reject"));
+    }
   }
 
   private renderThreadCard(
@@ -611,8 +636,9 @@ export class ReviewPanelView extends ItemView {
       }
       await this.host.applyEdits(file, resolveChange(source, parsed, n, action));
     };
-    this.iconButton(actions, "check", "Accept", () => void resolve("accept"), "tc-icon-accept");
-    this.iconButton(actions, "x", "Reject", () => void resolve("reject"), "tc-icon-reject");
+    // Comment (when offered) sits LEFT of Accept/Reject: the two decision
+    // buttons keep the same spot on every card, whether or not Comment shows,
+    // so a reflex click never lands on the wrong one (John, 2026-10-20).
     let commentBox: HTMLElement | null = null;
     const openCommentBox = (): HTMLElement =>
       this.renderComposer(card, file, "Comment…", "Comment", this.commentDrafts, n.from, (text) => [
@@ -637,6 +663,9 @@ export class ReviewPanelView extends ItemView {
         "tc-icon-neutral",
       );
     }
+    const decide = actions.createDiv({ cls: "tc-card-decide" });
+    this.iconButton(decide, "check", "Accept", () => void resolve("accept"), "tc-icon-accept");
+    this.iconButton(decide, "x", "Reject", () => void resolve("reject"), "tc-icon-reject");
 
     this.renderMetaRow(card, card, n.metaAuthor, null, n.metaDate, "tc-card-meta");
     this.renderDiff(card, n);
@@ -885,16 +914,28 @@ export class ReviewPanelView extends ItemView {
     }
   }
 
+  /** `always` ignores the confirmBeforeDelete setting: bulk actions always ask. */
   private confirmDestructiveAction(
     title: string,
     message: string,
     confirmText: string,
+    always = false,
   ): Promise<boolean> {
-    if (!this.host.confirmBeforeDelete()) return Promise.resolve(true);
-    return new Promise((resolve) => {
-      new ConfirmActionModal(this.app, title, message, confirmText, resolve).open();
-    });
+    if (!always && !this.host.confirmBeforeDelete()) return Promise.resolve(true);
+    return confirmAction(this.app, title, message, confirmText);
   }
+}
+
+/** A yes/no modal; resolves false when dismissed. */
+export function confirmAction(
+  app: App,
+  title: string,
+  message: string,
+  confirmText: string,
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    new ConfirmActionModal(app, title, message, confirmText, resolve).open();
+  });
 }
 
 class ConfirmActionModal extends Modal {
