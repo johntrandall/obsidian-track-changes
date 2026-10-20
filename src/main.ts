@@ -294,7 +294,10 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
       await workspace.revealLeaf(existing);
       return;
     }
-    const leaf = workspace.getRightLeaf(false);
+    // Left sidebar: Obsidian's convention puts vault-wide navigation (file
+    // explorer, search, tags) on the left and per-note context (outline,
+    // backlinks, the review panel) on the right.
+    const leaf = workspace.getLeftLeaf(false);
     if (!leaf) {
       new Notice("Could not open the pending changes overview.");
       return;
