@@ -86,10 +86,14 @@ assert.equal(summarizeSource("---\nreview: delta\n---\n{++a++}").reviewWhole, fa
 // Flagged AND marked: both counted, shown once by the overview.
 const both = summarizeSource("---\nreview: whole\n---\n{++a++}\n\n{>>c<<}");
 assert.deepEqual([both.reviewWhole, both.suggestions, both.comments], [true, 1, 1]);
-// Whole-review rows sort first.
+// Whole-review rows sort first; never-approved before dirty (approved_at set).
 assert.deepEqual(
-  sortRows([{ path: "b.md", suggestions: 9, comments: 0, highlights: 0 }, { path: "a.md", suggestions: 0, comments: 0, highlights: 0, reviewWhole: true }]).map((r) => r.path),
-  ["a.md", "b.md"],
+  sortRows([
+    { path: "b.md", suggestions: 9, comments: 0, highlights: 0 },
+    { path: "c.md", suggestions: 0, comments: 0, highlights: 0, reviewWhole: true, approvedAt: "2026-10-01" },
+    { path: "a.md", suggestions: 0, comments: 0, highlights: 0, reviewWhole: true, approvedAt: null },
+  ]).map((r) => r.path),
+  ["a.md", "c.md", "b.md"],
 );
 
 // ---- ordering: most to review first, suggestions outrank comments outrank highlights ----

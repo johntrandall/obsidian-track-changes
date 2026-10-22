@@ -122,19 +122,25 @@ export class PendingOverviewView extends ItemView {
       return;
     }
     const active = this.host.activeFilePath();
-    // Two groups: notes flagged `review: whole` by watchbill (read the whole
-    // document), then notes with open marks. A flagged note with marks shows
-    // once, in the first group, chips included.
-    const whole = rows.filter((r) => r.reviewWhole);
+    // Three groups, like the decision board's two review columns (John,
+    // 2026-10-22): `review: whole` with no approved_at = "Needs review"
+    // (never approved); with approved_at = "Dirty" (approved, changed since);
+    // then notes with open marks. A flagged note with marks shows once, in
+    // its flag group, chips included. The plugin only reads the frontmatter.
+    const needs = rows.filter((r) => r.reviewWhole && !r.approvedAt);
+    const dirty = rows.filter((r) => r.reviewWhole && r.approvedAt);
     const marked = rows.filter((r) => !r.reviewWhole);
-    if (whole.length > 0) {
-      list.createDiv({ cls: "tc-overview-group", text: `Needs whole review (${whole.length})` });
-      for (const r of whole) this.renderRow(list, r, active, true);
-      if (marked.length > 0) {
-        list.createDiv({ cls: "tc-overview-group", text: `Open marks (${marked.length})` });
-      }
+    const groups: Array<[string, FileRow[], boolean]> = [
+      [`Needs review (${needs.length})`, needs, true],
+      [`Dirty: approved, changed since (${dirty.length})`, dirty, true],
+      [`Open marks (${marked.length})`, marked, false],
+    ];
+    const several = groups.filter(([, g]) => g.length > 0).length > 1;
+    for (const [title, group, whole] of groups) {
+      if (group.length === 0) continue;
+      if (several) list.createDiv({ cls: "tc-overview-group", text: title });
+      for (const r of group) this.renderRow(list, r, active, whole);
     }
-    for (const r of marked) this.renderRow(list, r, active, false);
   }
 
   private renderRow(list: HTMLElement, r: FileRow, active: string | null, whole: boolean): void {

@@ -108,7 +108,9 @@ export function summarizeSource(source: string): FileSummary {
 export function sortRows(rows: FileRow[]): FileRow[] {
   return [...rows].sort(
     (a, b) =>
-      Number(b.reviewWhole) - Number(a.reviewWhole) ||
+      Number(!!b.reviewWhole) - Number(!!a.reviewWhole) ||
+      // Never-approved before dirty (approved, changed since).
+      Number(!!a.approvedAt) - Number(!!b.approvedAt) ||
       b.suggestions - a.suggestions ||
       b.comments - a.comments ||
       b.highlights - a.highlights ||
