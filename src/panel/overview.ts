@@ -23,6 +23,12 @@ export interface OverviewHost {
   openFileForReview(path: string): Promise<void>;
   /** The path of the file the user is currently looking at, for the active marker. */
   activeFilePath(): string | null;
+  /**
+   * Record the human's approval of the note as a whole (the approval anchor in
+   * its frontmatter). Refuses with a Notice while suggestions or comments are
+   * open. Only the human clicks this.
+   */
+  approveDocument(path: string): Promise<void>;
 }
 
 export class PendingOverviewView extends ItemView {
@@ -167,6 +173,14 @@ export class PendingOverviewView extends ItemView {
         if (r.approvedAt) {
           chips.createSpan({ cls: "tc-overview-approved", text: `approved ${r.approvedAt}` });
         }
+        // The human's act: approve this version. Writes the anchor; the note
+        // leaves this group once its frontmatter no longer says review: whole.
+        const approve = chips.createEl("button", { cls: "tc-btn-small tc-btn-approve", text: "Approve" });
+        approve.setAttr("aria-label", "Approve this version of the note as a whole");
+        approve.addEventListener("click", (e) => {
+          e.stopPropagation();
+          void this.host.approveDocument(r.path);
+        });
       }
       if (!whole || markCount(r) > 0) {
         this.chip(chips, "pencil", r.suggestions, "suggestion", "tc-chip-suggestions");

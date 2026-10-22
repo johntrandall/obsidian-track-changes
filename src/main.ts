@@ -19,6 +19,7 @@ import { REVIEW_VIEW_TYPE, ReviewPanelView, confirmAction, type PanelHost } from
 import { OVERVIEW_VIEW_TYPE, PendingOverviewView, type OverviewHost } from "./panel/overview";
 import { VaultIndex } from "./vault-index";
 import { describeSummary, totals } from "./pending";
+import { buildAnchor, openMarkCount } from "./approval";
 import {
   applyEdits,
   rebaseEdits,
@@ -359,6 +360,10 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
       index: this.index,
       openFileForReview: (path) => this.openFileForReview(path),
       activeFilePath: () => this.app.workspace.getActiveFile()?.path ?? null,
+      approveDocument: async (path) => {
+        const file = this.app.vault.getAbstractFileByPath(path);
+        if (file instanceof TFile) await this.approveDocument(file);
+      },
     };
     return new PendingOverviewView(leaf, host);
   }
@@ -560,6 +565,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
       },
       revealOffset: (file, offset, length, flashChip) =>
         this.revealOffsetInEditor(file, offset, length, flashChip ?? false, leaf),
+      approveDocument: (file) => this.approveDocument(file),
       isFileOpen: (file) => this.app.workspace.getLeavesOfType("markdown").some(
         (candidate) => candidate.view instanceof MarkdownView && candidate.view.file === file &&
           candidate.view.containerEl.ownerDocument === leaf.view.containerEl.ownerDocument,
@@ -724,6 +730,36 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
     }
     if (!view.file) return;
     await this.applyEditsToFile(view.file, edits, { editor });
+  }
+
+  /**
+   * The human's approval of a note as a whole: write the anchor into its
+   * frontmatter through Obsidian's own frontmatter API (status: accepted,
+   * approved_by/at/via, approved_hash of the base text, approved_sha and
+   * approved_whole_sha "pending" until a commit holds the text) and drop the
+   * review flag. Refused while suggestions or comments are open: the human
+   * decides those first. Design: the agent tool's
+   * dev-docs/design/approval-anchor-and-drift.md.
+   */
+  async approveDocument(file: TFile): Promise<void> {
+    const source = await this.currentSourceOf(file);
+    const open = openMarkCount(source);
+    if (open > 0) {
+      new Notice(`${open} suggestion${open === 1 ? "" : "s"} or comment${open === 1 ? "" : "s"} still open; decide them before approving the whole note.`);
+      return;
+    }
+    const anchor = await buildAnchor(source, this.settings.localAuthorName.trim(), "track-changes panel");
+    await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
+      fm.status = anchor.status;
+      fm.approved_by = anchor.approved_by;
+      fm.approved_at = anchor.approved_at;
+      fm.approved_via = anchor.approved_via;
+      fm.approved_sha = anchor.approved_sha;
+      fm.approved_hash = anchor.approved_hash;
+      fm.approved_whole_sha = anchor.approved_whole_sha;
+      delete fm.review;
+    });
+    new Notice(`Approved ${file.basename} (${anchor.approved_hash}). The commit is recorded when the note is committed.`);
   }
 
   /** The note's current text: the live editor when open, else the vault. */

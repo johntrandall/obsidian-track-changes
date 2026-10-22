@@ -57,6 +57,7 @@ import {
   resolveThread,
   threadStatus,
 } from "../resolution";
+import { readReviewFrontmatter } from "../pending";
 
 export const REVIEW_VIEW_TYPE = "tc-review-panel";
 
@@ -104,6 +105,8 @@ export interface PanelHost {
    * live so settings changes apply at once.
    */
   replyDateStyle(): ReplyDateStyle;
+  /** Record the human's approval of the whole note (frontmatter anchor); refuses while marks are open. */
+  approveDocument(file: TFile): Promise<void>;
 }
 
 export class ReviewPanelView extends ItemView {
@@ -386,6 +389,15 @@ export class ReviewPanelView extends ItemView {
     }
     if (resolved > 0) parts.push(`${resolved} resolved`);
     header.createDiv({ cls: "tc-header-counts", text: parts.join(" · ") });
+
+    // A note flagged for whole review (frontmatter review: whole) offers
+    // Approve here too, beside the counts.
+    if (readReviewFrontmatter(this.currentSource).review === "whole") {
+      const row = header.createDiv({ cls: "tc-header-actions tc-header-review" });
+      row.createSpan({ cls: "tc-status-badge tc-status-whole", text: "Needs whole review" });
+      const approve = row.createEl("button", { cls: "tc-btn-small tc-btn-approve", text: "Approve this version" });
+      approve.addEventListener("click", () => void this.host.approveDocument(file));
+    }
 
     // Bulk actions on every suggestion in the note. Comments and highlights
     // stay; a thread anchored on a suggestion goes with it, as per card.

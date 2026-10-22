@@ -1,0 +1,6 @@
+{
+ "base_hash": "sha256:b1b16400970590e5",
+ "proposed_hash": "sha256:cd7be3ab4face275",
+ "base_text": "# Sample\n\nIntro with  and a deletion kept.\n\n## Terms\n\nA cat sat.\n\n## 2. Second\n\nUnchanged text plain and ai text here.\n\nTrailing blank lines follow.",
+ "proposed_text": "# Sample\n\nIntro with an insertion and kept.\n\n## Terms\n\nA dog sat.\n\n## 2. Second\n\nUnchanged text plain and ai text here.\n\nTrailing blank lines follow."
+}
