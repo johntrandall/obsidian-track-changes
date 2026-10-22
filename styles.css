@@ -880,3 +880,14 @@ body {
   color: var(--text-faint);
   font-variant-numeric: tabular-nums;
 }
+
+.tc-btn-approve {
+  color: var(--text-success, var(--text-accent));
+  font-weight: 600;
+}
+.tc-status-whole {
+  color: var(--text-accent);
+}
+.tc-header-review {
+  align-items: center;
+}
