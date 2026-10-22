@@ -860,3 +860,23 @@ body {
 .tc-resolved-section-folded .tc-resolved-body {
   display: none;
 }
+
+/* ---- Vault overview: whole-review group ---- */
+.tc-overview-group {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 6px 0 -2px;
+}
+.tc-overview-row-whole {
+  border-left: 3px solid var(--text-accent);
+}
+.tc-chip-whole {
+  color: var(--text-accent);
+}
+.tc-overview-approved {
+  font-size: 0.75em;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}

@@ -29,7 +29,7 @@ Your agent needs to know the mark format. Two starting points:
 - **Comments are the record** — accepting or rejecting a suggestion keeps the thread attached to it, marked resolved, so nothing is deleted and nothing asks for confirmation
 - **Remove comments / Copy clean markdown** — a header button and command delete every comment thread in the note (after confirmation; suggestions stay), and *Copy clean markdown* puts a fully resolved, comment-free copy on the clipboard without touching the note
 - **Finalize for publish** — resolves all remaining markup in one pass
-- **Pending changes overview** — a vault-wide list of every note that still has suggestions, comments or highlights, most to review first, with per-file counts; click a row to open the note and its review panel. A status-bar item shows the vault-wide total (hidden when there is nothing to review) and opens the overview
+- **Pending changes overview** — a vault-wide list of every note that still has suggestions, comments or highlights, most to review first, with per-file counts; click a row to open the note and its review panel. A note whose frontmatter says `review: whole` (set by a reviewing system such as watchbill; the plugin only reads it) is listed first under *Needs whole review*, with its `approved_at` if present, so documents that need reading as a whole show beside documents with marks. A status-bar item shows the vault-wide total (hidden when there is nothing to review) and opens the overview
 - Reading mode: accepted preview or raw side-by-side
 - Custom colors and tint intensity for additions, deletions, highlights, comments and AI-added text
 - Code blocks left alone
