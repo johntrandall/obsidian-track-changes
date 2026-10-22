@@ -31,6 +31,7 @@ const {
 } = await loadTs("../src/resolution.ts");
 const { applyEdits, rebaseEdits, replyEdits, editsAtCursor } = await loadTs("../src/operations.ts");
 const { summarizeSource } = await loadTs("../src/pending.ts");
+const counts = (s) => ({ suggestions: s.suggestions, comments: s.comments, highlights: s.highlights });
 
 let failed = 0;
 function test(name, fn) {
@@ -74,7 +75,7 @@ test("resolved= and acknowledged= are read from the root, independently", () => 
 test("acknowledged alone is not resolved: the user still has it in the queue", () => {
   const r = parse('{acknowledged="2026-10-20" acknowledged-by="Claude">>note<<}');
   assert.equal(isResolved(r, r.threads[0]), false);
-  assert.equal(summarizeSource('{acknowledged="2026-10-20">>note<<}').comments, 1);
+  assert.equal(counts(summarizeSource('{acknowledged="2026-10-20">>note<<}')).comments, 1);
 });
 
 test("flags on a reply do not resolve the thread; only the root counts", () => {
@@ -85,7 +86,7 @@ test("flags on a reply do not resolve the thread; only the root counts", () => {
 test("a thread anchored on a suggestion is never resolved: the suggestion is pending", () => {
   const r = parse('{++new++}{resolved="2026-10-20">>why<<}');
   assert.equal(isResolved(r, r.threads[0]), false);
-  assert.deepEqual(summarizeSource('{++new++}{resolved="2026-10-20">>why<<}'), {
+  assert.deepEqual(counts(summarizeSource('{++new++}{resolved="2026-10-20">>why<<}')), {
     suggestions: 1,
     comments: 0,
     highlights: 0,
@@ -94,13 +95,13 @@ test("a thread anchored on a suggestion is never resolved: the suggestion is pen
 
 test("pending counts skip resolved threads but keep the rest", () => {
   const src = 'a {resolved="2026-10-20">>done<<} b {>>open<<} c {==hl==}';
-  assert.deepEqual(summarizeSource(src), { suggestions: 0, comments: 1, highlights: 1 });
+  assert.deepEqual(counts(summarizeSource(src)), { suggestions: 0, comments: 1, highlights: 1 });
   const r = parse(src);
   assert.deepEqual([...resolvedThreadIndexes(r)], [0]);
 });
 
 test("a resolved thread's highlight anchor stays folded into the thread", () => {
-  assert.deepEqual(summarizeSource('{==text==}{resolved="2026-10-20">>done<<}'), {
+  assert.deepEqual(counts(summarizeSource('{==text==}{resolved="2026-10-20">>done<<}')), {
     suggestions: 0,
     comments: 0,
     highlights: 0,
@@ -268,7 +269,7 @@ test("a lone highlight with resolved= is resolved; an anchor never is", () => {
   assert.equal(isResolvedHighlight(r, 1), false);
   assert.equal(isResolvedHighlight(r, 3), false);
   assert.deepEqual([...resolvedHighlightIndexes(r)], [0]);
-  assert.deepEqual(summarizeSource(src), { suggestions: 0, comments: 1, highlights: 1 });
+  assert.deepEqual(counts(summarizeSource(src)), { suggestions: 0, comments: 1, highlights: 1 });
 });
 
 test("resolveHighlight / reopenHighlight write and clear the flag", () => {

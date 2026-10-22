@@ -91,7 +91,9 @@ export class VaultIndex {
         prev &&
         prev.suggestions === summary.suggestions &&
         prev.comments === summary.comments &&
-        prev.highlights === summary.highlights
+        prev.highlights === summary.highlights &&
+        prev.reviewWhole === summary.reviewWhole &&
+        prev.approvedAt === summary.approvedAt
       ) {
         return;
       }

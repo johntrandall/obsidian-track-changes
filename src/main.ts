@@ -420,7 +420,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
       return;
     }
     el.show();
-    const items = sum.suggestions + sum.comments + sum.highlights;
+    const items = sum.suggestions + sum.comments + sum.highlights + sum.wholeReview;
     el.setText(`${items} to review · ${sum.files} ${sum.files === 1 ? "file" : "files"}`);
     el.setAttr("aria-label", `Track changes: ${describeSummary(sum)} across ${sum.files} ${sum.files === 1 ? "file" : "files"}. Click to open the overview.`);
     el.setAttr("data-tooltip-position", "top");

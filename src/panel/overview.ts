@@ -8,6 +8,7 @@ import { ItemView, WorkspaceLeaf, debounce, setIcon } from "obsidian";
 import {
   describeSummary,
   filterRows,
+  markCount,
   sortRows,
   totals,
   type FileRow,
@@ -113,7 +114,7 @@ export class PendingOverviewView extends ItemView {
     list.empty();
     const rows = filterRows(allRows, this.query);
     if (allRows.length === 0 && this.host.index.ready) {
-      list.createEl("p", { cls: "tc-empty", text: "All caught up — no files have open suggestions or comments." });
+      list.createEl("p", { cls: "tc-empty", text: "All caught up — no files have open suggestions, comments, or a whole-review flag." });
       return;
     }
     if (rows.length === 0 && allRows.length > 0) {
@@ -121,8 +122,31 @@ export class PendingOverviewView extends ItemView {
       return;
     }
     const active = this.host.activeFilePath();
-    for (const r of rows) {
+    // Three groups, like the decision board's two review columns (John,
+    // 2026-10-22): `review: whole` with no approved_at = "Needs review"
+    // (never approved); with approved_at = "Dirty" (approved, changed since);
+    // then notes with open marks. A flagged note with marks shows once, in
+    // its flag group, chips included. The plugin only reads the frontmatter.
+    const needs = rows.filter((r) => r.reviewWhole && !r.approvedAt);
+    const dirty = rows.filter((r) => r.reviewWhole && r.approvedAt);
+    const marked = rows.filter((r) => !r.reviewWhole);
+    const groups: Array<[string, FileRow[], boolean]> = [
+      [`Needs review (${needs.length})`, needs, true],
+      [`Dirty: approved, changed since (${dirty.length})`, dirty, true],
+      [`Open marks (${marked.length})`, marked, false],
+    ];
+    const several = groups.filter(([, g]) => g.length > 0).length > 1;
+    for (const [title, group, whole] of groups) {
+      if (group.length === 0) continue;
+      if (several) list.createDiv({ cls: "tc-overview-group", text: title });
+      for (const r of group) this.renderRow(list, r, active, whole);
+    }
+  }
+
+  private renderRow(list: HTMLElement, r: FileRow, active: string | null, whole: boolean): void {
+    {
       const card = list.createDiv({ cls: "tc-card tc-overview-row" });
+      if (whole) card.addClass("tc-overview-row-whole");
       card.setAttr("data-tc-path", r.path);
       if (r.path === active) card.addClass("tc-overview-row-active");
       card.addEventListener("click", () => void this.host.openFileForReview(r.path));
@@ -135,10 +159,21 @@ export class PendingOverviewView extends ItemView {
       if (folder) nameRow.createSpan({ cls: "tc-overview-folder", text: folder });
 
       const chips = card.createDiv({ cls: "tc-overview-chips" });
-      this.chip(chips, "pencil", r.suggestions, "suggestion", "tc-chip-suggestions");
-      this.chip(chips, "message-square", r.comments, "comment", "tc-chip-comments");
-      if (r.highlights > 0) {
-        this.chip(chips, "highlighter", r.highlights, "highlight", "tc-chip-highlights");
+      if (whole) {
+        const tag = chips.createSpan({ cls: "tc-overview-chip tc-chip-whole" });
+        setIcon(tag.createSpan({ cls: "tc-overview-chip-icon" }), "book-open");
+        tag.createSpan({ cls: "tc-overview-chip-count", text: "whole" });
+        tag.setAttr("aria-label", "Needs reading as a whole (frontmatter review: whole)");
+        if (r.approvedAt) {
+          chips.createSpan({ cls: "tc-overview-approved", text: `approved ${r.approvedAt}` });
+        }
+      }
+      if (!whole || markCount(r) > 0) {
+        this.chip(chips, "pencil", r.suggestions, "suggestion", "tc-chip-suggestions");
+        this.chip(chips, "message-square", r.comments, "comment", "tc-chip-comments");
+        if (r.highlights > 0) {
+          this.chip(chips, "highlighter", r.highlights, "highlight", "tc-chip-highlights");
+        }
       }
     }
   }
