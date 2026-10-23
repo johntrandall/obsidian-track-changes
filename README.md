@@ -25,7 +25,7 @@ Steward: none (a software project). Scheduled fallback: none; nothing restarts a
 
 | Date | Origin (name, session id) | Receiver (name, session id) | Scope | Historian exited |
 |---|---|---|---|---|
-| 2026-10-23 | founding session `obsidian-track-changes-df`, 8a6e4f5e-cd18-45bb-9f14-4fba643fefd0 | `trackchg-architect`, (see ledger) | session | no |
+| 2026-10-23 | founding session `obsidian-track-changes-df`, 8a6e4f5e-cd18-45bb-9f14-4fba643fefd0 | `trackchg-architect`, 988b396b-f824-464e-83db-39e5a05961e0 | session | no |
 
 ## Agent setup
 
