@@ -1,0 +1,20 @@
+#!/bin/bash
+# principal-run — run a TCC principal app from /Applications/TCC Principals through LaunchServices,
+# so the app (not the shell or sshd) is the responsible process and its own grants apply.
+#   principal-run "<App name>" [--user <gui-user>] -- <args…>        (tcc-principal-wrapping skill)
+# Over ssh as root (sudo), --user wraps the launch in `launchctl asuser <uid> sudo -u <user>`.
+set -u
+APP_NAME=${1:?app name}; shift
+APP="/Applications/TCC Principals/$APP_NAME.app"
+[ -d "$APP" ] || { echo "principal-run: no $APP" >&2; exit 66; }
+USER_NAME=""
+while [ $# -gt 0 ]; do case "$1" in --user) USER_NAME=$2; shift 2;; --) shift; break;; *) break;; esac; done
+OUT=$(mktemp) ERR=$(mktemp)
+if [ -n "$USER_NAME" ]; then
+  [ "$(id -u)" = 0 ] || { echo "principal-run: --user needs root" >&2; exit 77; }
+  UID_N=$(id -u "$USER_NAME")
+  launchctl asuser "$UID_N" sudo -u "$USER_NAME" /usr/bin/open -W -n --stdout "$OUT" --stderr "$ERR" -a "$APP" --args "$@"
+else
+  /usr/bin/open -W -n --stdout "$OUT" --stderr "$ERR" -a "$APP" --args "$@"
+fi
+RC=$?; cat "$OUT"; cat "$ERR" >&2; rm -f "$OUT" "$ERR"; exit $RC

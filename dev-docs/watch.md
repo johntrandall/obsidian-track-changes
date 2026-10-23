@@ -20,3 +20,7 @@ A failed probe: one message in the architect's tab and, if nobody is in that tab
 ## Exit condition
 
 None yet: the system is young. Revisit after the upstream PR decision (2026-10-27) and the mobile harness landing.
+
+## Relief log
+
+- 2026-10-23 12:08 EDT: `trackchg-architect` (session 988b396b-f824-464e-83db-39e5a05961e0) relieved the founding session `obsidian-track-changes-df` (8a6e4f5e). The origin ran no board watcher and no Monitor ("I had no watcher running … nothing to stop", its message to trackchg-architect, 12:08). Recorded for it: watcher stopped. The receiver arms `watchbill decisions watch --system obsidian-track-changes` from here.
