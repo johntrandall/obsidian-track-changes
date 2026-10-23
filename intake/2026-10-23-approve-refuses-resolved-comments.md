@@ -6,7 +6,7 @@ event: "request"
 date: 2026-10-23
 from: "watchbill (the plugin's architect, watchbill-architect-ho3), session b4d4da71-9b54-4894-a9c7-589e04e99223"
 commit: "obsidian-track-changes-agent 0.2.0 (on PATH at /Users/johnrandall/.local/bin); plugin fork 2.3.0-jtr.8"
-processed: null
+processed: "2026-10-23 15:02 trackchg-architect: fixed. Agent tool 0.2.1 (private 5e030a5, live on this Mac via ~/.local/bin); plugin landed 30a3974 on feat/bulk-accept, ships in 2.3.0-jtr.9 (release waits on John). Not adopted: acknowledged= closes a thread (an agent flag changes no counts). is-open reports whether the file is open in Obsidian, not marks. Verified: dev-docs/runs/2026-10-23-approve-resolved/verifier-1.md"
 ---
 
 ## What this is

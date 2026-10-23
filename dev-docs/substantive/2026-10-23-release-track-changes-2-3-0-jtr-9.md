@@ -37,6 +37,9 @@ review_marks:
 ---
 # Release Track Changes 2.3.0-jtr.9
 
+> [!success] What changed · revision 2 · 2026-10-23 15:02 · trackchg-architect
+> - New: jtr.9 also carries the Approve fix: resolved comments no longer block *Approve this version* (landed 30a3974, verified).
+
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
 > You are looking at a decision from trackchg-architect. **Your move:** drag it to **yes** to accept the recommendation (yes), or to **no**, **revise substance**, **revise presentation**, **later**, **talk** or **snoozed**; or answer in chat. **Then:** trackchg-architect acts on your answer.
 
@@ -59,7 +62,7 @@ Release the fork as 2.3.0-jtr.9 (the review panel's comment count fix) on GitHub
 ## Design impact
 
 - Your open vaults: today run jtr.8. After: jtr.9; the only change you would notice is the header's comment count (matches the overview; a resolved highlight never lowers it).
-- The fork's GitHub releases: a new latest release 2.3.0-jtr.9 with the note "Fixed: the review panel's comment count no longer drops when you resolve a highlight; it matches the pending overview."
+- The fork's GitHub releases: a new latest release 2.3.0-jtr.9 with the notes "Fixed: the review panel's comment count no longer drops when you resolve a highlight; it matches the pending overview." ==and "Fixed: Approve this version no longer refuses a note whose only remaining comments are resolved; resolved comments stay in the note."==
 
 **Binds:** the architect (commits the bump, tags, pushes `deployed` and the tag, creates the release, rolls it out). · **Your part:** say yes here or in chat; if the permission check still refuses, the architect gives you the three commands to run or the one permission rule to add. · **Does not change:** anything else in the plugin; the mobile harness is test tooling and does not ship.
 
@@ -97,6 +100,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:38:39-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · created the card [lane: agent drafting]
 - 2026-10-23T12:39:01-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · filled in the card body by hand
 - 2026-10-23T12:39:02-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent drafting → new [lane: new]
+- 2026-10-23T15:02:16-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · revision 2: the Approve fix rides in jtr.9
 
 ## John's comments
 
