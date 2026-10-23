@@ -1,0 +1,79 @@
+{
+  "about": "The step plan for `scripts/vm-test.sh smoke-mobile` (run in the VM by scripts/vm-mobile-smoke.js) and for test/vm-smoke-plan.test.mjs, which checks the expectations against the pure modules in Node. Each step acts on fixture.md (test/fixtures/vm-fixture.md); `expect.counts` is the review panel header's `.tc-header-counts` text, `resolvedTitle` the `.tc-resolved-title` text (null: no Resolved section), `decide` the number of `.tc-card-decide` blocks (one per suggestion card), `buttons` the `.tc-header-actions button` labels, `contains`/`absent` substrings of the note's text after the step (<DATE> stands for any YYYY-MM-DD stamp). `knownIssue` marks a step whose expectation is the correct value and the panel is known to show a different one; the smoke reports it as KNOWN rather than FAIL.",
+  "initial": {
+    "counts": "3 comments · 4 suggestions · 1 highlight · 1 resolved",
+    "resolvedTitle": "Resolved (1)",
+    "decide": 4,
+    "buttons": ["Accept all", "Reject all", "Remove comments"],
+    "badges": { "acknowledged": ["Acknowledged by Claude (editor) 2026-10-20"], "resolved": ["Resolved 2026-10-20"] },
+    "resolvedFolded": true
+  },
+  "menus": [
+    { "name": "cursor-in-addition", "cursorIn": "++very ++", "cursorAt": 3, "includes": ["Accept change", "Reject change"] },
+    { "name": "cursor-in-open-thread", "cursorIn": "Could this paragraph be shorter?", "includes": ["Delete comment", "Mark resolved"] },
+    { "name": "selection-over-two-suggestions", "selectFrom": "A deletion:", "selectTo": "~~quick~>fast~~", "includes": ["Accept 2 changes in selection", "Reject 2 changes in selection"] },
+    { "name": "selection-of-plain-text", "selectFrom": "over the dog", "selectLength": 4, "includes": ["Mark selection as deletion", "Mark selection for substitution", "Highlight selection", "Insert comment"] }
+  ],
+  "steps": [
+    {
+      "name": "resolve-open-thread", "command": "track-changes:resolve-thread-at-cursor", "action": "resolve-thread", "cursorIn": "Could this paragraph be shorter?",
+      "expect": { "counts": "2 comments · 4 suggestions · 1 highlight · 2 resolved", "resolvedTitle": "Resolved (2)", "decide": 4,
+        "contains": ["date=\"2026-10-20\" resolved=\"<DATE>\">>Could this paragraph be shorter?<<}"] }
+    },
+    {
+      "name": "accept-addition", "command": "track-changes:accept-change-at-cursor", "action": "accept", "cursorIn": "++very ++", "cursorAt": 3,
+      "expect": { "counts": "2 comments · 3 suggestions · 1 highlight · 2 resolved", "resolvedTitle": "Resolved (2)", "decide": 3,
+        "contains": ["An addition: the very quick brown fox."] }
+    },
+    {
+      "name": "reject-deletion", "command": "track-changes:reject-change-at-cursor", "action": "reject", "cursorIn": "--brown --", "cursorAt": 3,
+      "expect": { "counts": "2 comments · 2 suggestions · 1 highlight · 2 resolved", "resolvedTitle": "Resolved (2)", "decide": 2,
+        "contains": ["A deletion: the quick brown fox."] }
+    },
+    {
+      "name": "accept-substitution-keeps-rationale-resolved", "command": "track-changes:accept-change-at-cursor", "action": "accept", "cursorIn": "~~quick~>fast~~", "cursorAt": 3,
+      "expect": { "counts": "2 comments · 1 suggestion · 1 highlight · 3 resolved", "resolvedTitle": "Resolved (3)", "decide": 1,
+        "contains": ["the fast{author=\"Claude (editor)\" date=\"2026-10-20\" resolved=\"<DATE>\">>Plainer word.<<} fox."] }
+    },
+    {
+      "name": "reopen-resolved-thread", "command": "track-changes:reopen-thread-at-cursor", "action": "reopen-thread", "cursorIn": "Consider a table here.",
+      "expect": { "counts": "3 comments · 1 suggestion · 1 highlight · 2 resolved", "resolvedTitle": "Resolved (2)", "decide": 1,
+        "contains": ["{author=\"Claude (editor)\" date=\"2026-10-19\">>Consider a table here.<<}"] }
+    },
+    {
+      "name": "resolve-lone-highlight", "command": "track-changes:resolve-thread-at-cursor", "action": "resolve-thread", "cursorIn": "{==highlight==}", "cursorAt": 4,
+      "expect": { "counts": "3 comments · 1 suggestion · 3 resolved", "resolvedTitle": "Resolved (3)", "decide": 1,
+        "contains": ["a lone {resolved=\"<DATE>\"==highlight==}."] }
+    },
+    {
+      "name": "reopen-lone-highlight", "command": "track-changes:reopen-thread-at-cursor", "action": "reopen-thread", "cursorIn": "==highlight==}.", "cursorAt": 4,
+      "expect": { "counts": "3 comments · 1 suggestion · 1 highlight · 2 resolved", "resolvedTitle": "Resolved (2)", "decide": 1,
+        "contains": ["a lone {==highlight==}."] }
+    },
+    {
+      "name": "delete-comment-takes-its-anchor", "command": "track-changes:delete-comment-at-cursor", "action": "delete-comment", "cursorIn": "comment on a highlight",
+      "expect": { "counts": "2 comments · 1 suggestion · 1 highlight · 2 resolved", "resolvedTitle": "Resolved (2)", "decide": 1,
+        "contains": ["A highlighted span and a lone {==highlight==}."] }
+    },
+    {
+      "name": "panel-accept-all", "button": "Accept all", "confirm": "Accept all",
+      "expect": { "counts": "2 comments · 0 suggestions · 1 highlight · 2 resolved", "resolvedTitle": "Resolved (2)", "decide": 0,
+        "buttons": ["Remove comments"],
+        "contains": ["A bare substitution (no thread, so the card offers Comment): leaps over the dog."] }
+    },
+    {
+      "name": "panel-remove-comments", "button": "Remove comments", "confirm": "Remove comments",
+      "expect": { "counts": "0 comments · 0 suggestions · 1 highlight", "resolvedTitle": null, "decide": 0,
+        "buttons": [],
+        "contains": ["An open thread.  More prose.", "the fast fox."], "absent": [">>", "<<}"] }
+    },
+    {
+      "name": "panel-approve", "approve": true,
+      "expect": { "approveButton": "Approve this version", "contains": ["approved_at:", "approved_hash:", "approved_via: track-changes panel"], "absent": ["review: whole"] }
+    }
+  ],
+  "sizes": [
+    { "name": "1024x768", "width": 1024, "height": 768 },
+    { "name": "834x1194", "width": 834, "height": 1194 }
+  ]
+}

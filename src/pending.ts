@@ -9,7 +9,7 @@
 // thread; `aitext` marks are visual-only and never count; a thread the user
 // has resolved (`resolved=` on its root) is kept in the note but not pending.
 
-import { anchorNodeIndexes, changeThreads, isChangeNode, parse } from "./parser";
+import { anchorNodeIndexes, changeThreads, isChangeNode, parse, type ParseResult } from "./parser";
 import { resolvedHighlightIndexes, resolvedThreadIndexes } from "./resolution";
 
 export interface FileSummary {
@@ -83,9 +83,33 @@ export function summarizeSource(source: string): FileSummary {
   if (!source.includes("{")) return base;
   const parsed = parse(source);
   if (parsed.nodes.length === 0) return base;
+  const c = countReviewItems(parsed);
+  return { ...base, suggestions: c.suggestions, comments: c.comments, highlights: c.highlights };
+}
+
+/** The review counts of one parsed note: what the review panel header shows and the overview row counts. */
+export interface ReviewCounts {
+  suggestions: number;
+  /** Threads not anchored on a suggestion and not resolved by the user. */
+  comments: number;
+  /** Highlights that are not a thread's anchor and not resolved by the user. */
+  highlights: number;
+  /** Threads the user resolved (never change-anchored ones). */
+  resolvedThreads: number;
+  /** Lone highlights the user resolved. */
+  resolvedHighlights: number;
+}
+
+/**
+ * One definition of the counts for the panel header and the overview, so the
+ * two cannot disagree (the header once subtracted resolved highlights from
+ * the comment count; found by the mobile smoke, 2026-10-23).
+ */
+export function countReviewItems(parsed: ParseResult): ReviewCounts {
   const anchored = anchorNodeIndexes(parsed);
   const onChange = changeThreads(parsed);
   const resolvedHl = resolvedHighlightIndexes(parsed);
+  const resolvedTh = resolvedThreadIndexes(parsed);
   let suggestions = 0;
   let highlights = 0;
   parsed.nodes.forEach((n, i) => {
@@ -93,10 +117,11 @@ export function summarizeSource(source: string): FileSummary {
     else if (n.kind === "highlight" && !anchored.has(i) && !resolvedHl.has(i)) highlights++;
   });
   return {
-    ...base,
     suggestions,
-    comments: parsed.threads.length - onChange.size - resolvedThreadIndexes(parsed).size,
+    comments: parsed.threads.length - onChange.size - resolvedTh.size,
     highlights,
+    resolvedThreads: resolvedTh.size,
+    resolvedHighlights: resolvedHl.size,
   };
 }
 

@@ -1,0 +1,46 @@
+#!/bin/bash
+# gui-script — run osascript as the TCC principal "GUI Scripting (osascript)" so Accessibility
+# and AppleEvents→System Events come from the MDM PPPC profile, not from whatever terminal
+# happens to be the parent. See README.md next to this file.
+#
+#   gui-script [--user <gui-user>] [--timeout <s>] -- <osascript args…>
+#   gui-script -e 'tell application "System Events" to get name of every process'
+#
+# Why `open` and not the stub directly: the wrapper stub does not disclaim responsibility,
+# so a stub started from a shell is attributed to the shell's terminal app. LaunchServices
+# (`open -a`) makes the app its own responsible process AND puts it in the Aqua session.
+# --user is for ssh/root callers: it wraps the launch in `launchctl asuser <uid> sudo -u <user>`
+# so the app lands in that user's GUI session (root required; plain `sudo -u` cannot asuser).
+set -euo pipefail
+APP="/Applications/TCC Principals/GUI Scripting (osascript).app"
+USER_NAME="" TIMEOUT=120
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --user) USER_NAME="$2"; shift 2 ;;
+    --timeout) TIMEOUT="$2"; shift 2 ;;
+    --app) APP="$2"; shift 2 ;;
+    --) shift; break ;;
+    -h|--help) sed -n '2,13p' "$0"; exit 0 ;;
+    *) break ;;
+  esac
+done
+[ -d "$APP" ] || { echo "gui-script: wrapper not installed at $APP" >&2; exit 66; }
+[ $# -gt 0 ] || { echo "gui-script: nothing to run (pass osascript args after --)" >&2; exit 64; }
+T="$(mktemp -d /tmp/gui-script.XXXXXX)"; OUT="$T/out"; ERR="$T/err"; : > "$OUT"; : > "$ERR"
+if [ -n "$USER_NAME" ]; then
+  [ "$(id -u)" = 0 ] || { echo "gui-script: --user needs root (launchctl asuser)" >&2; exit 77; }
+  UID_N="$(id -u "$USER_NAME")"
+  chown "$USER_NAME" "$T" "$OUT" "$ERR"
+  launchctl asuser "$UID_N" sudo -u "$USER_NAME" \
+    /usr/bin/open -W -n --stdout "$OUT" --stderr "$ERR" -a "$APP" --args "$@" &
+else
+  /usr/bin/open -W -n --stdout "$OUT" --stderr "$ERR" -a "$APP" --args "$@" &
+fi
+OPEN_PID=$!
+for ((i=0; i<TIMEOUT*10; i++)); do kill -0 "$OPEN_PID" 2>/dev/null || break; sleep 0.1; done
+if kill -0 "$OPEN_PID" 2>/dev/null; then
+  { kill "$OPEN_PID" 2>/dev/null; wait "$OPEN_PID"; } 2>/dev/null || true   # braces silence bash's "Terminated" notice
+  echo "gui-script: timed out after ${TIMEOUT}s" >&2; RC=124
+else wait "$OPEN_PID" && RC=0 || RC=$?; fi
+cat "$OUT"; cat "$ERR" >&2; rm -rf "$T"
+exit "$RC"

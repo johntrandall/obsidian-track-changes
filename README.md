@@ -8,6 +8,25 @@ Intended for AI-assisted review: the agent leaves `{++…++}`, `{--…--}`, `{~~
 
 ![Each CriticMarkup form as raw syntax next to its rendering in Live Preview](docs/syntax_showcase.png)
 
+## System
+
+Shape: software project (watchbill; `watchbill systems` row `obsidian-track-changes`, doorbell architect, intake `intake/`). The plugin does the work in John's vaults; the architect is the only long-lived seat and is dormant `🌙` between cycles. Decisions: `dev-docs/decisions.md`. Build queue: `dev-docs/build-queue.md`. Watch: `dev-docs/watch.md`. Contracts: `dev-docs/contracts/`. Sibling system: `obsidian-track-changes-agent` (the CLI tool agents use), `~/dev/claude-plugin-obsidian-track-changes-agent`.
+
+### Roster
+
+| Seat | Agent name | Model | Effort | Start | Brief | Cwd |
+|---|---|---|---|---|---|---|
+| Playbook Architect | `trackchg-architect` | opus | high | fresh (read the records) | `dev-docs/runs/2026-10-23-adopt-watchbill/briefs/architect.md` | `~/dev/obsidian-track-changes` |
+| Crew per feature | builders, verifiers (sub-agents) | per brief | per brief | fresh | per item in `dev-docs/build-queue.md` | worktrees |
+
+Steward: none (a software project). Scheduled fallback: none; nothing restarts a seat that dies until John or `watchbill restore` does.
+
+### Pairs
+
+| Date | Origin (name, session id) | Receiver (name, session id) | Scope | Historian exited |
+|---|---|---|---|---|
+| 2026-10-23 | founding session `obsidian-track-changes-df`, 8a6e4f5e-cd18-45bb-9f14-4fba643fefd0 | `trackchg-architect`, 988b396b-f824-464e-83db-39e5a05961e0 | session | no |
+
 ## Agent setup
 
 Your agent needs to know the mark format. Two starting points:
@@ -51,11 +70,19 @@ npm run build && scripts/vm-test.sh reload   # after a code change
 scripts/vm-test.sh fixture   # reset test/fixtures/vm-fixture.md in the vault (one of everything the panel renders)
 scripts/vm-test.sh shot      # screenshot the VM screen to /tmp/obsidian-vm.png
 scripts/vm-test.sh eval "app.workspace.getLeavesOfType('tc-review-panel').length"   # JS in the vault window
+scripts/vm-test.sh mobile on # switch the vault window to Obsidian's mobile emulation (`off` switches back)
+scripts/vm-test.sh smoke-mobile   # the review-panel smoke test under mobile emulation, screenshots per step
 scripts/vm-test.sh vnc       # watch it in Screen Sharing (admin / admin)
 scripts/vm-test.sh stop      # keep the disk; `destroy` deletes the VM
 ```
 
-The repository is shared into the VM over VirtioFS, so the test vault's `.obsidian/plugins/track-changes` is a symlink to this checkout: build on the host, `reload` in the guest. The vault (`/Users/admin/tc-test-vault`) exists only in the VM, with the reviewer name `Test Reviewer`. On the very first `up`, Obsidian may show its vault picker; open the folder as a vault once through Screen Sharing, then the script's remaining steps work. The VM name is `obsidian-track-changes-dev` (override with `VM=`).
+The repository is shared into the VM over VirtioFS, so the test vault's `.obsidian/plugins/track-changes` is a symlink to this checkout: build on the host, `reload` in the guest. The vault (`/Users/admin/tc-test-vault`) exists only in the VM, with the reviewer name `Test Reviewer`. On the very first `up`, Obsidian opens no vault window: open the folder as a vault once through Screen Sharing (`vnc`; menu *File → Open Vault… → Open folder as vault*), and turn on *Settings → General → Advanced → Command line interface*, which `eval` and everything built on it need; then run `up` again. The VM name is `obsidian-track-changes-dev` (override with `VM=`).
+
+`mobile on` calls `app.emulateMobile(true)` in the vault window: Obsidian reloads with its phone/tablet layout and `Platform.isMobile` set, the closest thing to the iPad that can be driven from a script. `smoke-mobile` resets the fixture, turns emulation on and runs `scripts/vm-mobile-smoke.js` inside the window at 1024×768 and 834×1194 (iPad landscape and portrait): it reloads the plugin and checks it loads cleanly with no status-bar count, opens the review panel and the pending overview by command id, checks the editor-menu items, runs the cursor commands with the cursor placed through the editor API, presses *Accept all*, *Remove comments* and *Approve* with their confirmations, and after each step compares the panel (counts, *Resolved* fold, badges, buttons) and the note's text with `test/fixtures/vm-mobile-smoke.json`. Results and a screenshot per step land in `dev-docs/runs/<date>-mobile/`; the command exits non-zero on any failure. The expectations in that JSON are themselves checked against the plugin's pure modules by `test/vm-smoke-plan.test.mjs` (part of `npm test`).
+
+## Testing on iPad
+
+Obsidian for iOS cannot run in the iOS Simulator, so the iPad is covered in three layers: `npm run test:webkit` runs the unit tests in Playwright's WebKit (the iPad's JavaScript engine; install the engine once with `npx playwright install webkit`), `scripts/vm-test.sh smoke-mobile` drives the panel under desktop mobile emulation, and a ten-minute checklist covers what only the device shows (touch, the iOS selection menu, sidebars as drawers): [`dev-docs/testing/ipad-checklist.md`](dev-docs/testing/ipad-checklist.md).
 
 ## Commands
 

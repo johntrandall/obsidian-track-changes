@@ -1,0 +1,18 @@
+$ scripts/vm-test.sh eval '1+1'
+Command line interface is not enabled. Please turn it on in Settings > General > Advanced.
+exit=0
+
+$ scripts/vm-test.sh mobile on
+Command line interface is not enabled. Please turn it on in Settings > General > Advanced.
+Command line interface is not enabled. Please turn it on in Settings > General > Advanced.
+mobile on: the vault window did not answer with isMobile=true (see above).
+If Obsidian's CLI is off or no vault is open, open the vault once through Screen Sharing (scripts/vm-test.sh vnc); see README, Testing by eye in a VM.
+exit=1
+
+$ scripts/vm-test.sh smoke-mobile
+fixture.md written
+Command line interface is not enabled. Please turn it on in Settings > General > Advanced.
+Command line interface is not enabled. Please turn it on in Settings > General > Advanced.
+mobile on: the vault window did not answer with isMobile=true (see above).
+If Obsidian's CLI is off or no vault is open, open the vault once through Screen Sharing (scripts/vm-test.sh vnc); see README, Testing by eye in a VM.
+exit=1
