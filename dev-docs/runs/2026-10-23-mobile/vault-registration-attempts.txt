@@ -1,0 +1,24 @@
+2026-10-23, VM obsidian-track-changes-dev (clone of macos-15.7-l2-dev), Obsidian 1.14.4 installer / 1.14.5 asar.
+Goal: register /Users/admin/tc-test-vault as Obsidian's first vault without a GUI click, in the order the brief gives.
+
+1. open -a Obsidian /Users/admin/tc-test-vault          (what `scripts/vm-test.sh up` runs)
+   Obsidian starts (menu bar shows it), no window at all, not even the vault picker;
+   ~/Library/Application Support/obsidian/obsidian.json is not created; the vault has no .obsidian/ beyond the plugins/ link the script makes.
+   `obsidian eval` answers: "Command line interface is not enabled. Please turn it on in Settings > General > Advanced."
+
+2. /Applications/Obsidian.app/Contents/MacOS/Obsidian /Users/admin/tc-test-vault   (launch argument, after quitting 1)
+   Same: no window, no obsidian.json. In this state `obsidian eval` hung (no answer in 20 s) instead of printing the message;
+   the instance ignored SIGTERM and had to be killed (kill -9) and Obsidian reopened with `open -a Obsidian`, which brought back state 1.
+
+3. open "obsidian://open?path=%2FUsers%2Fadmin%2Ftc-test-vault"
+   No window, no obsidian.json.
+
+Screen after all three: vm-screen-no-vault-window.png (desktop, Obsidian's menu bar, no window).
+
+Not tried, per the brief ("say so in your report rather than working around it"): driving the vault picker through
+Electron remote debugging, or writing obsidian.json / the CLI setting by hand (application data; never hand-written).
+
+Two human steps unblock it (Screen Sharing: scripts/vm-test.sh vnc, admin / admin):
+  a. Obsidian menu File > Open Vault... (or click the Dock icon) > "Open folder as vault" > /Users/admin/tc-test-vault; trust the author.
+  b. Settings (Cmd-,) > General > Advanced > "Command line interface" on.
+Then: scripts/vm-test.sh up && scripts/vm-test.sh smoke-mobile

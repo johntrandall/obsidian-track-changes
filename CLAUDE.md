@@ -14,6 +14,7 @@ npm run dev              # esbuild watch -> main.js (with inline sourcemaps)
 npm run build            # tsc --noEmit + esbuild production bundle
 npm run typecheck        # tsc --noEmit -skipLibCheck
 npm test                 # runs every test file sequentially
+npm run test:webkit      # the same test files in Playwright WebKit (the iPad's engine); `npx playwright install webkit` once
 node test/parser.test.mjs        # run a single test file
 ```
 
@@ -57,6 +58,7 @@ A thread is a run of `{>>…<<}` blocks with only inline whitespace (no blank li
 - Source edits must be non-overlapping; `applyEdits` asserts this and throws on violation. Construct edits with that contract in mind.
 - When adding a new mutation, always set `expected` (and `before` for insertions) so it survives `rebaseEdits`.
 - Companion-agent behavior is documented in `docs/SKILL.md` (the example reviewer-skill template shipped with the plugin). When changing thread/prefix semantics, update both this file and that one.
+- What is tested where (the plugin also ships to the iPad, `isDesktopOnly: false`): **Node** (`npm test`) runs the pure modules on V8. **WebKit** (`npm run test:webkit`, `test/webkit/run.mjs`) runs the same test files unchanged in Playwright's WebKit, the iPad's JavaScript engine, with shims for `node:assert`/`fs`/`path`/`url` and `esbuild` forwarded to Node; a new test file needs nothing extra unless it imports a Node module without a shim (then add one or list it in `SKIP`; `per-window-panel.test.mjs` is skipped because it needs `node:vm`). **VM mobile emulation** (`scripts/vm-test.sh smoke-mobile`) drives the real plugin in desktop Obsidian with `app.emulateMobile(true)` at iPad sizes, against the plan in `test/fixtures/vm-mobile-smoke.json`, whose expectations `test/vm-smoke-plan.test.mjs` checks in Node; when a panel change alters counts, badges or buttons, update that JSON. **The real iPad** is by hand only (Obsidian for iOS cannot run in the Simulator): `dev-docs/testing/ipad-checklist.md`, for touch, the iOS selection menu and the sidebar drawers.
 
 ## Releases
 
