@@ -1,0 +1,30 @@
+
+> obsidian-track-changes@0.1.0 test:webkit
+> node test/webkit/run.mjs
+
+WebKit 27.2 (Playwright 1.64.0)
+canary: src compiled and ran in WebKit; its deliberate failure was detected
+pass  approval.test.mjs  (5 ok)
+pass  authoring.test.mjs  (33 ok)
+pass  authors.test.mjs  (13 ok)
+pass  bulk.test.mjs  (8 ok)
+pass  colors.test.mjs  (0 ok; last line: colors tests passed)
+pass  diff.test.mjs  (12 ok)
+pass  finalize.test.mjs  (13 ok)
+pass  operations.test.mjs  (45 ok)
+pass  parser.edge.test.mjs  (33 ok)
+pass  parser.invariants.test.mjs  (35 ok)
+pass  parser.test.mjs  (36 ok)
+pass  pending.test.mjs  (0 ok; last line: pending.test.mjs: ok)
+pass  plus.finalize.test.mjs  (26 ok)
+pass  plus.fixes.test.mjs  (19 ok)
+pass  plus.operations.test.mjs  (30 ok)
+pass  plus.parser.test.mjs  (49 ok)
+pass  plus.rebase.test.mjs  (25 ok)
+pass  plus.render-settings.test.mjs  (36 ok)
+pass  reading-plan.test.mjs  (13 ok)
+pass  rebase.test.mjs  (8 ok)
+pass  resolution.test.mjs  (24 ok)
+skip  per-window-panel.test.mjs: evaluates the CJS bundle of src/main.ts + src/panel/view.ts with node:vm runInNewContext and node:module createRequire against hand-made Obsidian window mocks; it tests Obsidian workspace wiring, not a pure module, and has no browser equivalent of a fresh V8 context
+
+WebKit: 21 files passed, 0 failed, 1 skipped; 463 ok test cases
