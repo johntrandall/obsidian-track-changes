@@ -131,3 +131,33 @@ assert.equal(describeSummary({ suggestions: 1, comments: 2, highlights: 0 }), "1
 assert.equal(describeSummary({ suggestions: 0, comments: 1, highlights: 1 }), "0 suggestions · 1 comment · 1 highlight");
 
 console.log("pending.test.mjs: ok");
+
+// ---- countReviewItems: the panel header and the overview share one count ----
+// Regression (2026-10-23, found by the mobile smoke): the panel header
+// subtracted resolved lone highlights from the comment count.
+{
+  const { countReviewItems } = mod;
+  const p = await build({
+    entryPoints: [resolve(__dirname, "../src/parser.ts")],
+    bundle: true, format: "esm", target: "es2018", write: false, platform: "node",
+  });
+  const { parse } = await import(
+    "data:text/javascript;base64," + Buffer.from(p.outputFiles[0].text).toString("base64")
+  );
+  const src = [
+    "a {>>open one<<} b",
+    "",
+    "c {>>open two<<} d",
+    "",
+    'e {resolved="2026-10-20">>done<<} f',
+    "",
+    '{resolved="2026-10-21"==lone resolved==} g',
+    "",
+    "{==lone open==} h {++add++}",
+  ].join("\n");
+  const c = countReviewItems(parse(src));
+  assert.deepEqual(c, { suggestions: 1, comments: 2, highlights: 1, resolvedThreads: 1, resolvedHighlights: 1 });
+  // The overview row says the same.
+  assert.deepEqual(counts(summarizeSource(src)), { suggestions: 1, comments: 2, highlights: 1 });
+  console.log("  ok  - countReviewItems: a resolved highlight never lowers the comment count; panel and overview agree");
+}
