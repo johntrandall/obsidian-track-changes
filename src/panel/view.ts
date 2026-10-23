@@ -58,6 +58,7 @@ import {
   threadStatus,
 } from "../resolution";
 import { countReviewItems, readReviewFrontmatter, type ReviewCounts } from "../pending";
+import { approvalState, describeApproval, readApprovalFrontmatter } from "../approval";
 
 export const REVIEW_VIEW_TYPE = "tc-review-panel";
 
@@ -377,6 +378,23 @@ export class ReviewPanelView extends ItemView {
     }
     if (resolved > 0) parts.push(`${resolved} resolved`);
     header.createDiv({ cls: "tc-header-counts", text: parts.join(" · ") });
+
+    // The approval indicator (watchbill's request, 2026-10-23): when the note
+    // carries an approval anchor, say when and by whom, and whether the text
+    // has changed since. Computed from the text (the base hash, as Approve
+    // writes it); reads only. Filled asynchronously; a re-render replaces it.
+    if (readApprovalFrontmatter(this.currentSource).approvedHash) {
+      const indicator = header.createDiv({ cls: "tc-approval" });
+      const source = this.currentSource;
+      void approvalState(source).then((st) => {
+        const text = describeApproval(st);
+        if (!indicator.isConnected || text === null) return;
+        indicator.setText(text);
+        indicator.addClass(`tc-approval-${st.state}`);
+      }).catch(() => {
+        // No hashing available (crypto.subtle): show nothing rather than a wrong state.
+      });
+    }
 
     // A note flagged for whole review (frontmatter review: whole) offers
     // Approve here too, beside the counts.

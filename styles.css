@@ -891,3 +891,16 @@ body {
 .tc-header-review {
   align-items: center;
 }
+
+/* Approval indicator in the review panel header (approval anchor in frontmatter). */
+.tc-approval {
+  font-size: var(--font-ui-smaller);
+  margin-top: 2px;
+  color: var(--text-muted);
+}
+.tc-approval-clean::before { content: "✓ "; color: var(--text-success, var(--text-accent)); }
+.tc-approval-clean { color: var(--text-success, var(--text-normal)); }
+.tc-approval-delta-open::before { content: "✓ "; color: var(--text-muted); }
+.tc-approval-dirty::before { content: "⚠ "; }
+.tc-approval-dirty { color: var(--text-warning, var(--text-error)); font-weight: 600; }
+.tc-approval-needs-review { color: var(--text-accent); }
