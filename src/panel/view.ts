@@ -391,6 +391,8 @@ export class ReviewPanelView extends ItemView {
         if (!indicator.isConnected || text === null) return;
         indicator.setText(text);
         indicator.addClass(`tc-approval-${st.state}`);
+      }).catch(() => {
+        // No hashing available (crypto.subtle): show nothing rather than a wrong state.
       });
     }
 
