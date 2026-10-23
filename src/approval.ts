@@ -10,6 +10,7 @@
 // hashes differently on the two sides. Keep marks out of code.
 
 import { parse, type CriticNode } from "./parser";
+import { countReviewItems } from "./pending";
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
 const STATUS_LINE_RE = /\b(Status|Approved|approved|Accepted)\b/;
@@ -88,11 +89,24 @@ export async function textHash(text: string): Promise<string> {
   return "sha256:" + hex.slice(0, 16);
 }
 
-/** Suggestions and comments awaiting a decision; highlights and AI text are not. */
+/**
+ * What keeps a note from being approved: pending suggestions, and comment
+ * threads the user has not resolved. A resolved thread stays in the note as
+ * the review's record and never blocks (defect 2026-10-23: Approve refused a
+ * note whose only marks were resolved comments); an agent's `acknowledged=`
+ * alone does not close a thread; highlights and AI text never block. The same
+ * count as the panel header (`countReviewItems`); the agent tool's
+ * `blocking_marks` agrees on zero.
+ */
+export function openReviewCounts(text: string): { suggestions: number; comments: number } {
+  const c = countReviewItems(parse(stripFrontmatter(text)));
+  return { suggestions: c.suggestions, comments: c.comments };
+}
+
+/** Suggestions plus unresolved comment threads; 0 means the note may be approved. */
 export function openMarkCount(text: string): number {
-  return parse(stripFrontmatter(text)).nodes.filter(
-    (n) => n.kind !== "highlight" && n.kind !== "aitext",
-  ).length;
+  const c = openReviewCounts(text);
+  return c.suggestions + c.comments;
 }
 
 /**
