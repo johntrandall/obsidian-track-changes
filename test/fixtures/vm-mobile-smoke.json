@@ -42,7 +42,6 @@
     },
     {
       "name": "resolve-lone-highlight", "command": "track-changes:resolve-thread-at-cursor", "action": "resolve-thread", "cursorIn": "{==highlight==}", "cursorAt": 4,
-      "knownIssue": "panel header subtracts resolved highlights from the comment count (src/panel/view.ts renderHeader: threads - onChange - (resolvedThreads + resolvedHighlights)); the overview's summarizeSource does not, so the two disagree. Expected 3 comments, the panel shows 2.",
       "expect": { "counts": "3 comments · 1 suggestion · 3 resolved", "resolvedTitle": "Resolved (3)", "decide": 1,
         "contains": ["a lone {resolved=\"<DATE>\"==highlight==}."] }
     },

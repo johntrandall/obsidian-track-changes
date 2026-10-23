@@ -57,7 +57,7 @@ import {
   resolveThread,
   threadStatus,
 } from "../resolution";
-import { readReviewFrontmatter } from "../pending";
+import { countReviewItems, readReviewFrontmatter, type ReviewCounts } from "../pending";
 
 export const REVIEW_VIEW_TYPE = "tc-review-panel";
 
@@ -273,9 +273,7 @@ export class ReviewPanelView extends ItemView {
 
     const anchored = anchorNodeIndexes(parsed);
     const onChange = changeThreads(parsed);
-    const resolvedThreads = parsed.threads.filter((t) => isResolved(parsed, t));
-    const resolvedHighlights = parsed.nodes.filter((_, i) => isResolvedHighlight(parsed, i)).length;
-    this.renderHeader(file, parsed, anchored, onChange, resolvedThreads.length + resolvedHighlights);
+    this.renderHeader(file, parsed, countReviewItems(parsed));
 
     // `aitext` marks render no card (visual-only), so a file with only those
     // would otherwise leave an empty card list — show the empty state instead.
@@ -363,24 +361,14 @@ export class ReviewPanelView extends ItemView {
     for (const render of cards) render(body);
   }
 
-  private renderHeader(
-    file: TFile,
-    parsed: ParseResult,
-    anchored: Set<number>,
-    onChange: Map<number, number>,
-    resolved: number,
-  ): void {
+  private renderHeader(file: TFile, parsed: ParseResult, c: ReviewCounts): void {
     const header = this.contentEl.createDiv({ cls: "tc-header" });
     // The file name is the scope label: this panel is about one note, and
     // the vault-wide overview carries its own "Whole vault" label.
     header.createDiv({ cls: "tc-header-title tc-scope tc-scope-note", text: file.basename });
-    const counts = {
-      threads: parsed.threads.length - onChange.size - resolved,
-      suggestions: parsed.nodes.filter(isChangeNode).length,
-      highlights: parsed.nodes.filter(
-        (n, i) => n.kind === "highlight" && !anchored.has(i) && !isResolvedHighlight(parsed, i),
-      ).length,
-    };
+    // The same counts as the overview row (pending.ts countReviewItems).
+    const counts = { threads: c.comments, suggestions: c.suggestions, highlights: c.highlights };
+    const resolved = c.resolvedThreads + c.resolvedHighlights;
     const parts: string[] = [];
     parts.push(`${counts.threads} ${counts.threads === 1 ? "comment" : "comments"}`);
     parts.push(`${counts.suggestions} ${counts.suggestions === 1 ? "suggestion" : "suggestions"}`);
