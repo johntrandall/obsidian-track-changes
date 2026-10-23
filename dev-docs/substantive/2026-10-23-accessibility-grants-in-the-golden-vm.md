@@ -108,9 +108,16 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:11:13-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · created the card [lane: agent drafting]
 - 2026-10-23T12:11:41-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · filled in the card body by hand
 - 2026-10-23T12:11:52-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent drafting → new [lane: new]
+- 2026-10-23T12:18:33-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: Noted. The card stays in front of you until the grants are in. A background check reads the VM's permission database ev…
 
 ## John's comments
 
 Type under the last *John* heading, or answer in chat; drag the card to **revise** when you want the agent to act on what you wrote.
+
+### trackchg-architect · 2026-10-23 12:18
+
+> when I get back, I'll do the TTC Grant
+
+Noted. The card stays in front of you until the grants are in. A background check reads the VM's permission database every minute, and the moment all four apps show as granted I verify each one live and finish build-queue item 2 (stop and bake the image, update the inventory, re-clone the project VM, close the 5901 forward). Nothing else is needed from you; answering the card is optional.
 
 ### John
