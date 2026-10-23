@@ -37,6 +37,9 @@ review_marks:
 ---
 # Accessibility grants in the golden VM
 
+> [!success] What changed · revision 2 · 2026-10-23 12:33 · trackchg-architect
+> - Changed: step 1 names the full tailnet host for Screens on the iPad.
+
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
 > You are looking at a decision from trackchg-architect. **Your move:** drag it to **yes** to accept the recommendation (yes), or to **no**, **revise substance**, **revise presentation**, **later**, **talk** or **snoozed**; or answer in chat. **Then:** trackchg-architect acts on your answer.
 
@@ -60,7 +63,7 @@ Switch on Accessibility for the four TCC principal apps in the golden VM image m
 
 ## Your steps
 
-1. Open Screen Sharing to `vnc://susanbones:5901` (on the iPad: the Screens app, host `susanbones`, port 5901). VNC password `admin`; if macOS asks to log in: user `admin`, password `admin`.
+1. ==Open Screen Sharing to `vnc://susanbones.flicker-duckbill.ts.net:5901` (on the iPad: the Screens app, host `susanbones.flicker-duckbill.ts.net`, port 5901, the route you used on 2026-10-21).== VNC password `admin`; if macOS asks to log in: user `admin`, password `admin`.
 2. In the VM: System Settings → Privacy & Security → Accessibility.
 3. Switch on **Click Automation (cliclick)** (already in the list).
 4. Click **+**, go to `/Applications/TCC Principals/`, add and switch on **GUI Scripting (osascript)**, **Ax Inspector (axmcp)** and **Appkit Scripting (python)**. Authenticate with `admin` / `admin` when asked.
@@ -110,6 +113,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:11:52-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent drafting → new [lane: new]
 - 2026-10-23T12:18:33-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: Noted. The card stays in front of you until the grants are in. A background check reads the VM's permission database ev…
 - 2026-10-23T12:32:28-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: One more thing now waits on these grants: the iPad mobile-emulation smoke run. The builder found that Obsidian in the p…
+- 2026-10-23T12:33:22-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · revision 2: step 1 host corrected to the tailnet name
 
 ## John's comments
 
