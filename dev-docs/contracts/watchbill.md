@@ -12,7 +12,7 @@ What this plugin offers watchbill (the consumer), the exact fields read and writ
 
 ## Keys the plugin writes (only on the human's click on Approve)
 
-`status: accepted`, `approved_by` (local author name, else "You"), `approved_at` (seconds, numeric offset), `approved_via: track-changes panel`, `approved_hash` (`sha256:<16 hex>` of the base text), `approved_sha: pending`, `approved_whole_sha: pending`; `review` removed. Refused while suggestions or comments are open. Watchbill (or `obsidian-track-changes-agent approve --fill-sha`) replaces `pending` once a commit holds the text.
+`status: accepted`, `approved_by` (local author name, else "You"), `approved_at` (seconds, numeric offset), `approved_via: track-changes panel`, `approved_hash` (`sha256:<16 hex>` of the base text), `approved_sha: pending`, `approved_whole_sha: pending`; `review` removed. Refused while suggestions or unresolved comments are open (a thread with `resolved=` on its root never blocks; `acknowledged=` alone does not close one); the agent tool's `approve` and `drift` use the same rule from 0.2.1. Watchbill (or `obsidian-track-changes-agent approve --fill-sha`) replaces `pending` once a commit holds the text.
 
 ## The agent tool's verbs watchbill calls
 

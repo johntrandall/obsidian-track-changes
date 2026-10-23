@@ -19,7 +19,7 @@ async function loadTs(rel) {
   return await import("data:text/javascript;base64," + Buffer.from(code).toString("base64"));
 }
 
-const { baseText, textHash, stripStatusLine, openMarkCount, approvalStamp, buildAnchor } =
+const { baseText, textHash, stripStatusLine, openMarkCount, openReviewCounts, approvalStamp, buildAnchor } =
   await loadTs("../src/approval.ts");
 
 let failed = 0;
@@ -60,8 +60,22 @@ await test("status line is dropped only right after the first H1", () => {
 });
 
 await test("open marks are suggestions and comments, not highlights or AI text", () => {
-  assert.equal(openMarkCount("---\nreview: whole\n---\n{++a++} {>>c<<} {==h==} {=+ai+=}"), 2);
+  assert.equal(openMarkCount("---\nreview: whole\n---\n{++a++}\n\n{>>c<<} {==h==} {=+ai+=}"), 2);
+  // A comment right after a suggestion is that suggestion's thread: one item to decide.
+  assert.equal(openMarkCount("{++a++} {>>c<<}"), 1);
   assert.equal(openMarkCount("clean {==h==}"), 0);
+});
+
+await test("resolved comments never block approval; unresolved and agent-acknowledged ones do", () => {
+  // Defect 2026-10-23 (watchbill intake): Approve refused a note whose only marks were resolved comments.
+  const resolved = '# T\n\nProse {resolved="2026-10-23" author="Claude (editor)">>why<<}{author="R">>a reply<<} here.\n\nMore {resolved="2026-10-23">>done<<} text.\n';
+  assert.equal(openMarkCount(resolved), 0);
+  assert.deepEqual(openReviewCounts(resolved), { suggestions: 0, comments: 0 });
+  assert.equal(openMarkCount(resolved + "\nAsk {>>open question<<}\n"), 1);
+  assert.equal(openMarkCount(resolved + '\nSeen {acknowledged="2026-10-23" acknowledged-by="Claude (editor)">>seen<<}\n'), 1);
+  assert.deepEqual(openReviewCounts(resolved.replace("Prose", "Prose {++new++}")), { suggestions: 1, comments: 0 });
+  // A resolved flag on a change-anchored thread does not close the change.
+  assert.equal(openMarkCount('x {++a++}{resolved="2026-10-23">>why<<} y'), 1);
 });
 
 await test("the stamp has seconds and a numeric offset; the anchor is pending on the sha", async () => {
