@@ -21,3 +21,7 @@ What this plugin offers watchbill (the consumer), the exact fields read and writ
 ## Fixture
 
 `test/fixtures/approval/sample.md` + `sample.expected.json`, identical to the agent tool's `tests/fixtures/approval/`; both suites assert the same base and proposed hashes.
+
+## What the plugin shows (reads only)
+
+The review panel header's approval line uses the same states and order as `drift`: `clean`, `delta-open`, `dirty`, `needs-review` (and nothing when there is no `approved_hash`). Watchbill's tools read the same answer from `obsidian-track-changes-agent drift <note> --json` (`state`, `approved_sha`, `open_marks`); no separate verb.
