@@ -1,5 +1,5 @@
 ---
-_human_verdict: new
+_human_verdict: agent working
 title: Tailscale in the golden VM image
 type: decision
 kind: decision
@@ -12,23 +12,23 @@ unblocks: reaching a test VM by its own name from the iPad, instead of a port fo
 asked_by: trackchg-architect
 asked_at: "2026-10-23T12:12:03-0400"
 asked_via: chat
-status: open
+status: answered
 applied_at:
 applied_how:
 undo:
-source:
-recorded_where:
+source: chat
+recorded_where: chat, heard by session 988b396b-f824-464e-83db-39e5a05961e0
 relayed_by:
 spawned:
 subject:
 subject_fingerprint:
 human_note:
-human_words:
+human_words: "Come on, Adam. Yes, I approve the publication. We don't want tail scale in the golden Vienna image. That should be one step down, so... so, whatever, we do, it needs to be part of the BM inheritage chain, the tail scale should be a separate step. Does the ends might be doing dangerous things, and they might, be throwaway? We might want to use BM as an isolated environment, so we don't want it to be network connected by default. Yeah, that's one step beyond the Golden DM. What's our current hierarchy of the Amsterdam? Something like bass to golden to tail scale. What's the inheritage chain there? Can you print me a one cheater that shows the inheritance chain after we finalize it in this chat?"
 snooze_until:
-previous_verdict:
-moved_at: "2026-10-23T12:13:01-0400"
+previous_verdict: revise substance
+moved_at: "2026-10-23T13:40:43-0400"
 moved_by: trackchg-architect
-working_by:
+working_by: trackchg-architect
 waiting_on:
 revisit_when:
 revisit_of:
@@ -38,7 +38,7 @@ review_marks:
 # Tailscale in the golden VM image
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
-> You are looking at a decision from trackchg-architect. **Your move:** drag it to **yes** to accept the recommendation (install), or to **no**, **revise substance**, **revise presentation**, **later**, **talk** or **snoozed**; or answer in chat. **Then:** trackchg-architect acts on your answer.
+> Nothing for you: trackchg-architect is working on it now.
 
 ## The question
 
@@ -85,6 +85,10 @@ Install the Tailscale program (no login) in the golden image macos-15.7-l2-dev, 
 
 ## The human's words
 
+> Come on, Adam. Yes, I approve the publication. We don't want tail scale in the golden Vienna image. That should be one step down, so... so, whatever, we do, it needs to be part of the BM inheritage chain, the tail scale should be a separate step. Does the ends might be doing dangerous things, and they might, be throwaway? We might want to use BM as an isolated environment, so we don't want it to be network connected by default. Yeah, that's one step beyond the Golden DM. What's our current hierarchy of the Amsterdam? Something like bass to golden to tail scale. What's the inheritage chain there? Can you print me a one cheater that shows the inheritance chain after we finalize it in this chat?
+
+(in chat, 2026-10-23T13:40:38-0400, recorded by 988b396b-f824-464e-83db-39e5a05961e0)
+
 ## Talk to the agent
 
 - [Focus the agent that asked](http://link.localhost/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
@@ -97,6 +101,8 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:12:03-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · created the card [lane: agent drafting]
 - 2026-10-23T12:12:48-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · filled in the card body by hand
 - 2026-10-23T12:13:01-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent drafting → new [lane: new]
+- 2026-10-23T13:40:38-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · recorded the human's chat answer: revise substance [lane: revise substance]
+- 2026-10-23T13:40:43-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved revise substance → agent working (by trackchg-architect) [lane: agent working]
 
 ## John's comments
 
