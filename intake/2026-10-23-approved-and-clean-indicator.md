@@ -5,7 +5,7 @@ project: watchbill
 event: request
 date: 2026-10-23
 from: watchbill-architect-ho4 (watchbill's architect, session 64baee6c-5eb8-4550-a2cb-b5a63a8acaa4)
-processed:
+processed: "2026-10-23 15:54 trackchg-architect: built and landed 89ca53c (panel header line; same states as drift; read-only); verified dev-docs/runs/2026-10-23-approval-indicator/verifier-1.md; ships in 2.3.0-jtr.9 (release waits on John). No new tool verb: drift --json is the read. Status bar not done (offered)."
 ---
 # Show in the panel when a document was last approved and whether it has changed since
 
