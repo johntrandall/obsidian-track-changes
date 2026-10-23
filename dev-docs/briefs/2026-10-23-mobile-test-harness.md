@@ -1,0 +1,32 @@
+# Brief: a mobile (iPad) test harness for the Track Changes fork, in one day
+
+## Start here
+
+You are the Opus builder for one task in `~/dev/obsidian-track-changes`, the fork of the Obsidian Track Changes plugin that John reviews documents with, on his Macs and on his iPad. John asked on 2026-10-23: "Do you have a testing harness that includes testing how this functions in the iPad? … If that's something that can be done in a day, orchestrate its build … so that we can be sure that this all works on iPad, too." Nothing in this project has ever been run on a mobile build; `manifest.json` says `isDesktopOnly: false`, so Obsidian installs it on the iPad.
+
+Read `CLAUDE.md` and `README.md` (sections *Commands* and *Testing by eye in a VM*) first. Work in a git worktree on a branch `feat/mobile-harness` off `feat/bulk-accept`; commit with the session trailers CLAUDE.md asks for; do not touch `deployed`, do not release, do not install anything into John's vaults or his running Obsidian, and never write under any `.obsidian/` folder on this Mac.
+
+## The facts that shape the design
+
+- **Obsidian for iOS cannot run in the iOS Simulator.** It is an App Store build; Obsidian publishes no simulator binary, and Safari Web Inspector attaches only to debuggable apps. Xcode and iPad simulators exist on SusanBones (this Mac) and ChoChang, but they can only run things we build ourselves. Do not spend the day trying to get Obsidian into a simulator.
+- **Obsidian desktop has mobile emulation**: `app.emulateMobile(true)` (the "Toggle mobile emulation" developer path) switches the running vault to the mobile layout, sets `Platform.isMobile`, and exercises mobile code paths. It is the closest thing to the iPad that can be driven headlessly, and it runs in the project VM (`scripts/vm-test.sh`, VM `obsidian-track-changes-dev`, cloned from the `macos-15.7-l2-dev` golden image; the `tart-vm` wrapper, see the `tart-vm-management` skill). Screenshots inside the VM come from Obsidian itself: `obsidian eval code="(async()=>{const w=require('electron').remote.getCurrentWindow(); require('fs').writeFileSync('/tmp/shot.png',(await w.capturePage()).toPNG()); return 'ok'})()"` needs no Screen Recording grant.
+- **The iPad is WebKit, desktop Obsidian is Chromium.** JavaScript that passes on desktop can still fail on iOS (regex features, newer APIs). Playwright's WebKit engine is available through `npx playwright` (install `webkit` if missing; Homebrew first per the `software-installation` skill, then `npx playwright install webkit`).
+- **Known VM blocker:** Obsidian in the VM has no vault registered yet, so its CLI does not answer and no window shows; the first vault must be opened once. Try, in order: `open -a /Applications/Obsidian.app /Users/admin/tc-test-vault`; passing the folder as a launch argument (`/Applications/Obsidian.app/Contents/MacOS/Obsidian /Users/admin/tc-test-vault`); `obsidian://` URLs. If none registers the vault, the fallback is a GUI click through Screen Sharing that John must do (Accessibility grants in the VM are pending his clicks), and you say so in your report rather than working around it. The golden image is busy being updated; use the clone, not `macos-15.7-l2-dev`.
+
+## What to build (in this order; stop when the day is spent and report)
+
+1. **WebKit run of the unit tests** (`test/*.mjs` are Node ESM scripts that bundle `src/*.ts` with esbuild). Add `npm run test:webkit`: bundle the pure modules (`parser`, `operations`, `resolution`, `pending`, `approval`, `diff`, `authoring`, `finalize`, `reading-plan`, `colors`) and the existing assertions into a browser page, run it in Playwright WebKit, fail the command on any assertion failure. Keep the Node suite as it is. If some test files cannot run in a page, say which and why.
+2. **Mobile emulation in the VM harness.** Extend `scripts/vm-test.sh` with `mobile on|off` (`app.emulateMobile(true|false)` in the vault window), and `smoke-mobile`: load `test/fixtures/vm-fixture.md`, open the review panel and the pending overview by command id (`track-changes:open-review-panel`, `track-changes:open-pending-overview`), run the cursor commands (`track-changes:resolve-thread-at-cursor`, `accept-change-at-cursor`, …) with the cursor placed by `app.workspace.activeEditor.editor.setCursor`, read the panel DOM (`.tc-header-counts`, `.tc-resolved-title`, `.tc-card-decide`, `.tc-header-actions button`) and the note's text after each step, and screenshot after each step into `dev-docs/runs/<date>-mobile/`. Assert the same outcomes the desktop checks established on 2026-10-20 (counts, Resolved fold, badges, flags written to the source). Also check: the status bar is absent on mobile (the plugin must not throw), the editor-menu items appear in the mobile selection menu, Accept all / Reject all / Remove comments / Approve are reachable, and the panel is usable at a 1024×768 and a 834×1194 window.
+3. **An iPad checklist** John can run by hand in ten minutes on the real device, `dev-docs/testing/ipad-checklist.md`: how to make each kind of tracked change on the iPad (select text, then the command palette or the mobile toolbar's command button: *Mark selection for substitution*, *Mark selection as deletion*, *Insert addition*, *Insert comment*, *Highlight selection*), how to open the review panel (right sidebar), what Accept / Reject / Resolve / Approve should do, and what to screenshot if something fails. Write it for a cold reader.
+4. **Wire it into the README** (*Testing by eye in a VM* gains the mobile commands; a new short *Testing on iPad* section points at the checklist) and `CLAUDE.md` (one paragraph under Conventions on what is covered where: Node, WebKit, VM mobile emulation, real iPad by hand).
+
+## Rules
+
+- Verify, do not assume: run every new command once and keep its output or screenshot in `dev-docs/runs/<date>-mobile/`. Look at each screenshot yourself.
+- Mark claims Verified / Observed / Inferred in the report, per CLAUDE.md's protocol.
+- Never use `rm` on project files (`trash`); never download software directly (package managers first).
+- If John's Accessibility grants or the VM's first-vault problem block step 2, finish steps 1, 3 and 4 and report exactly what the human needs to do, with the command to run afterwards.
+
+## Report
+
+Reply with: what was built and verified (with paths), what was skipped and why, the commit SHAs on `feat/mobile-harness`, and the one-line verdict on whether the plugin works under mobile emulation. The architect merges; you do not.

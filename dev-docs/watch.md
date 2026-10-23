@@ -1,0 +1,22 @@
+# watch.md — what the obsidian-track-changes architect watches while dormant
+
+Shape: software project (`watchbill systems`: obsidian-track-changes, doorbell architect, intake `intake/`). The software does the work: the Obsidian plugin fork runs in John's vaults; the architect wakes for a message, an intake note, the human, or a probe below failing.
+
+## Probes (run on waking, and by a bounded watch when one is armed)
+
+| Probe | Command | Pass |
+|---|---|---|
+| Suite on the integration branch | `cd ~/dev/obsidian-track-changes && git checkout feat/bulk-accept && npm run typecheck && npm test` | all `ok`, no `FAIL` |
+| Build | `npm run build` | exit 0 |
+| Installed vs released, every open vault | `scripts/vault-versions.sh` (to write: the python one-liner from the founding session that reads each registered vault's `.obsidian/plugins/track-changes/manifest.json` and compares to `gh release list` latest `*-jtr.*`) | every open vault with the plugin on runs the latest fork build |
+| Agent tool contract | `obsidian-track-changes-agent --version` ≥ 0.2.0; `node test/approval.test.mjs` (shared vectors) | pass |
+| Consumer: watchbill | `watchbill status ~/dev/claude-plugin-watchbill` shows `drift` wired without error (from watchbill 0.10.52) | no error naming this tool |
+| Mobile harness | `npm run test:webkit` and `scripts/vm-test.sh smoke-mobile` (when the builder lands them) | pass |
+
+## How John is told
+
+A failed probe: one message in the architect's tab and, if nobody is in that tab, one PushNotification; silence while green. Rollouts raise no windows while his screen is locked (use `update-in-windows`, see the README).
+
+## Exit condition
+
+None yet: the system is young. Revisit after the upstream PR decision (2026-10-27) and the mobile harness landing.

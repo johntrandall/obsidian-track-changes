@@ -8,6 +8,25 @@ Intended for AI-assisted review: the agent leaves `{++…++}`, `{--…--}`, `{~~
 
 ![Each CriticMarkup form as raw syntax next to its rendering in Live Preview](docs/syntax_showcase.png)
 
+## System
+
+Shape: software project (watchbill; `watchbill systems` row `obsidian-track-changes`, doorbell architect, intake `intake/`). The plugin does the work in John's vaults; the architect is the only long-lived seat and is dormant `🌙` between cycles. Decisions: `dev-docs/decisions.md`. Build queue: `dev-docs/build-queue.md`. Watch: `dev-docs/watch.md`. Contracts: `dev-docs/contracts/`. Sibling system: `obsidian-track-changes-agent` (the CLI tool agents use), `~/dev/claude-plugin-obsidian-track-changes-agent`.
+
+### Roster
+
+| Seat | Agent name | Model | Effort | Start | Brief | Cwd |
+|---|---|---|---|---|---|---|
+| Playbook Architect | `trackchg-architect` | opus | high | fresh (read the records) | `dev-docs/runs/2026-10-23-adopt-watchbill/briefs/architect.md` | `~/dev/obsidian-track-changes` |
+| Crew per feature | builders, verifiers (sub-agents) | per brief | per brief | fresh | per item in `dev-docs/build-queue.md` | worktrees |
+
+Steward: none (a software project). Scheduled fallback: none; nothing restarts a seat that dies until John or `watchbill restore` does.
+
+### Pairs
+
+| Date | Origin (name, session id) | Receiver (name, session id) | Scope | Historian exited |
+|---|---|---|---|---|
+| 2026-10-23 | founding session `obsidian-track-changes-df`, 8a6e4f5e-cd18-45bb-9f14-4fba643fefd0 | `trackchg-architect`, (see ledger) | session | no |
+
 ## Agent setup
 
 Your agent needs to know the mark format. Two starting points:
