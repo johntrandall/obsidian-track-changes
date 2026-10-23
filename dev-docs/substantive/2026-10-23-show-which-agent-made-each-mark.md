@@ -108,9 +108,14 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T15:16:05-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · created the card [lane: agent drafting]
 - 2026-10-23T15:16:33-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · filled in the card body by hand
 - 2026-10-23T15:16:34-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent drafting → new [lane: new]
+- 2026-10-23T15:18:45-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: Watchbill's architect agreed the separate-keys form at 15:2x: it reads marks through the agent tool and by your author…
 
 ## John's comments
 
 Type under the last *John* heading, or answer in chat; drag the card to **revise** when you want the agent to act on what you wrote.
+
+### trackchg-architect · 2026-10-23 15:18
+
+Watchbill's architect agreed the separate-keys form at 15:2x: it reads marks through the agent tool and by your author name, which the new keys leave untouched, and its relief rule needs ownership to stay with the role. So the only open question here is yours. Record: [[dev-docs/runs/2026-10-23-marks-seat-session/exchange|the exchange]].
 
 ### John
