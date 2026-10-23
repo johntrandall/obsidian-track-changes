@@ -82,7 +82,7 @@ The repository is shared into the VM over VirtioFS, so the test vault's `.obsidi
 
 ## Testing on iPad
 
-Obsidian for iOS cannot run in the iOS Simulator, so the iPad is covered in three layers: `npm run test:webkit` runs the unit tests in Playwright's WebKit (the iPad's JavaScript engine), `scripts/vm-test.sh smoke-mobile` drives the panel under desktop mobile emulation, and a ten-minute checklist covers what only the device shows (touch, the iOS selection menu, sidebars as drawers): [`dev-docs/testing/ipad-checklist.md`](dev-docs/testing/ipad-checklist.md).
+Obsidian for iOS cannot run in the iOS Simulator, so the iPad is covered in three layers: `npm run test:webkit` runs the unit tests in Playwright's WebKit (the iPad's JavaScript engine; install the engine once with `npx playwright install webkit`), `scripts/vm-test.sh smoke-mobile` drives the panel under desktop mobile emulation, and a ten-minute checklist covers what only the device shows (touch, the iOS selection menu, sidebars as drawers): [`dev-docs/testing/ipad-checklist.md`](dev-docs/testing/ipad-checklist.md).
 
 ## Commands
 
