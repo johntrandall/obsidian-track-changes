@@ -1,5 +1,5 @@
 ---
-_human_verdict: agent working
+_human_verdict: agent waiting
 title: Publish the agent tool 0.2.0
 type: decision
 kind: decision
@@ -26,10 +26,10 @@ human_note:
 human_words: "Come on, Adam. Yes, I approve the publication. We don't want tail scale in the golden Vienna image. That should be one step down, so... so, whatever, we do, it needs to be part of the BM inheritage chain, the tail scale should be a separate step. Does the ends might be doing dangerous things, and they might, be throwaway? We might want to use BM as an isolated environment, so we don't want it to be network connected by default. Yeah, that's one step beyond the Golden DM. What's our current hierarchy of the Amsterdam? Something like bass to golden to tail scale. What's the inheritage chain there? Can you print me a one cheater that shows the inheritance chain after we finalize it in this chat?"
 snooze_until:
 previous_verdict: "yes"
-moved_at: "2026-10-23T13:48:21-0400"
+moved_at: "2026-10-23T13:57:14-0400"
 moved_by: trackchg-architect
-working_by: trackchg-architect
-waiting_on:
+working_by:
+waiting_on: "John: card Session id already in the agent tool's public history"
 revisit_when:
 revisit_of:
 revisits:
@@ -38,7 +38,7 @@ review_marks:
 # Publish the agent tool 0.2.0
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
-> Nothing for you: trackchg-architect is working on it now.
+> Nothing for you: waiting on John: card Session id already in the agent tool's public history.
 
 ## The question
 
@@ -108,6 +108,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:12:55-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent drafting → new [lane: new]
 - 2026-10-23T13:40:32-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · recorded the human's chat answer: yes [lane: yes]
 - 2026-10-23T13:48:21-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved yes → agent working (by trackchg-architect) [lane: agent working]
+- 2026-10-23T13:57:14-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent working → agent waiting (waiting on John: card Session id already in the agent tool's public history) [lane: agent waiting]
 
 ## John's comments
 
