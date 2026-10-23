@@ -25,6 +25,7 @@ pass  plus.render-settings.test.mjs  (36 ok)
 pass  reading-plan.test.mjs  (13 ok)
 pass  rebase.test.mjs  (8 ok)
 pass  resolution.test.mjs  (24 ok)
+pass  vm-smoke-plan.test.mjs  (16 ok)
 skip  per-window-panel.test.mjs: evaluates the CJS bundle of src/main.ts + src/panel/view.ts with node:vm runInNewContext and node:module createRequire against hand-made Obsidian window mocks; it tests Obsidian workspace wiring, not a pure module, and has no browser equivalent of a fresh V8 context
 
-WebKit: 21 files passed, 0 failed, 1 skipped; 463 ok test cases
+WebKit: 22 files passed, 0 failed, 1 skipped; 479 ok test cases

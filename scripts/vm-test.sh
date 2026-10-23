@@ -9,6 +9,12 @@
 #   scripts/vm-test.sh shot [f]  screenshot the VM screen to <f> (default /tmp/obsidian-vm.png)
 #   scripts/vm-test.sh eval JS   run JS in the vault window through Obsidian's CLI in the VM
 #   scripts/vm-test.sh ssh ...   a command in the VM (login shell, TCC grants)
+#   scripts/vm-test.sh mobile on|off   switch the vault window to Obsidian's mobile emulation
+#                                (app.emulateMobile; the window reloads; it persists until `off`)
+#   scripts/vm-test.sh smoke-mobile [dir]   mobile on, then the review-panel smoke test
+#                                (scripts/vm-mobile-smoke.js, plan test/fixtures/vm-mobile-smoke.json)
+#                                at 1024x768 and 834x1194; results.json and a screenshot per step
+#                                go to [dir] (default dev-docs/runs/<today>-mobile/); exit 1 on FAIL
 #   scripts/vm-test.sh vnc       open Screen Sharing to watch it
 #   scripts/vm-test.sh stop      stop the VM (disk persists); `destroy` deletes it
 #
@@ -63,7 +69,57 @@ case "${1:-}" in
   eval)
     need_running
     shift
-    vm "obsidian eval code=$(printf '%q' "$*")"
+    # Bounded in the guest: a CLI that finds no answering vault window can hang for good.
+    vm "perl -e 'alarm shift; exec @ARGV' ${EVAL_TIMEOUT:-60} obsidian eval code=$(printf '%q' "$*")"
+    ;;
+  mobile)
+    need_running
+    case "${2:-}" in
+      on) WANT=true ;;
+      off) WANT=false ;;
+      *) echo "usage: $0 mobile on|off" >&2; exit 2 ;;
+    esac
+    # emulateMobile reloads the window, so schedule it and return before the reload.
+    "$0" eval "(()=>{ if (app.isMobile === $WANT) return 'already isMobile=' + app.isMobile; setTimeout(() => app.emulateMobile($WANT), 300); return 'switching to isMobile=$WANT'; })()" || true
+    sleep 10
+    STATE=$("$0" eval "'isMobile=' + app.isMobile + ' plugin=' + !!app.plugins.plugins['track-changes']" 2>&1 || true)
+    echo "$STATE"
+    case "$STATE" in
+      *"isMobile=$WANT"*) ;;
+      *) echo "mobile $2: the vault window did not answer with isMobile=$WANT (see above)." >&2
+         echo "If Obsidian's CLI is off or no vault is open, open the vault once through Screen Sharing ($0 vnc); see README, Testing by eye in a VM." >&2
+         exit 1 ;;
+    esac
+    ;;
+  smoke-mobile)
+    need_running
+    RUN=${2:-dev-docs/runs/$(date +%Y-%m-%d)-mobile}
+    mkdir -p "$HOST_REPO/$RUN"
+    RESULTS="$HOST_REPO/$RUN/results.json"
+    RUN_ID="smoke-$(date +%s)"
+    "$0" fixture
+    "$0" mobile on
+    # The smoke runs inside the window and writes results.json through the VirtioFS share;
+    # the CLI call only starts it.
+    KICK=$("$0" eval "(()=>{ const s = require('fs').readFileSync('$CODE/scripts/vm-mobile-smoke.js', 'utf8'); (0, eval)(s)(app, { root: '$CODE', outDir: '$CODE/$RUN', runId: '$RUN_ID' }).catch((e) => console.error('smoke', e)); return 'smoke started'; })()" 2>&1 || true)
+    echo "$KICK"
+    case "$KICK" in *"smoke started"*) ;; *) echo "smoke-mobile: could not start the smoke in the vault window" >&2; exit 1 ;; esac
+    for _ in $(seq 1 120); do
+      if [ -f "$RESULTS" ] && node -e "const r=require(process.argv[1]); process.exit(r.runId===process.argv[2] && r.done ? 0 : 1)" "$RESULTS" "$RUN_ID" 2>/dev/null; then
+        break
+      fi
+      sleep 5
+    done
+    node -e '
+      const r = require(process.argv[1]);
+      if (r.runId !== process.argv[2] || !r.done) { console.error("smoke did not finish (no results.json for " + process.argv[2] + ")"); process.exit(1); }
+      for (const c of r.checks) if (c.status !== "pass") console.log(`${c.status.padEnd(11)} ${c.size} / ${c.step} / ${c.name}
+            expected ${JSON.stringify(c.expected)}
+            actual   ${JSON.stringify(c.actual)}`);
+      for (const e of r.errors) console.log("error       " + e);
+      console.log(JSON.stringify({ environment: r.environment, ...r.summary }));
+      process.exit(r.summary.fail || r.summary.errors ? 1 : 0);
+    ' "$RESULTS" "$RUN_ID"
     ;;
   ssh)
     shift
@@ -79,7 +135,7 @@ case "${1:-}" in
     tart-vm destroy "$VM"
     ;;
   *)
-    sed -n '2,15p' "$0"
+    sed -n '2,20p' "$0"
     exit 2
     ;;
 esac
