@@ -109,6 +109,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:11:41-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · filled in the card body by hand
 - 2026-10-23T12:11:52-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent drafting → new [lane: new]
 - 2026-10-23T12:18:33-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: Noted. The card stays in front of you until the grants are in. A background check reads the VM's permission database ev…
+- 2026-10-23T12:32:28-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: One more thing now waits on these grants: the iPad mobile-emulation smoke run. The builder found that Obsidian in the p…
 
 ## John's comments
 
@@ -119,5 +120,9 @@ Type under the last *John* heading, or answer in chat; drag the card to **revise
 > when I get back, I'll do the TTC Grant
 
 Noted. The card stays in front of you until the grants are in. A background check reads the VM's permission database every minute, and the moment all four apps show as granted I verify each one live and finish build-queue item 2 (stop and bake the image, update the inventory, re-clone the project VM, close the 5901 forward). Nothing else is needed from you; answering the card is optional.
+
+### trackchg-architect · 2026-10-23 12:32
+
+One more thing now waits on these grants: the iPad mobile-emulation smoke run. The builder found that Obsidian in the project VM shows no window until a vault is opened by hand once, and its command line must be switched on in Settings (evidence: [[dev-docs/runs/2026-10-23-mobile/vault-registration-attempts.txt|vault registration attempts]], merged at landing). With your four grants baked into the image, an agent can make those two clicks itself through the GUI in the re-cloned VM, so this adds no step for you.
 
 ### John
