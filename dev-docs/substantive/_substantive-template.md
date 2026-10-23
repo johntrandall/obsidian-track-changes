@@ -4,6 +4,7 @@ title: ""                 # short, at most 60 characters (about eight words): a 
 type: decision
 kind: decision            # decision | approval
 weight: quick             # quick or big: a big card (a document review, a design or ADR approval) is presented in `to review`
+asks:                     # approval: the card asks him to approve its subject document as a whole (his yes writes the approval record on it); blank: a yes answers the question and approves no document (0.10.58)
 system: "obsidian-track-changes"       # registry name
 question: ""              # one line: the card's title; one decision per card (split a question with independent parts)
 options: []               # closed choices, short labels: each becomes a lane on the board; empty for yes/no

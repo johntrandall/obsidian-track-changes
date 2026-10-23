@@ -14,6 +14,7 @@ schema:
       type: { const: decision }
       kind: { enum: [decision, approval, discussion] }
       weight: { enum: [quick, big, null] }
+      asks: { enum: [approval, null] }
       system: { type: string, minLength: 1 }
       title: { type: [string, "null"], maxLength: 60 }
       question: { type: string, minLength: 1 }
