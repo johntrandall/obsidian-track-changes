@@ -1,9 +1,9 @@
 ---
-_human_verdict:           # the lane, first so the human finds it: his (snoozed, yes, no, revise substance, revise presentation, later, talk; he may set it here or drag the card) or the agent's (to review, new, returning, agent drafting, agent working, agent waiting, agent scheduled, processed), moved only by `watchbill decide`
+_human_verdict:           # the lane, first so the human finds it: his (yes, no, revise proposal, revise card, snoozed, later, after POC, after MVP, talk; he may set it here or drag the card) or the agent's (documents to review, new decisions, returning decisions, agents drafting, agent working, agent waiting, agent scheduled, processed), moved only by `watchbill decide`
 title: ""                 # short, at most 60 characters (about eight words): a noun phrase or a short question naming the decision, never its options; the H1 repeats it
 type: decision
 kind: decision            # decision | approval
-weight: quick             # quick or big: a big card (a document review, a design or ADR approval) is presented in `to review`
+weight: quick             # quick or big: a big card (a document review, a design or ADR approval) is presented in `documents to review`
 asks:                     # approval: the card asks him to approve its subject document as a whole (his yes writes the approval record on it); blank: a yes answers the question and approves no document (0.10.58)
 system: "obsidian-track-changes"       # registry name
 question: ""              # one line: the card's title; one decision per card (split a question with independent parts)

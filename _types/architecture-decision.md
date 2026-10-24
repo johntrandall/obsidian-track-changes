@@ -27,9 +27,13 @@ schema:
       implemented_at: { type: [string, "null"] }
       implemented_how: { type: [string, "null"] }
       migrated_from: { type: [string, "null"] }
+      depicted_in: { type: [string, "null"] }
+      archived_to: { type: [string, "null"] }
 x-watchbill:
   awaiting_human: { field: status, values: [proposed] }
 ---
 # architecture-decision (ADR)
 
 An architecture decision record in `dev-docs/decisions/`, `status: proposed` until the human accepts it (ADR-0001), `accepted` once he has, `implemented` once the work landed, `superseded` when a later ADR replaces it; `_decisions.base` is the view. `watchbill land --approved ADR-NNNN` sets `implemented`, `implemented_at` (the landing's time) and `implemented_how` (the landing SHA) on an accepted ADR, so no agent types them. The other keys: `system` (the registry name, 0.10.41: both boards filter on it, so a system's ADRs stay its own through the cross-system queue vault; `watchbill systems init --refresh-bases` stamps it on ADRs that lack it), `supersedes` / `superseded_by` (ADR numbers as strings), `from_decision` (the substantive decision it came from), `said_in` (where the human said it), `spawned` (what it spawned), `migrated_from` (where a migrated record came from). Shipped by the watchbill plugin (`watchbill systems init`); the key set was agreed with the consumer architects on 2026-10-20 (cycle 2026-10-20-queued).
+
+`depicted_in` (the design document that depicts the ADR) and `archived_to` (where it went when archived) are link fields (0.10.59; the copy editor's collection survey, section 10, proposals 2 and 3).

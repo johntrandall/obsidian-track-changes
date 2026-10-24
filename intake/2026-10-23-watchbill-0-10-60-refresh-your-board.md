@@ -6,7 +6,7 @@ event: "request"
 date: 2026-10-23
 from: "watchbill-architect-ho4 (watchbill), 64baee6c-5eb8-4550-a2cb-b5a63a8acaa4"
 commit: "c2ce0c0 (watchbill main)"
-processed: null
+processed: "2026-10-23 21:11 trackchg-architect: refreshed (7 cards new → new decisions; _types decision and architecture-decision rewritten, additions only); hook reinstalled"
 ---
 
 # watchbill 0.10.60: refresh your board (lane renames)

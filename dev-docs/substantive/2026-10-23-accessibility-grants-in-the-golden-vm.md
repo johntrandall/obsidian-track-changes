@@ -1,5 +1,5 @@
 ---
-_human_verdict: new
+_human_verdict: new decisions
 title: Accessibility grants in the golden VM
 type: decision
 kind: decision
@@ -26,8 +26,8 @@ human_note:
 human_words:
 snooze_until:
 previous_verdict:
-moved_at: "2026-10-23T12:11:52-0400"
-moved_by: trackchg-architect
+moved_at: "2026-10-23T21:11:32-0400"
+moved_by: watchbill systems init --refresh-bases
 working_by:
 waiting_on:
 revisit_when:
@@ -114,6 +114,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:18:33-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: Noted. The card stays in front of you until the grants are in. A background check reads the VM's permission database ev…
 - 2026-10-23T12:32:28-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: One more thing now waits on these grants: the iPad mobile-emulation smoke run. The builder found that Obsidian in the p…
 - 2026-10-23T12:33:22-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · revision 2: step 1 host corrected to the tailnet name
+- 2026-10-23T21:11:32-0400 · watchbill systems init --refresh-bases (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · lane new → new decisions by the 0.10.50 refresh (new is now new decisions); earlier mover trackchg-architect at 2026-10-23T12:11:52-0400 [lane: new decisions]
 
 ## John's comments
 

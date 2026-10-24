@@ -1,5 +1,5 @@
 ---
-_human_verdict: new
+_human_verdict: new decisions
 title: "Session id already in the agent tool's public history"
 type: decision
 kind: decision
@@ -26,8 +26,8 @@ human_note:
 human_words:
 snooze_until:
 previous_verdict:
-moved_at: "2026-10-23T13:57:08-0400"
-moved_by: trackchg-architect
+moved_at: "2026-10-23T21:11:32-0400"
+moved_by: watchbill systems init --refresh-bases
 working_by:
 waiting_on:
 revisit_when:
@@ -96,6 +96,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T13:56:36-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · created the card [lane: agent drafting]
 - 2026-10-23T13:57:08-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · filled in the card body by hand
 - 2026-10-23T13:57:08-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent drafting → new [lane: new]
+- 2026-10-23T21:11:32-0400 · watchbill systems init --refresh-bases (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · lane new → new decisions by the 0.10.50 refresh (new is now new decisions); earlier mover trackchg-architect at 2026-10-23T13:57:08-0400 [lane: new decisions]
 
 ## John's comments
 
