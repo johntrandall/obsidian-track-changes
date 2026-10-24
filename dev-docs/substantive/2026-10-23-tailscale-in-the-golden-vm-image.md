@@ -1,9 +1,10 @@
 ---
-_human_verdict: agent working
+_human_verdict: agent waiting
 title: Tailscale in the golden VM image
 type: decision
 kind: decision
 weight: quick
+asks:
 system: obsidian-track-changes
 question: Install the Tailscale program (no login) in the golden image macos-15.7-l2-dev, so each VM cloned from it joins the tailnet under its own name at first boot with an ephemeral key?
 options: ["install", "forward"]
@@ -25,11 +26,11 @@ subject_fingerprint:
 human_note:
 human_words: "Come on, Adam. Yes, I approve the publication. We don't want tail scale in the golden Vienna image. That should be one step down, so... so, whatever, we do, it needs to be part of the BM inheritage chain, the tail scale should be a separate step. Does the ends might be doing dangerous things, and they might, be throwaway? We might want to use BM as an isolated environment, so we don't want it to be network connected by default. Yeah, that's one step beyond the Golden DM. What's our current hierarchy of the Amsterdam? Something like bass to golden to tail scale. What's the inheritage chain there? Can you print me a one cheater that shows the inheritance chain after we finalize it in this chat?"
 snooze_until:
-previous_verdict: revise substance
-moved_at: "2026-10-23T13:40:43-0400"
+previous_verdict: revise proposal
+moved_at: "2026-10-24T11:31:12-0400"
 moved_by: trackchg-architect
-working_by: trackchg-architect
-waiting_on:
+working_by:
+waiting_on: "John: the three image-chain questions asked in chat 2026-10-23 13:4x (L2a tailnet layer name, what isolated means, which account in L2)"
 revisit_when:
 revisit_of:
 revisits:
@@ -38,7 +39,7 @@ review_marks:
 # Tailscale in the golden VM image
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
-> Nothing for you: trackchg-architect is working on it now.
+> Nothing for you: waiting on John: the three image-chain questions asked in chat 2026-10-23 13:4x (L2a tailnet layer name, what isolated means, which account in L2).
 
 ## The question
 
@@ -103,6 +104,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:13:01-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent drafting → new [lane: new]
 - 2026-10-23T13:40:38-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · recorded the human's chat answer: revise substance [lane: revise substance]
 - 2026-10-23T13:40:43-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved revise substance → agent working (by trackchg-architect) [lane: agent working]
+- 2026-10-24T11:31:12-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent working → agent waiting (waiting on John: the three image-chain questions asked in chat 2026-10-23 13:4x (L2a tailnet layer name, what isolated means, which account in L2)) [lane: agent waiting]
 
 ## John's comments
 

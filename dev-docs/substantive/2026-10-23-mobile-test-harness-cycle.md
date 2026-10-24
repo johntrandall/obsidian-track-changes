@@ -1,9 +1,10 @@
 ---
-_human_verdict: "yes"
+_human_verdict: agent waiting
 title: Mobile test harness cycle
 type: decision
 kind: approval
 weight: quick
+asks:
 system: obsidian-track-changes
 question: Build and land an iPad test harness (WebKit unit run, mobile emulation in the VM, a manual iPad checklist) with an Opus builder, if it fits in a day?
 options: []
@@ -25,11 +26,11 @@ subject_fingerprint:
 human_note:
 human_words: "On iPad, how do I make a change in the document that is tracked? Do you have a testing harness that includes, um, testing how this functions in the iPad? How complicated would it be to make one? If that's something that can be done in a day, orchestrate its build, using an Opus builder, to extend the testing suite, so that we can be sure that this all works on iPad, too. I guess you need to use some sort of iOS simulator. We probably have that set up one machine. Check it out.  Also, you should adopt the watch bill system, as it currently exists, you play the architect role, and, uh, once you decide all the next steps and lay them out, you should handle it to a fresh architecture."
 snooze_until:
-previous_verdict:
-moved_at:
-moved_by:
+previous_verdict: "yes"
+moved_at: "2026-10-24T11:31:08-0400"
+moved_by: trackchg-architect
 working_by:
-waiting_on:
+waiting_on: "cycle 2026-10-23-mobile-harness gate: jtr.9 release and the VM smoke run, both on John's cards (release jtr.9; Accessibility grants)"
 revisit_when:
 revisit_of:
 revisits:
@@ -38,7 +39,7 @@ review_marks:
 # Mobile test harness cycle
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
-> You answered **yes**. trackchg-architect picks it up next; nothing more for you unless it comes back to returning.
+> Nothing for you: waiting on cycle 2026-10-23-mobile-harness gate: jtr.9 release and the VM smoke run, both on John's cards (release jtr.9; Accessibility grants).
 
 ## The question
 
@@ -102,6 +103,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:10:18-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · created the card [lane: blank]
 - 2026-10-23T12:10:18-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · recorded the human's relayed answer: yes [lane: yes]
 - 2026-10-23T12:10:52-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · filled in the card body by hand
+- 2026-10-24T11:31:08-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved yes → agent waiting (waiting on cycle 2026-10-23-mobile-harness gate: jtr.9 release and the VM smoke run, both on John's cards (release jtr.9; Accessibility grants)) [lane: agent waiting]
 
 ## John's comments
 
