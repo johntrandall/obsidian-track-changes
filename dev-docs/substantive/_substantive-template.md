@@ -68,6 +68,8 @@ review_marks: []          # a Track Changes review card: the suggestions it wait
   - *Who reads it:* [fill in]
   - *Default:* [fill in]
 
+[fill in, when the card asks about a changed diagram (a C4 view, a workflow, any approved picture): the review render with the changes since the last approval colour-coded (added, changed, removed) and its legend, the change table, a link to a viewer showing it in context (for C4: the model's `workspace.html`), and the clean render as it would be approved]
+
 **Binds:** [fill in: the seats whose behaviour changes] · **Your part:** [fill in: what he does after a yes, blocking or queued; or nothing new; when it changes a gate or a field, the steward's records step comes before the landing] · **Does not change:** [fill in: what a reader might assume changes]
 
 ## Options and consequences

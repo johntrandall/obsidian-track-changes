@@ -3,6 +3,7 @@ filters:
     - type == "decision"
     - system == "obsidian-track-changes"
     - file.name != "_substantive-template"
+    - file.name != "_design-decisions-template"
 properties:
   file.name:
     displayName: Decision
@@ -84,10 +85,10 @@ views:
       - agent scheduled
     order:
       - title
+      - file.name
       - kind
       - weight
       - working_by
-      - file.name
       - asked_by
       - recommendation
       - previous_verdict
@@ -207,10 +208,10 @@ views:
       - agent scheduled
     order:
       - title
+      - file.name
       - kind
       - weight
       - working_by
-      - file.name
       - asked_by
       - recommendation
       - previous_verdict
