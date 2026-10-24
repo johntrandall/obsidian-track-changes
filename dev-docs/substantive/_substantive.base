@@ -63,6 +63,7 @@ views:
         - kind != "discussion"
         - _human_verdict != "processed"
         - _human_verdict != "agents drafting"
+        - _human_verdict != "agent editing"
         - _human_verdict != "agent drafting"
     groupBy:
       property: _human_verdict
@@ -126,6 +127,7 @@ views:
         - status != "draft"
         - _human_verdict != ""
         - _human_verdict != "agents drafting"
+        - _human_verdict != "agent editing"
         - _human_verdict != "agent drafting"
         - _human_verdict != "documents to review"
         - _human_verdict != "to review"
@@ -186,6 +188,7 @@ views:
         - kind == "discussion"
         - _human_verdict != "processed"
         - _human_verdict != "agents drafting"
+        - _human_verdict != "agent editing"
         - _human_verdict != "agent drafting"
     groupBy:
       property: _human_verdict
