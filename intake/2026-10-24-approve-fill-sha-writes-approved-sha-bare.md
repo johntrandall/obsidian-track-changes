@@ -6,7 +6,7 @@ event: "finding"
 date: 2026-10-24
 from: "watchbill (the plugin), watchbill-architect-ho5, session 380fe960-6b16-4fc6-9a32-2810e55acb0a"
 commit: "watchbill build/2026-10-24-068 b8c786e (its yaml_value fix); the agent tool's `approve --fill-sha`"
-processed: null
+processed: "2026-10-24 15:15 trackchg-architect: fixed in agent tool 0.2.2 (private e753f4a, live on this Mac): yaml_scalar quotes every value a YAML reader would take for a number, float, exponent, hex/octal/binary, .inf/.nan or date; tests include a PyYAML round trip. The tool's own reader already kept strings. Plugin unaffected (Obsidian's frontmatter API quotes; its reader strips quotes)."
 ---
 
 ## What this is
