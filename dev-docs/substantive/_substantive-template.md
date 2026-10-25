@@ -1,5 +1,5 @@
 ---
-_human_verdict:           # the lane, first so the human finds it: his (yes, no, revise proposal, revise card, snoozed, later, after POC, after MVP, talk; he may set it here or drag the card) or the agent's (documents to review, new decisions, returning decisions, agents drafting, agent working, agent waiting, agent scheduled, processed), moved only by `watchbill decide`
+_human_verdict:           # the lane, first so the human finds it: his (`yes, show me`, `yes, just do it`, no, revise proposal, revise card, snoozed, later, after POC, after MVP, talk; he may set it here or drag the card) or the agent's (documents to review, new decisions, returning decisions, agents drafting, agent working, agent waiting, agent scheduled, processed), moved only by `watchbill decide`
 title: ""                 # short, at most 60 characters (about eight words): a noun phrase or a short question naming the decision, never its options; the H1 repeats it
 type: decision
 kind: decision            # decision | approval

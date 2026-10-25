@@ -72,7 +72,8 @@ views:
       - documents to review
       - new decisions
       - returning decisions
-      - yes
+      - yes, show me
+      - yes, just do it
       - no
       - revise proposal
       - revise card
@@ -197,7 +198,8 @@ views:
       - documents to review
       - new decisions
       - returning decisions
-      - yes
+      - yes, show me
+      - yes, just do it
       - no
       - revise proposal
       - revise card
