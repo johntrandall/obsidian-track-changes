@@ -37,11 +37,11 @@ review_marks:
 ---
 # Release Track Changes 2.3.0-jtr.9
 
+> [!todo] Your move · obsidian-track-changes · trackchg-architect
+> You are looking at a decision from trackchg-architect. **Your move:** drag it to **yes, show me** to accept the recommendation (yes) and see the design change as Track Changes suggestions first, or to **yes, just do it** to accept it and let trackchg-architect write it plainly and execute at once; or to **no**, **revise proposal**, **revise card**, **later**, **after POC**, **after MVP**, **talk**, or **snoozed**; or answer in chat. **Then:** trackchg-architect acts on your answer.
+
 > [!success] What changed · revision 3 · 2026-10-23 15:54 · trackchg-architect
 > - New: jtr.9 also carries the approval indicator in the review panel header (landed 89ca53c, verified).
-
-> [!todo] Your move · obsidian-track-changes · trackchg-architect
-> You are looking at a decision from trackchg-architect. **Your move:** drag it to **yes** to accept the recommendation (yes), or to **no**, **revise substance**, **revise presentation**, **later**, **talk** or **snoozed**; or answer in chat. **Then:** trackchg-architect acts on your answer.
 
 ## The question
 
@@ -103,6 +103,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T15:02:16-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · revision 2: the Approve fix rides in jtr.9
 - 2026-10-23T15:54:46-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · revision 3: the approval indicator rides in jtr.9
 - 2026-10-23T21:11:32-0400 · watchbill systems init --refresh-bases (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · lane new → new decisions by the 0.10.50 refresh (new is now new decisions); earlier mover trackchg-architect at 2026-10-23T12:39:02-0400 [lane: new decisions]
+- 2026-10-25T10:52:46-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording (watchbill decisions your-move, 0.10.69)
 
 ## John's comments
 

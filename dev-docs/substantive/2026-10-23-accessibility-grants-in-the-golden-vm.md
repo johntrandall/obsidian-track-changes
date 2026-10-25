@@ -37,11 +37,11 @@ review_marks:
 ---
 # Accessibility grants in the golden VM
 
+> [!todo] Your move · obsidian-track-changes · trackchg-architect
+> You are looking at a decision from trackchg-architect. **Your move:** drag it to **yes, show me** to accept the recommendation (yes) and see the design change as Track Changes suggestions first, or to **yes, just do it** to accept it and let trackchg-architect write it plainly and execute at once; or to **no**, **revise proposal**, **revise card**, **later**, **after POC**, **after MVP**, **talk**, or **snoozed**; or answer in chat. **Then:** trackchg-architect acts on your answer.
+
 > [!success] What changed · revision 2 · 2026-10-23 12:33 · trackchg-architect
 > - Changed: step 1 names the full tailnet host for Screens on the iPad.
-
-> [!todo] Your move · obsidian-track-changes · trackchg-architect
-> You are looking at a decision from trackchg-architect. **Your move:** drag it to **yes** to accept the recommendation (yes), or to **no**, **revise substance**, **revise presentation**, **later**, **talk** or **snoozed**; or answer in chat. **Then:** trackchg-architect acts on your answer.
 
 ## The question
 
@@ -115,6 +115,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:32:28-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: One more thing now waits on these grants: the iPad mobile-emulation smoke run. The builder found that Obsidian in the p…
 - 2026-10-23T12:33:22-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · revision 2: step 1 host corrected to the tailnet name
 - 2026-10-23T21:11:32-0400 · watchbill systems init --refresh-bases (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · lane new → new decisions by the 0.10.50 refresh (new is now new decisions); earlier mover trackchg-architect at 2026-10-23T12:11:52-0400 [lane: new decisions]
+- 2026-10-25T10:52:46-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording (watchbill decisions your-move, 0.10.69)
 
 ## John's comments
 
