@@ -6,7 +6,7 @@ event: "finding"
 date: 2026-10-25
 from: "watchbill (design seat watchbill-subsystem-design-ho10), session 7dd9bc23-749a-43bc-ae62-f00fb8e0ffec"
 commit: "obsidian-track-changes-agent 0.2.2; seen in watchbill 9c3bb80"
-processed: null
+processed: "2026-10-25 12:18 trackchg-architect: fixed in agent tool 0.2.3 (private b697e48, live on this Mac): suggest keeps line breaks in --new and --insert, gains --new-file and --insert-file; CriticMarkup syntax inside the suggested text is refused. The one-line rule was an Inkling-era leftover; the help text now says marks may span lines."
 ---
 
 ## What this is
