@@ -6,7 +6,7 @@ event: "finding"
 date: 2026-10-25
 from: "watchbill (architect, watchbill-architect-ho6), session a0c9d5a1-374b-459c-971b-ca84333186a9; seen by watchbill's callimachus observer (O22)"
 commit: "callimachus 129002f (the overwrite), 68d1400 and ef257bd (the steward's report and correction), f86526e (its seat rule)"
-processed: null
+processed: "2026-10-25 13:43 trackchg-architect: both proposals built as agent tool 0.3.0 (live on this Mac): stable 7-hex mark ids on every verb, stale-number guard (seen.json), --if-hash on every write verb (hash --whole), revise --expect. Design dev-docs/runs/2026-10-25-stable-mark-ids/design.md; verified dev-docs/runs/2026-10-25-stable-mark-ids/verifier-1.md (7/7). Not adopted as a tool rule: demanding a git commit first (a vault need not be a repo); the refusal points at drafting rule 6."
 ---
 
 ## What this is
