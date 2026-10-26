@@ -346,7 +346,7 @@ export class ReviewPanelView extends ItemView {
     const header = section.createDiv({ cls: "tc-resolved-header" });
     const toggle = header.createEl("button", {
       cls: "clickable-icon tc-icon-btn tc-resolved-toggle",
-      attr: { "aria-label": "Toggle resolved comments" },
+      attr: { "aria-label": "Show or hide the resolved comments and highlights kept in this note" },
     });
     setIcon(toggle, this.showResolved ? "chevron-down" : "chevron-right");
     header.createSpan({
@@ -402,6 +402,7 @@ export class ReviewPanelView extends ItemView {
       const row = header.createDiv({ cls: "tc-header-actions tc-header-review" });
       row.createSpan({ cls: "tc-status-badge tc-status-whole", text: "Needs whole review" });
       const approve = row.createEl("button", { cls: "tc-btn-small tc-btn-approve", text: "Approve this version" });
+      approve.setAttr("aria-label", "Record your approval of the note as it is now in its frontmatter (who, when, a hash of the text). Refused while suggestions or unresolved comments are open. Changes no text.");
       approve.addEventListener("click", () => void this.host.approveDocument(file));
     }
 
@@ -427,8 +428,10 @@ export class ReviewPanelView extends ItemView {
         })();
       };
       const acceptAll = actions.createEl("button", { cls: "tc-btn-small tc-btn-accept-all", text: "Accept all" });
+      acceptAll.setAttr("aria-label", "Apply every suggestion in the note at once, after confirming the count. Comments and highlights stay. This never approves the note.");
       acceptAll.addEventListener("click", () => bulk("accept"));
       const rejectAll = actions.createEl("button", { cls: "tc-btn-small tc-btn-reject-all", text: "Reject all" });
+      rejectAll.setAttr("aria-label", "Keep the original text for every suggestion in the note at once, after confirming the count. Comments and highlights stay.");
       rejectAll.addEventListener("click", () => bulk("reject"));
     }
     if (parsed.threads.length > 0) {
@@ -438,6 +441,7 @@ export class ReviewPanelView extends ItemView {
       const n = parsed.threads.length;
       const noun = n === 1 ? "comment thread" : "comment threads";
       const btn = actions.createEl("button", { cls: "tc-btn-small tc-btn-remove-comments", text: "Remove comments" });
+      btn.setAttr("aria-label", "Delete every comment thread in the note, resolved ones included, after confirming. Suggestions stay. For a clean copy without touching the note, use the command Copy clean markdown.");
       btn.addEventListener("click", () => {
         void (async () => {
           const confirmed = await this.confirmDestructiveAction(
@@ -601,7 +605,7 @@ export class ReviewPanelView extends ItemView {
             : [deleteCommentNode(c)];
           await this.host.applyEdits(file, edits);
         })();
-      });
+      }, "", "Delete this one message. The rest of the thread stays; deleting the last message removes the thread and its highlight.");
 
       const body = msg.createDiv({ cls: "tc-message-body" });
       this.renderTextInto(body, c.text);
@@ -645,6 +649,7 @@ export class ReviewPanelView extends ItemView {
     };
     const actions = box.createDiv({ cls: "tc-reply-actions" });
     const submitBtn = actions.createEl("button", { cls: "tc-btn-primary", text: submitText });
+    submitBtn.setAttr("aria-label", `${submitText}: add your text to the note as a comment signed with your name and today's date (⌘/Ctrl-Enter). A reply reopens a resolved thread.`);
     submitBtn.addEventListener("click", () => void submit());
     return box;
   }
@@ -711,11 +716,14 @@ export class ReviewPanelView extends ItemView {
           }
         },
         "tc-icon-neutral",
+        "Add a comment to this suggestion. It stays with the suggestion as the record, even after you accept or reject it.",
       );
     }
     const decide = actions.createDiv({ cls: "tc-card-decide" });
-    this.iconButton(decide, "check", "Accept", () => void resolve("accept"), "tc-icon-accept");
-    this.iconButton(decide, "x", "Reject", () => void resolve("reject"), "tc-icon-reject");
+    this.iconButton(decide, "check", "Accept", () => void resolve("accept"), "tc-icon-accept",
+      "Accept this suggestion: apply the change to the text. A comment attached to it stays in the note, marked resolved. This never approves the whole note.");
+    this.iconButton(decide, "x", "Reject", () => void resolve("reject"), "tc-icon-reject",
+      "Reject this suggestion: keep the original text. A comment attached to it stays in the note, marked resolved.");
 
     this.renderMetaRow(card, card, n.metaAuthor, null, n.metaDate, "tc-card-meta");
     this.renderDiff(card, n);
@@ -801,19 +809,19 @@ export class ReviewPanelView extends ItemView {
       this.iconButton(actions, "rotate-ccw", "Reopen highlight", () => {
         const edit = reopenHighlight(source, n);
         if (edit) void this.host.applyEdits(file, [edit]);
-      }, "tc-icon-neutral");
+      }, "tc-icon-neutral", "Put this highlight back in the pending list (clears your resolved flag).");
     } else {
       this.iconButton(actions, "check-circle", "Mark resolved", () => {
         const edit = resolveHighlight(source, n, formatReplyDate(this.host.replyDateStyle()));
         if (edit) void this.host.applyEdits(file, [edit]);
-      }, "tc-icon-accept");
+      }, "tc-icon-accept", "Keep the highlight in the note but drop it from the pending list (adds your resolved flag with today's date).");
     }
     this.iconButton(actions, "eraser", "Remove highlight", () => {
       void this.host.applyEdits(file, [removeHighlight(n)]);
-    });
+    }, "", "Delete the highlight marks; the highlighted text stays.");
     const toggle = header.createEl("button", {
       cls: "clickable-icon tc-card-toggle tc-icon-btn",
-      attr: { "aria-label": "Toggle highlight" },
+      attr: { "aria-label": "Fold or unfold this highlight card" },
     });
     setIcon(toggle, isCollapsed ? "chevron-right" : "chevron-down");
     toggle.addEventListener("click", (e) => {
@@ -838,16 +846,23 @@ export class ReviewPanelView extends ItemView {
     this.renderTextInto(diffBody, n.text);
   }
 
+  /**
+   * Every button carries a rollover that says what it does (John, 2026-10-25:
+   * "Every button should have a rollover state that gives more info about
+   * what it does"). Obsidian shows `aria-label` as the hover tooltip, so the
+   * tip goes there; `label` is the short name for assistive tech when no tip.
+   */
   private iconButton(
     parent: HTMLElement,
     icon: string,
     label: string,
     onClick: () => void,
     cls = "",
+    tip?: string,
   ): HTMLButtonElement {
     const btn = parent.createEl("button", {
       cls: `clickable-icon tc-icon-btn ${cls}`.trim(),
-      attr: { "aria-label": label },
+      attr: { "aria-label": tip ?? label, "data-tooltip-position": "top" },
     });
     setIcon(btn, icon);
     btn.addEventListener("click", (e) => {
@@ -899,15 +914,18 @@ export class ReviewPanelView extends ItemView {
 
     const actions = header.createDiv({ cls: "tc-card-actions" });
     if (resolved) {
-      this.iconButton(actions, "rotate-ccw", "Reopen thread", onToggleResolved, "tc-icon-neutral");
+      this.iconButton(actions, "rotate-ccw", "Reopen thread", onToggleResolved, "tc-icon-neutral",
+        "Put this thread back in the pending list (clears your resolved flag; an agent's acknowledged flag stays).");
     } else {
-      this.iconButton(actions, "check-circle", "Mark resolved", onToggleResolved, "tc-icon-accept");
+      this.iconButton(actions, "check-circle", "Mark resolved", onToggleResolved, "tc-icon-accept",
+        "Keep the thread in the note as the record but drop it from the pending list (adds resolved=<date> to its first comment). A reply reopens it.");
     }
-    this.iconButton(actions, "trash-2", "Delete thread", onDelete);
+    this.iconButton(actions, "trash-2", "Delete thread", onDelete, "",
+      "Delete every message in this thread and the highlight it points at. To keep it as a record, use Mark resolved instead.");
 
     const toggle = header.createEl("button", {
       cls: "clickable-icon tc-card-toggle tc-thread-toggle tc-icon-btn",
-      attr: { "aria-label": "Toggle thread" },
+      attr: { "aria-label": "Fold or unfold this thread" },
     });
     const isCollapsed = this.collapsedCards.has(thread.from);
     setIcon(toggle, isCollapsed ? "chevron-right" : "chevron-down");
@@ -1027,7 +1045,7 @@ class ConfirmActionModal extends Modal {
     contentEl.createEl("p", { text: this.message });
 
     const buttons = contentEl.createDiv({ cls: "tc-confirm-buttons" });
-    const cancel = buttons.createEl("button", { text: "Cancel" });
+    const cancel = buttons.createEl("button", { text: "Cancel", attr: { "aria-label": "Close without changing anything" } });
     cancel.addEventListener("click", () => {
       this.finish(false);
     });
@@ -1035,6 +1053,7 @@ class ConfirmActionModal extends Modal {
     const confirm = buttons.createEl("button", {
       cls: "mod-warning",
       text: this.confirmText,
+      attr: { "aria-label": `${this.confirmText}: go ahead; the note changes (undo with ⌘Z in the editor)` },
     });
     confirm.addEventListener("click", () => {
       this.finish(true);
