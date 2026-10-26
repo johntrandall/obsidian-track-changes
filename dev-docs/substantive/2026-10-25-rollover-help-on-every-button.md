@@ -1,5 +1,5 @@
 ---
-_human_verdict: yes, show me
+_human_verdict: processed
 title: Rollover help on every button
 type: decision
 kind: approval
@@ -13,9 +13,9 @@ unblocks:
 asked_by: trackchg-architect
 asked_at: "2026-10-25T23:18:25-0400"
 asked_via: chat
-status: answered
-applied_at:
-applied_how:
+status: applied
+applied_at: "2026-10-25T23:24:01-0400"
+applied_how: "Built and landed on feat/bulk-accept at 5398bd5 (22 buttons in the review panel and overview, plus the Finalize dialog, each with hover text; verified cold, [[dev-docs/runs/2026-10-25-button-tooltips/verifier-1|verifier round 1]]); ships in 2.3.0-jtr.9."
 undo:
 source: chat
 recorded_where: chat, heard by session 988b396b-f824-464e-83db-39e5a05961e0
@@ -27,7 +27,7 @@ human_note:
 human_words: Every button should have a rollover state that gives more info about what it does.
 snooze_until:
 previous_verdict: yes, show me
-moved_at: "2026-10-25T23:22:14-0400"
+moved_at: "2026-10-25T23:24:01-0400"
 moved_by: trackchg-architect
 working_by:
 waiting_on:
@@ -39,7 +39,7 @@ review_marks:
 # Rollover help on every button
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
-> You answered **yes, show me**. trackchg-architect picks it up next and puts any design change in front of you as Track Changes suggestions before it executes; nothing more for you until then.
+> Done: applied (Built and landed on feat/bulk-accept at 5398bd5 (22 buttons in the review panel and overview, plus the Finalize dialog,…).
 
 ## The question
 
@@ -98,9 +98,14 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-25T23:21:38-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved yes, show me → agent editing [lane: agent editing]
 - 2026-10-25T23:22:08-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · filled in the card body by hand
 - 2026-10-25T23:22:14-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent editing → yes, show me (done editing) [lane: yes, show me]
+- 2026-10-25T23:24:01-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · applied: Built and landed on feat/bulk-accept at 5398bd5 (22 buttons in the review panel and overview, plus the Finalize dialog, each with hover text; verified cold, [[dev-docs/runs/2026-10-25-button-tooltips/verifier-1|verifier round 1]]); ships in 2.3.0-jtr.9.; moved to processed (held in agent editing from yes, show me, then processed) [lane: processed]
 
 ## John's comments
 
 Type under the last *John* heading, or answer in chat; drag the card to **revise** when you want the agent to act on what you wrote.
+
+### trackchg-architect · 2026-10-25 23:24
+
+Applied: Built and landed on feat/bulk-accept at 5398bd5 (22 buttons in the review panel and overview, plus the Finalize dialog, each with hover text; verified cold, [[dev-docs/runs/2026-10-25-button-tooltips/verifier-1|verifier round 1]]); ships in 2.3.0-jtr.9.
 
 ### John

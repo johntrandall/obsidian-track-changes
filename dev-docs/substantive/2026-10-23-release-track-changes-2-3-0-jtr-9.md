@@ -4,6 +4,7 @@ title: Release Track Changes 2.3.0-jtr.9
 type: decision
 kind: decision
 weight: quick
+asks:
 system: obsidian-track-changes
 question: "Release the fork as 2.3.0-jtr.9 (the review panel's comment count fix) on GitHub and install it in every open vault, as with jtr.4 to jtr.8?"
 options: []
@@ -104,9 +105,14 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T15:54:46-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · revision 3: the approval indicator rides in jtr.9
 - 2026-10-23T21:11:32-0400 · watchbill systems init --refresh-bases (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · lane new → new decisions by the 0.10.50 refresh (new is now new decisions); earlier mover trackchg-architect at 2026-10-23T12:39:02-0400 [lane: new decisions]
 - 2026-10-25T10:52:46-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording (watchbill decisions your-move, 0.10.69)
+- 2026-10-25T23:24:03-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: jtr.9 now also carries a rollover on every button in the review panel and the overview (your instruction of 2026-10-25;… (held in agent editing from new decisions, back to new decisions)
 
 ## John's comments
 
 Type under the last *John* heading, or answer in chat; drag the card to **revise** when you want the agent to act on what you wrote.
+
+### trackchg-architect · 2026-10-25 23:24
+
+jtr.9 now also carries a rollover on every button in the review panel and the overview (your instruction of 2026-10-25; landed 5398bd5, [[dev-docs/substantive/2026-10-25-rollover-help-on-every-button|its card]]). Four changes ride in this release: the comment-count fix, Approve with resolved comments, the approval indicator, and the rollovers.
 
 ### John
