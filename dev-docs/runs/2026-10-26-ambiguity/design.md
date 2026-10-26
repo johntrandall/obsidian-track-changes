@@ -26,3 +26,7 @@ Start here: the design for the intake `intake/2026-10-26-ambiguity-syntax-and-qu
 1. Agent tool 0.4.0: skill + verb (this project lands; watchbill told).
 2. Watchbill's pointer (watchbill lands).
 3. Fork jtr.10: overview section (this project lands; needs John's release word as every fork release does).
+
+## 5. Addendum (watchbill-architect-ho6, 12:4x)
+
+`ambiguities --all` also returns closed callouts (those with an ANSWERED of the same slug) with `answered_line` (the ANSWERED callout's line) and `answer_line` (the line of the quoted words). Every row carries `card`: the first `[[…]]` link inside the callout, or null; watchbill joins its cards on it.
