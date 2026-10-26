@@ -402,7 +402,7 @@ export class ReviewPanelView extends ItemView {
       const row = header.createDiv({ cls: "tc-header-actions tc-header-review" });
       row.createSpan({ cls: "tc-status-badge tc-status-whole", text: "Needs whole review" });
       const approve = row.createEl("button", { cls: "tc-btn-small tc-btn-approve", text: "Approve this version" });
-      approve.setAttr("aria-label", "Record your approval of the note as it is now in its frontmatter (who, when, a hash of the text). Refused while suggestions or unresolved comments are open. Changes no text.");
+      approve.setAttr("aria-label", "Record your approval of the note as it is now in its frontmatter (who, when, a hash of the text) and clear its review flag. Refused while suggestions or unresolved comments are open. Changes no text in the body.");
       approve.addEventListener("click", () => void this.host.approveDocument(file));
     }
 
@@ -441,7 +441,7 @@ export class ReviewPanelView extends ItemView {
       const n = parsed.threads.length;
       const noun = n === 1 ? "comment thread" : "comment threads";
       const btn = actions.createEl("button", { cls: "tc-btn-small tc-btn-remove-comments", text: "Remove comments" });
-      btn.setAttr("aria-label", "Delete every comment thread in the note, resolved ones included, after confirming. Suggestions stay. For a clean copy without touching the note, use the command Copy clean markdown.");
+      btn.setAttr("aria-label", "Delete every comment thread in the note, resolved ones included, and unhighlight the text they point at, after confirming. Suggestions stay. For a clean copy without touching the note, use the command Copy clean markdown.");
       btn.addEventListener("click", () => {
         void (async () => {
           const confirmed = await this.confirmDestructiveAction(
@@ -605,7 +605,7 @@ export class ReviewPanelView extends ItemView {
             : [deleteCommentNode(c)];
           await this.host.applyEdits(file, edits);
         })();
-      }, "", "Delete this one message. The rest of the thread stays; deleting the last message removes the thread and its highlight.");
+      }, "", "Delete this one message; the rest of the thread stays. Deleting the last message of a thread that points at highlighted text also removes the highlight marks (the text stays).");
 
       const body = msg.createDiv({ cls: "tc-message-body" });
       this.renderTextInto(body, c.text);
@@ -649,7 +649,7 @@ export class ReviewPanelView extends ItemView {
     };
     const actions = box.createDiv({ cls: "tc-reply-actions" });
     const submitBtn = actions.createEl("button", { cls: "tc-btn-primary", text: submitText });
-    submitBtn.setAttr("aria-label", `${submitText}: add your text to the note as a comment signed with your name and today's date (⌘/Ctrl-Enter). A reply reopens a resolved thread.`);
+    submitBtn.setAttr("aria-label", `${submitText}: add your text to the note as a dated comment, signed with your name when one is set in the plugin settings (Ctrl/Cmd-Enter).${submitText === "Reply" ? " A reply reopens a resolved thread." : ""}`);
     submitBtn.addEventListener("click", () => void submit());
     return box;
   }
@@ -657,7 +657,7 @@ export class ReviewPanelView extends ItemView {
   /**
    * A suggestion card. With `thread` (a thread anchored on the change) the
    * card also carries the thread's messages and a reply box; resolving the
-   * change removes the thread.
+   * change keeps the thread in the note, marked resolved (the record).
    */
   private renderSuggestionCard(
     list: HTMLElement,
@@ -716,7 +716,7 @@ export class ReviewPanelView extends ItemView {
           }
         },
         "tc-icon-neutral",
-        "Add a comment to this suggestion. It stays with the suggestion as the record, even after you accept or reject it.",
+        "Open a box to write a comment on this suggestion. Once added, it stays with the suggestion as the record, even after you accept or reject it.",
       );
     }
     const decide = actions.createDiv({ cls: "tc-card-decide" });
@@ -921,7 +921,7 @@ export class ReviewPanelView extends ItemView {
         "Keep the thread in the note as the record but drop it from the pending list (adds resolved=<date> to its first comment). A reply reopens it.");
     }
     this.iconButton(actions, "trash-2", "Delete thread", onDelete, "",
-      "Delete every message in this thread and the highlight it points at. To keep it as a record, use Mark resolved instead.");
+      "Delete every message in this thread. If it points at highlighted text, the highlight marks go and the text stays. To keep it as a record, use Mark resolved instead.");
 
     const toggle = header.createEl("button", {
       cls: "clickable-icon tc-card-toggle tc-thread-toggle tc-icon-btn",
@@ -1053,7 +1053,7 @@ class ConfirmActionModal extends Modal {
     const confirm = buttons.createEl("button", {
       cls: "mod-warning",
       text: this.confirmText,
-      attr: { "aria-label": `${this.confirmText}: go ahead; the note changes (undo with ⌘Z in the editor)` },
+      attr: { "aria-label": `${this.confirmText}: go ahead and change the note. Ctrl/Cmd-Z undoes it while the note is open in an editor.` },
     });
     confirm.addEventListener("click", () => {
       this.finish(true);

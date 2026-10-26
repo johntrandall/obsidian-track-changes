@@ -176,7 +176,7 @@ export class PendingOverviewView extends ItemView {
         // The human's act: approve this version. Writes the anchor; the note
         // leaves this group once its frontmatter no longer says review: whole.
         const approve = chips.createEl("button", { cls: "tc-btn-small tc-btn-approve", text: "Approve" });
-        approve.setAttr("aria-label", "Record your approval of this note as it is now in its frontmatter (who, when, a hash of the text). Refused while suggestions or unresolved comments are open. Changes no text.");
+        approve.setAttr("aria-label", "Record your approval of this note as it is now in its frontmatter (who, when, a hash of the text) and clear its review flag. Refused while suggestions or unresolved comments are open. Changes no text in the body.");
         approve.addEventListener("click", (e) => {
           e.stopPropagation();
           void this.host.approveDocument(r.path);
