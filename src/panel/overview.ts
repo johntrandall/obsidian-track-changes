@@ -87,7 +87,7 @@ export class PendingOverviewView extends ItemView {
     titleRow.createSpan({ cls: "tc-scope tc-scope-vault", text: "Whole vault" });
     const rescan = titleRow.createEl("button", {
       cls: "clickable-icon tc-icon-btn tc-overview-rescan",
-      attr: { "aria-label": "Rescan vault" },
+      attr: { "aria-label": "Re-read every note in the vault for pending changes. Normally not needed: the list keeps itself current from vault events" },
     });
     setIcon(rescan, index.scanning ? "loader" : "refresh-cw");
     if (index.scanning) rescan.addClass("tc-overview-spinning");
@@ -176,7 +176,7 @@ export class PendingOverviewView extends ItemView {
         // The human's act: approve this version. Writes the anchor; the note
         // leaves this group once its frontmatter no longer says review: whole.
         const approve = chips.createEl("button", { cls: "tc-btn-small tc-btn-approve", text: "Approve" });
-        approve.setAttr("aria-label", "Approve this version of the note as a whole");
+        approve.setAttr("aria-label", "Record your approval of this note as it is now in its frontmatter (who, when, a hash of the text) and clear its review flag. Refused while suggestions or unresolved comments are open. Changes no text in the body.");
         approve.addEventListener("click", (e) => {
           e.stopPropagation();
           void this.host.approveDocument(r.path);
