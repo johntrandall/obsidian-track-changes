@@ -1,0 +1,8 @@
+# Verifier round 1: a rollover on every button
+
+Start here: the cold check of 704f1a7 (every button in the review panel and the overview carries a hover tooltip, John's instruction of 2026-10-25) by a `watchbill:verifier` crew (fresh), 2026-10-25 23:3x EDT; scratch `/private/tmp/claude-502/verify-tooltips/`. Result: suites pass; 22 buttons all labelled; 7 wording defects and 2 unlabelled buttons found and fixed in the next commit.
+
+1. **PASS (Verified).** typecheck, `npm test`, `npm run test:webkit` (482 ok), build: exit 0.
+2. **Coverage (Verified).** 22 buttons (20 in view.ts, 2 in overview.ts), every one with an aria-label that is more than its own label. Outside the brief's files: the Finalize dialog's Cancel and Apply (src/finalize.ts) had none → labelled in the fix commit. Three tooltips are short by the brief's 8-word rule (the two fold toggles, the modal's Cancel): kept, they say what they do.
+3. **Wording (Inferred, read against the handlers), all fixed:** Delete thread and Delete message said the highlight goes (the marks go, the text stays); Approve omitted that it clears the `review` flag; the Comment icon only opens a box; the submit button's reopen sentence applied to Comment too and the signature holds only when a name is set; the confirm button's "⌘Z" is undoable only while the note is open and is Ctrl-Z elsewhere; Remove comments omitted the unhighlighting. Also a stale docstring ("resolving the change removes the thread").
+4. **PASS (Verified).** No handler or edit builder changed: the diff is labels, an optional `tip` parameter on `iconButton`, and a CLAUDE.md paragraph.
