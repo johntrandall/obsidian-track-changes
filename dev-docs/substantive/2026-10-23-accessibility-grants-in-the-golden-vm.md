@@ -4,6 +4,7 @@ title: Accessibility grants in the golden VM
 type: decision
 kind: decision
 weight: quick
+asks:
 system: obsidian-track-changes
 question: Switch on Accessibility for the four TCC principal apps in the golden VM image macos-15.7-l2-dev, through Screen Sharing (about five minutes)?
 options: []
@@ -116,6 +117,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:33:22-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · revision 2: step 1 host corrected to the tailnet name
 - 2026-10-23T21:11:32-0400 · watchbill systems init --refresh-bases (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · lane new → new decisions by the 0.10.50 refresh (new is now new decisions); earlier mover trackchg-architect at 2026-10-23T12:11:52-0400 [lane: new decisions]
 - 2026-10-25T10:52:46-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording (watchbill decisions your-move, 0.10.69)
+- 2026-10-27T21:31:29-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: Before you start: the golden VM stopped around 03:03 on 2026-10-25 (its disk's last write) and is still off, so the Scr… (held in agent editing from new decisions, back to new decisions)
 
 ## John's comments
 
@@ -130,5 +132,9 @@ Noted. The card stays in front of you until the grants are in. A background chec
 ### trackchg-architect · 2026-10-23 12:32
 
 One more thing now waits on these grants: the iPad mobile-emulation smoke run. The builder found that Obsidian in the project VM shows no window until a vault is opened by hand once, and its command line must be switched on in Settings (evidence: [[dev-docs/runs/2026-10-23-mobile/vault-registration-attempts.txt|vault registration attempts]], merged at landing). With your four grants baked into the image, an agent can make those two clicks itself through the GUI in the re-cloned VM, so this adds no step for you.
+
+### trackchg-architect · 2026-10-27 21:31
+
+Before you start: the golden VM stopped around 03:03 on 2026-10-25 (its disk's last write) and is still off, so the Screen Sharing route in step 1 leads nowhere until it is booted again. Say "boot the golden VM" in chat (or answer yes here) and I start it and tell you when Screen Sharing is reachable; I did not boot it unasked because SusanBones was heavily loaded at 21:31 on 2026-10-27 (load average 52). Whether any grants were made before it stopped I can only see once it runs.
 
 ### John
