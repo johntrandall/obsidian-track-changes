@@ -40,6 +40,7 @@ review_marks:
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
 > Nothing for you: waiting on John: the three image-chain questions asked in chat 2026-10-23 13:4x (L2a tailnet layer name, what isolated means, which account in L2).
+> Talk to [the agent that wrote this](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0) · [the seat that holds it now](http://susanbones:5465/herdr-owner#988b396b-f824-464e-83db-39e5a05961e0)
 
 ## The question
 
@@ -92,8 +93,8 @@ Install the Tailscale program (no login) in the golden image macos-15.7-l2-dev, 
 
 ## Talk to the agent
 
-- [Focus the agent that asked](http://link.localhost/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
-- [Focus its workspace](http://link.localhost/herdr-workspace#label=%F0%9F%93%A6%20s-app%20obsidian-track-changes)
+- [Focus the agent that asked](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
+- [Focus its workspace](http://susanbones:5465/herdr-workspace#label=%F0%9F%93%A6%20s-app%20obsidian-track-changes)
 
 ## Card log
 
@@ -105,6 +106,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T13:40:38-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · recorded the human's chat answer: revise substance [lane: revise substance]
 - 2026-10-23T13:40:43-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved revise substance → agent working (by trackchg-architect) [lane: agent working]
 - 2026-10-24T11:31:12-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent working → agent waiting (waiting on John: the three image-chain questions asked in chat 2026-10-23 13:4x (L2a tailnet layer name, what isolated means, which account in L2)) [lane: agent waiting]
+- 2026-10-29T18:16:43-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording, and its herdr links on the bridge's host (watchbill decisions your-move, 0.10.69)
 
 ## John's comments
 
