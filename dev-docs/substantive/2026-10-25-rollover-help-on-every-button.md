@@ -40,6 +40,7 @@ review_marks:
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
 > Done: applied (Built and landed on feat/bulk-accept at 5398bd5 (22 buttons in the review panel and overview, plus the Finalize dialog,…).
+> Talk to [the agent that wrote this](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0) · [the seat that holds it now](http://susanbones:5465/herdr-owner#988b396b-f824-464e-83db-39e5a05961e0)
 
 ## The question
 
@@ -86,8 +87,8 @@ No design change: the buttons behave as before; each gains hover text. Examples:
 
 ## Talk to the agent
 
-- [Focus the agent that asked](http://link.localhost/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
-- [Focus its workspace](http://link.localhost/herdr-workspace#label=%F0%9F%93%A6%20s-app%20obsidian-track-changes)
+- [Focus the agent that asked](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
+- [Focus its workspace](http://susanbones:5465/herdr-workspace#label=%F0%9F%93%A6%20s-app%20obsidian-track-changes)
 
 ## Card log
 
@@ -99,6 +100,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-25T23:22:08-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · filled in the card body by hand
 - 2026-10-25T23:22:14-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent editing → yes, show me (done editing) [lane: yes, show me]
 - 2026-10-25T23:24:01-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · applied: Built and landed on feat/bulk-accept at 5398bd5 (22 buttons in the review panel and overview, plus the Finalize dialog, each with hover text; verified cold, [[dev-docs/runs/2026-10-25-button-tooltips/verifier-1|verifier round 1]]); ships in 2.3.0-jtr.9.; moved to processed (held in agent editing from yes, show me, then processed) [lane: processed]
+- 2026-10-29T18:16:43-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording, and its herdr links on the bridge's host (watchbill decisions your-move, 0.10.69)
 
 ## John's comments
 

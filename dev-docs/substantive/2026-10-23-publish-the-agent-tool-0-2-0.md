@@ -39,6 +39,7 @@ review_marks:
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
 > Nothing for you: waiting on John: card Session id already in the agent tool's public history.
+> Talk to [the agent that wrote this](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0) · [the seat that holds it now](http://susanbones:5465/herdr-owner#988b396b-f824-464e-83db-39e5a05961e0)
 
 ## The question
 
@@ -96,8 +97,8 @@ Publish the agent tool's 0.1.12 and 0.2.0 changes to the public repository as on
 
 ## Talk to the agent
 
-- [Focus the agent that asked](http://link.localhost/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
-- [Focus its workspace](http://link.localhost/herdr-workspace#label=%F0%9F%93%A6%20s-app%20obsidian-track-changes)
+- [Focus the agent that asked](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
+- [Focus its workspace](http://susanbones:5465/herdr-workspace#label=%F0%9F%93%A6%20s-app%20obsidian-track-changes)
 
 ## Card log
 
@@ -109,6 +110,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T13:40:32-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · recorded the human's chat answer: yes [lane: yes]
 - 2026-10-23T13:48:21-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved yes → agent working (by trackchg-architect) [lane: agent working]
 - 2026-10-23T13:57:14-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent working → agent waiting (waiting on John: card Session id already in the agent tool's public history) [lane: agent waiting]
+- 2026-10-29T18:16:42-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording, and its herdr links on the bridge's host (watchbill decisions your-move, 0.10.69)
 
 ## John's comments
 
