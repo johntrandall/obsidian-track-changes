@@ -54,6 +54,7 @@ Your agent needs to know the mark format. Two starting points:
 - **Every button says what it does** — hover any button in the review panel or the overview for one or two sentences on what the click does, what stays, and what it does not do (Accept all never approves the note)
 - **Review from the keyboard** — accept, reject, resolve, reopen, remove a highlight or delete a comment at the cursor (bind hotkeys), or every suggestion in a selection; see Commands
 - **Works on iPad and iPhone** — the panel, the overview and the commands run on Obsidian mobile (tested in WebKit, the iPad's engine, and under Obsidian's mobile emulation; a short checklist covers what only a real iPad shows, see Testing on iPad)
+- **Suggestions show inside tables** — in Live Preview a mark in a table cell shows as a suggestion (insertion green, deletion struck, substitution as old → new, highlight, comment icon), a `<br>` inside a mark breaks the line, and ⌘/Ctrl-click opens its card, as outside tables
 - Reading mode: accepted preview or raw side-by-side
 - Settings: your name (stamped on your replies and marks; unattributed marks show it), reply date style (date or date and time), where the review panel opens (right sidebar or a split beside the note), the status-bar count on or off, and custom colors and tint intensity for additions, deletions, highlights, comments and AI-added text
 - Code blocks left alone
