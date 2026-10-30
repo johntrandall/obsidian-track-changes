@@ -1,0 +1,9 @@
+---
+title: Approve blocked by an open comment
+review: whole
+---
+# Still open
+
+One paragraph.{author="Claude (editor)" date="2026-10-29">>Not resolved yet.<<}
+
+Another.{author="Claude (checker)" date="2026-10-29" resolved="2026-10-30">>This one is resolved.<<}

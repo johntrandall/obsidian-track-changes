@@ -64,6 +64,19 @@ Your agent needs to know the mark format. Two starting points:
 - **Click a panel card** to jump the editor to its chip.
 - **Source Mode** shows raw markup verbatim.
 
+## Testing by eye in the test vault
+
+The first place to look at a change is the project's own Obsidian test vault, a folder in `/private/tmp` rebuilt from the notes in `test/vault/` (kept as `*.md.fixture`, so no real vault lists them as review work). It opens in its own window and touches no other vault:
+
+```sh
+scripts/test-vault.sh up                   # build, reset the notes, open the vault, load the build
+scripts/test-vault.sh open approve-open.md # a note with the review panel beside it
+scripts/test-vault.sh shot approve-open    # screenshot to dev-docs/runs/<date>-test-vault/; look at it
+scripts/test-vault.sh down                 # close the window
+```
+
+The notes cover every mark kind, approving with resolved and with open comments, and the three approval states (unchanged, suggestions open since, changed since). Add a note to `test/vault/` when a change needs one. Use the VM below only for what the test vault cannot show (a clean install, mobile emulation at iPad sizes).
+
 ## Testing by eye in a VM
 
 Reviewing the panel means clicking in Obsidian, and the plugin should never be checked in a vault you care about. The project has a throwaway Obsidian in a local Tart VM for that (macOS guest, cloned from the `macos-15.7-l2-dev` golden image; see the `tart-vm-management` skill for the image and the wrapper):
