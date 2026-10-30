@@ -1,9 +1,10 @@
 ---
-_human_verdict:           # the lane, first so the human finds it: his (snoozed, yes, no, revise substance, revise presentation, later, talk; he may set it here or drag the card) or the agent's (to review, new, returning, agent drafting, agent working, agent waiting, agent scheduled, processed), moved only by `watchbill decide`
+_human_verdict:           # the lane, first so the human finds it: his (`yes, show me`, `yes, just do it`, no, revise proposal, revise card, snoozed, later, after POC, after MVP, talk; he may set it here or drag the card) or the agent's (documents to review, new decisions, returning decisions, agents drafting, agent working, agent waiting, agent scheduled, processed), moved only by `watchbill decide`
 title: ""                 # short, at most 60 characters (about eight words): a noun phrase or a short question naming the decision, never its options; the H1 repeats it
 type: decision
 kind: decision            # decision | approval
-weight: quick             # quick or big: a big card (a document review, a design or ADR approval) is presented in `to review`
+weight: quick             # quick or big: a big card (a document review, a design or ADR approval) is presented in `documents to review`
+asks:                     # approval: the card asks him to approve its subject document as a whole (his yes writes the approval record on it); blank: a yes answers the question and approves no document (0.10.58)
 system: "obsidian-track-changes"       # registry name
 question: ""              # one line: the card's title; one decision per card (split a question with independent parts)
 options: []               # closed choices, short labels: each becomes a lane on the board; empty for yes/no
@@ -44,7 +45,9 @@ review_marks: []          # a Track Changes review card: the suggestions it wait
 
 [fill in: one plain question, phrased so that yes accepts the recommendation; no double negatives]
 
-**Why:** [fill in: the problem this solves: why he might want it, in a sentence]
+- **Problem:** [fill in: the problem this solves: why he might want it, in a sentence]
+- **Proposal:** [fill in: what the card proposes, in a sentence: the recommendation as a change]
+- **From:** [fill in: where the question comes from (his words with the time and the channel, a card, a report), with its link; or delete this line when the card cites no source]
 
 ## Why this is being asked
 
@@ -66,6 +69,8 @@ review_marks: []          # a Track Changes review card: the suggestions it wait
     - `value_b`: [fill in]
   - *Who reads it:* [fill in]
   - *Default:* [fill in]
+
+[fill in, when the card asks about a changed diagram (a C4 view, a workflow, any approved picture): the review render with the changes since the last approval colour-coded (added, changed, removed) and its legend, the change table, a link to a viewer showing it in context (for C4: the model's `workspace.html`), and the clean render as it would be approved]
 
 **Binds:** [fill in: the seats whose behaviour changes] · **Your part:** [fill in: what he does after a yes, blocking or queued; or nothing new; when it changes a gate or a field, the steward's records step comes before the landing] · **Does not change:** [fill in: what a reader might assume changes]
 

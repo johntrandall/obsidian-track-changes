@@ -1,5 +1,5 @@
 ---
-_human_verdict: new
+_human_verdict: agent waiting
 title: Publish the agent tool 0.2.0
 type: decision
 kind: decision
@@ -12,24 +12,24 @@ unblocks: "build-queue item 3; watchbill's use of drift in other sessions (the m
 asked_by: trackchg-architect
 asked_at: "2026-10-23T12:11:58-0400"
 asked_via: chat
-status: open
+status: answered
 applied_at:
 applied_how:
 undo:
-source:
-recorded_where:
+source: chat
+recorded_where: chat, heard by session 988b396b-f824-464e-83db-39e5a05961e0
 relayed_by:
 spawned:
 subject:
 subject_fingerprint:
 human_note:
-human_words:
+human_words: "Come on, Adam. Yes, I approve the publication. We don't want tail scale in the golden Vienna image. That should be one step down, so... so, whatever, we do, it needs to be part of the BM inheritage chain, the tail scale should be a separate step. Does the ends might be doing dangerous things, and they might, be throwaway? We might want to use BM as an isolated environment, so we don't want it to be network connected by default. Yeah, that's one step beyond the Golden DM. What's our current hierarchy of the Amsterdam? Something like bass to golden to tail scale. What's the inheritage chain there? Can you print me a one cheater that shows the inheritance chain after we finalize it in this chat?"
 snooze_until:
-previous_verdict:
-moved_at: "2026-10-23T12:12:55-0400"
+previous_verdict: "yes"
+moved_at: "2026-10-23T13:57:14-0400"
 moved_by: trackchg-architect
 working_by:
-waiting_on:
+waiting_on: "John: card Session id already in the agent tool's public history"
 revisit_when:
 revisit_of:
 revisits:
@@ -38,7 +38,8 @@ review_marks:
 # Publish the agent tool 0.2.0
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
-> You are looking at a decision from trackchg-architect. **Your move:** drag it to **yes** to accept the recommendation (yes), or to **no**, **revise substance**, **revise presentation**, **later**, **talk** or **snoozed**; or answer in chat. **Then:** trackchg-architect acts on your answer.
+> Nothing for you: waiting on John: card Session id already in the agent tool's public history.
+> Talk to [the agent that wrote this](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0) · [the seat that holds it now](http://susanbones:5465/herdr-owner#988b396b-f824-464e-83db-39e5a05961e0)
 
 ## The question
 
@@ -90,10 +91,14 @@ Publish the agent tool's 0.1.12 and 0.2.0 changes to the public repository as on
 
 ## The human's words
 
+> Come on, Adam. Yes, I approve the publication. We don't want tail scale in the golden Vienna image. That should be one step down, so... so, whatever, we do, it needs to be part of the BM inheritage chain, the tail scale should be a separate step. Does the ends might be doing dangerous things, and they might, be throwaway? We might want to use BM as an isolated environment, so we don't want it to be network connected by default. Yeah, that's one step beyond the Golden DM. What's our current hierarchy of the Amsterdam? Something like bass to golden to tail scale. What's the inheritage chain there? Can you print me a one cheater that shows the inheritance chain after we finalize it in this chat?
+
+(in chat, 2026-10-23T13:40:32-0400, recorded by 988b396b-f824-464e-83db-39e5a05961e0)
+
 ## Talk to the agent
 
-- [Focus the agent that asked](http://link.localhost/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
-- [Focus its workspace](http://link.localhost/herdr-workspace#label=%F0%9F%93%A6%20s-app%20obsidian-track-changes)
+- [Focus the agent that asked](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
+- [Focus its workspace](http://susanbones:5465/herdr-workspace#label=%F0%9F%93%A6%20s-app%20obsidian-track-changes)
 
 ## Card log
 
@@ -102,6 +107,10 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:11:58-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · created the card [lane: agent drafting]
 - 2026-10-23T12:12:48-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · filled in the card body by hand
 - 2026-10-23T12:12:55-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent drafting → new [lane: new]
+- 2026-10-23T13:40:32-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · recorded the human's chat answer: yes [lane: yes]
+- 2026-10-23T13:48:21-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved yes → agent working (by trackchg-architect) [lane: agent working]
+- 2026-10-23T13:57:14-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agent working → agent waiting (waiting on John: card Session id already in the agent tool's public history) [lane: agent waiting]
+- 2026-10-29T18:16:42-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording, and its herdr links on the bridge's host (watchbill decisions your-move, 0.10.69)
 
 ## John's comments
 

@@ -107,9 +107,9 @@ export class FinalizeModal extends Modal {
     this.renderSummary(summaryEl);
 
     const buttons = contentEl.createDiv({ cls: "tc-finalize-buttons" });
-    const cancel = buttons.createEl("button", { text: "Cancel" });
+    const cancel = buttons.createEl("button", { text: "Cancel", attr: { "aria-label": "Close without changing the note" } });
     cancel.addEventListener("click", () => this.close());
-    const apply = buttons.createEl("button", { cls: "mod-cta", text: "Apply" });
+    const apply = buttons.createEl("button", { cls: "mod-cta", text: "Apply", attr: { "aria-label": "Resolve every mark in the note as the options above say and remove the markup; the note is then ready to publish. Ctrl/Cmd-Z undoes it while the note is open in an editor." } });
     apply.addEventListener("click", () => {
       const edits = finalizeEdits(parse(this.source), this.opts);
       this.close();

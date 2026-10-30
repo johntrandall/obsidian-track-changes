@@ -10,6 +10,7 @@
 // hashes differently on the two sides. Keep marks out of code.
 
 import { parse, type CriticNode } from "./parser";
+import { countReviewItems } from "./pending";
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
 const STATUS_LINE_RE = /\b(Status|Approved|approved|Accepted)\b/;
@@ -88,11 +89,24 @@ export async function textHash(text: string): Promise<string> {
   return "sha256:" + hex.slice(0, 16);
 }
 
-/** Suggestions and comments awaiting a decision; highlights and AI text are not. */
+/**
+ * What keeps a note from being approved: pending suggestions, and comment
+ * threads the user has not resolved. A resolved thread stays in the note as
+ * the review's record and never blocks (defect 2026-10-23: Approve refused a
+ * note whose only marks were resolved comments); an agent's `acknowledged=`
+ * alone does not close a thread; highlights and AI text never block. The same
+ * count as the panel header (`countReviewItems`); the agent tool's
+ * `blocking_marks` agrees on zero.
+ */
+export function openReviewCounts(text: string): { suggestions: number; comments: number } {
+  const c = countReviewItems(parse(stripFrontmatter(text)));
+  return { suggestions: c.suggestions, comments: c.comments };
+}
+
+/** Suggestions plus unresolved comment threads; 0 means the note may be approved. */
 export function openMarkCount(text: string): number {
-  return parse(stripFrontmatter(text)).nodes.filter(
-    (n) => n.kind !== "highlight" && n.kind !== "aitext",
-  ).length;
+  const c = openReviewCounts(text);
+  return c.suggestions + c.comments;
 }
 
 /**
@@ -133,4 +147,82 @@ export async function buildAnchor(text: string, by: string, via: string, now?: D
     approved_hash: await textHash(baseText(text)),
     approved_whole_sha: "pending",
   };
+}
+
+/** The approval anchor as read back from a note's frontmatter (top-level keys only; quotes and `# comments` dropped). */
+export interface ApprovalRead {
+  approvedBy: string | null;
+  approvedAt: string | null;
+  approvedHash: string | null;
+  approvedSha: string | null;
+  review: string | null;
+}
+
+export function readApprovalFrontmatter(text: string): ApprovalRead {
+  const out: ApprovalRead = { approvedBy: null, approvedAt: null, approvedHash: null, approvedSha: null, review: null };
+  const m = FRONTMATTER_RE.exec(text);
+  if (!m) return out;
+  for (const line of m[1].split(/\r?\n/)) {
+    const kv = /^(approved_by|approved_at|approved_hash|approved_sha|review):[ \t]*(.*?)[ \t]*$/.exec(line);
+    if (!kv) continue;
+    const value = kv[2].replace(/\s+#.*$/, "").replace(/^["']|["']$/g, "").trim();
+    if (value === "") continue;
+    if (kv[1] === "approved_by") out.approvedBy = value;
+    else if (kv[1] === "approved_at") out.approvedAt = value;
+    else if (kv[1] === "approved_hash") out.approvedHash = value;
+    else if (kv[1] === "approved_sha") out.approvedSha = value;
+    else out.review = value.toLowerCase();
+  }
+  return out;
+}
+
+/**
+ * The note's approval state, the same names and order as the agent tool's
+ * `drift` (watchbill's request of 2026-10-23: a persistent indicator):
+ * `unapproved` (no anchor), `needs-review` (`review: whole` is set),
+ * `dirty` (the base text no longer hashes to `approved_hash`), `delta-open`
+ * (unchanged, but suggestions or unresolved comments are open since), `clean`.
+ * Reads only; writes nothing.
+ */
+export type ApprovalStateName = "unapproved" | "needs-review" | "dirty" | "delta-open" | "clean";
+
+export interface ApprovalState extends ApprovalRead {
+  state: ApprovalStateName;
+  openMarks: number;
+}
+
+export async function approvalState(text: string): Promise<ApprovalState> {
+  const a = readApprovalFrontmatter(text);
+  const openMarks = openMarkCount(text);
+  let state: ApprovalStateName;
+  if (!a.approvedHash) state = "unapproved";
+  else if (a.review === "whole") state = "needs-review";
+  else if ((await textHash(baseText(text))) !== a.approvedHash) state = "dirty";
+  else if (openMarks > 0) state = "delta-open";
+  else state = "clean";
+  return { ...a, state, openMarks };
+}
+
+/** "2026-10-23T15:42:51-04:00" → "2026-10-23 15:42"; anything else unchanged. */
+function shortStamp(s: string): string {
+  const m = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/.exec(s);
+  return m ? `${m[1]} ${m[2]}` : s;
+}
+
+/** The panel's one-line indicator, or null when the note carries no approval. */
+export function describeApproval(s: ApprovalState): string | null {
+  if (s.state === "unapproved") return null;
+  const when = s.approvedAt ? shortStamp(s.approvedAt) : "at an unknown time";
+  const who = s.approvedBy ? ` by ${s.approvedBy}` : "";
+  const uncommitted = s.approvedSha === "pending" ? " · not yet committed" : "";
+  switch (s.state) {
+    case "clean":
+      return `Approved ${when}${who} · unchanged since${uncommitted}`;
+    case "delta-open":
+      return `Approved ${when}${who} · unchanged, ${s.openMarks} open since${uncommitted}`;
+    case "dirty":
+      return `Changed since approval (${when}${who})`;
+    case "needs-review":
+      return `Last approved ${when}${who} · flagged for review`;
+  }
 }

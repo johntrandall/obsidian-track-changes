@@ -19,7 +19,7 @@ import { REVIEW_VIEW_TYPE, ReviewPanelView, confirmAction, type PanelHost } from
 import { OVERVIEW_VIEW_TYPE, PendingOverviewView, type OverviewHost } from "./panel/overview";
 import { VaultIndex } from "./vault-index";
 import { describeSummary, totals } from "./pending";
-import { buildAnchor, openMarkCount } from "./approval";
+import { buildAnchor, openReviewCounts } from "./approval";
 import {
   applyEdits,
   rebaseEdits,
@@ -743,9 +743,12 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
    */
   async approveDocument(file: TFile): Promise<void> {
     const source = await this.currentSourceOf(file);
-    const open = openMarkCount(source);
-    if (open > 0) {
-      new Notice(`${open} suggestion${open === 1 ? "" : "s"} or comment${open === 1 ? "" : "s"} still open; decide them before approving the whole note.`);
+    const open = openReviewCounts(source);
+    if (open.suggestions + open.comments > 0) {
+      const parts: string[] = [];
+      if (open.suggestions > 0) parts.push(`${open.suggestions} suggestion${open.suggestions === 1 ? "" : "s"}`);
+      if (open.comments > 0) parts.push(`${open.comments} unresolved comment${open.comments === 1 ? "" : "s"}`);
+      new Notice(`${parts.join(" and ")} still open; decide them (resolved comments are fine) before approving the whole note.`);
       return;
     }
     const anchor = await buildAnchor(source, this.settings.localAuthorName.trim(), "track-changes panel");

@@ -1,9 +1,10 @@
 ---
-_human_verdict: new
+_human_verdict: new decisions
 title: Accessibility grants in the golden VM
 type: decision
 kind: decision
 weight: quick
+asks:
 system: obsidian-track-changes
 question: Switch on Accessibility for the four TCC principal apps in the golden VM image macos-15.7-l2-dev, through Screen Sharing (about five minutes)?
 options: []
@@ -26,8 +27,8 @@ human_note:
 human_words:
 snooze_until:
 previous_verdict:
-moved_at: "2026-10-23T12:11:52-0400"
-moved_by: trackchg-architect
+moved_at: "2026-10-23T21:11:32-0400"
+moved_by: watchbill systems init --refresh-bases
 working_by:
 waiting_on:
 revisit_when:
@@ -37,11 +38,12 @@ review_marks:
 ---
 # Accessibility grants in the golden VM
 
+> [!todo] Your move · obsidian-track-changes · trackchg-architect
+> You are looking at a decision from trackchg-architect. **Your move:** drag it to **yes, show me** to accept the recommendation (yes) and see the design change as Track Changes suggestions first, or to **yes, just do it** to accept it and let trackchg-architect write it plainly and execute at once; or to **no**, **revise proposal**, **revise card**, **later**, **after POC**, **after MVP**, **talk**, or **snoozed**; or answer in chat. **Then:** trackchg-architect acts on your answer.
+> Talk to [the agent that wrote this](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0) · [the seat that holds it now](http://susanbones:5465/herdr-owner#988b396b-f824-464e-83db-39e5a05961e0)
+
 > [!success] What changed · revision 2 · 2026-10-23 12:33 · trackchg-architect
 > - Changed: step 1 names the full tailnet host for Screens on the iPad.
-
-> [!todo] Your move · obsidian-track-changes · trackchg-architect
-> You are looking at a decision from trackchg-architect. **Your move:** drag it to **yes** to accept the recommendation (yes), or to **no**, **revise substance**, **revise presentation**, **later**, **talk** or **snoozed**; or answer in chat. **Then:** trackchg-architect acts on your answer.
 
 ## The question
 
@@ -101,8 +103,8 @@ Switch on Accessibility for the four TCC principal apps in the golden VM image m
 
 ## Talk to the agent
 
-- [Focus the agent that asked](http://link.localhost/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
-- [Focus its workspace](http://link.localhost/herdr-workspace#label=%F0%9F%93%A6%20s-app%20obsidian-track-changes)
+- [Focus the agent that asked](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
+- [Focus its workspace](http://susanbones:5465/herdr-workspace#label=%F0%9F%93%A6%20s-app%20obsidian-track-changes)
 
 ## Card log
 
@@ -114,6 +116,11 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-23T12:18:33-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: Noted. The card stays in front of you until the grants are in. A background check reads the VM's permission database ev…
 - 2026-10-23T12:32:28-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: One more thing now waits on these grants: the iPad mobile-emulation smoke run. The builder found that Obsidian in the p…
 - 2026-10-23T12:33:22-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · revision 2: step 1 host corrected to the tailnet name
+- 2026-10-23T21:11:32-0400 · watchbill systems init --refresh-bases (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · lane new → new decisions by the 0.10.50 refresh (new is now new decisions); earlier mover trackchg-architect at 2026-10-23T12:11:52-0400 [lane: new decisions]
+- 2026-10-25T10:52:46-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording (watchbill decisions your-move, 0.10.69)
+- 2026-10-27T21:31:29-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: Before you start: the golden VM stopped around 03:03 on 2026-10-25 (its disk's last write) and is still off, so the Scr… (held in agent editing from new decisions, back to new decisions)
+- 2026-10-29T18:16:42-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording, and its herdr links on the bridge's host (watchbill decisions your-move, 0.10.69) (held in agent editing from new decisions, back to new decisions)
+- 2026-10-29T18:16:42-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · the Your move backfill: refreshed the card (held in agent editing from new decisions), then back in new decisions
 
 ## John's comments
 
@@ -128,5 +135,9 @@ Noted. The card stays in front of you until the grants are in. A background chec
 ### trackchg-architect · 2026-10-23 12:32
 
 One more thing now waits on these grants: the iPad mobile-emulation smoke run. The builder found that Obsidian in the project VM shows no window until a vault is opened by hand once, and its command line must be switched on in Settings (evidence: [[dev-docs/runs/2026-10-23-mobile/vault-registration-attempts.txt|vault registration attempts]], merged at landing). With your four grants baked into the image, an agent can make those two clicks itself through the GUI in the re-cloned VM, so this adds no step for you.
+
+### trackchg-architect · 2026-10-27 21:31
+
+Before you start: the golden VM stopped around 03:03 on 2026-10-25 (its disk's last write) and is still off, so the Screen Sharing route in step 1 leads nowhere until it is booted again. Say "boot the golden VM" in chat (or answer yes here) and I start it and tell you when Screen Sharing is reachable; I did not boot it unasked because SusanBones was heavily loaded at 21:31 on 2026-10-27 (load average 52). Whether any grants were made before it stopped I can only see once it runs.
 
 ### John

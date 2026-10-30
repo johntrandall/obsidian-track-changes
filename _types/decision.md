@@ -9,11 +9,14 @@ schema:
   value:
     type: object
     additionalProperties: false
+    patternProperties:  # 0.10.73: a system's own fields, x_ and lower case; watchbill's stay closed
+      "^x_[a-z][a-z0-9_]*$": {}
     required: [type, kind, system, question, status, asked_by, asked_at]
     properties:
       type: { const: decision }
       kind: { enum: [decision, approval, discussion] }
       weight: { enum: [quick, big, null] }
+      asks: { enum: [approval, null] }
       system: { type: string, minLength: 1 }
       title: { type: [string, "null"], maxLength: 60 }
       question: { type: string, minLength: 1 }
@@ -42,11 +45,15 @@ schema:
       moved_at: { type: [string, "null"] }
       moved_by: { type: [string, "null"] }
       working_by: { type: [string, "null"] }
+      editing_from: { type: [string, "null"] }  # 0.10.67: the lane an agent editing card goes back to
       waiting_on: { type: [string, "null"] }
       revisit_when: { type: [string, "null"] }
       revisit_of: { type: [string, "null"] }
       revisits: { type: [array, "null"], items: { type: string } }
       review_marks: { type: [array, "null"], items: { type: string } }
+      processed_by: { type: [string, "null"] }
+      superseded_by: { type: [string, "null"] }
+      archived_to: { type: [string, "null"] }
 x-watchbill:
   awaiting_human: { field: status, values: [open, provisional] }
 ---
@@ -54,4 +61,6 @@ x-watchbill:
 
 One substantive decision for the human, tied to no item (ADR-0001): a file in `dev-docs/substantive/`, the `_substantive.base` kanban as the view, `human_*` fields the human's alone. Shipped by the watchbill plugin (`watchbill systems init`); `watchbill decide` writes these records.
 
-`_human_verdict` is a lane (0.10.50, `references/decisions.md`, "The lanes"): the human's (`snoozed`, `yes`, `no`, `revise substance`, `revise presentation`, `later`, `talk`, or one of the card's own `options`) or the agent's (`to review`, `new`, `returning`, `agent drafting`, `agent working`, `agent waiting`, `agent scheduled`, `processed`), so the schema takes any string and `watchbill decide` checks a verdict against the card's options. An agent writes the field only through the `watchbill decide` verbs, which keep the human's verdict in `previous_verdict`. A system that adds properties of its own keeps them across `systems init --refresh-bases`. The key was `human_verdict` before 0.10.50; the schema still allows it for one release, `watchbill` reads it as `_human_verdict`, and `--refresh-bases` renames it on every card. `weight` is `quick` or `big` (0.10.50): a big card (a document under Track Changes review, a design or ADR approval, or one the seat marks big with `decide --weight big`) is presented in `to review`, a quick one in `new` and then `returning`; his drag between `new` and `to review` sets it. `snooze_until` is the human's: an ISO date he may type on a snoozed card, on which `watchbill decisions sweep` brings it back as returning.
+`_human_verdict` is a lane (0.10.50, `references/decisions.md`, "The lanes"): the human's (`snoozed`, `yes, show me`, `yes, just do it` (0.10.68: the two flavours of yes; a plain `yes` is read as `yes, show me` for one release and `--refresh-bases` migrates it), `no`, `revise proposal`, `revise card`, `later`, `after POC`, `after MVP`, `talk`, or one of the card's own `options`) or the agent's (`documents to review`, `new decisions`, `returning decisions`, `agents drafting`, `agent working`, `agent waiting`, `agent scheduled`, `processed`, `agent editing` (0.10.67: held while an agent writes a card from his lanes; `editing_from` keeps the lane it goes back to)), so the schema takes any string and `watchbill decide` checks a verdict against the card's options. An agent writes the field only through the `watchbill decide` verbs, which keep the human's verdict in `previous_verdict`. A system that adds properties of its own keeps them across `systems init --refresh-bases`. A system's own field on a card is an `x_*` key (0.10.73: lower case after `x_`; the schema admits it, the sweep and the lint ignore it, a Base can read it, the verbs keep it, and `watchbill decide --set x_<key>=<value> CARD` writes one); every watchbill field stays closed. The key was `human_verdict` before 0.10.50; the schema still allows it for one release, `watchbill` reads it as `_human_verdict`, and `--refresh-bases` renames it on every card. `weight` is `quick` or `big` (0.10.50): a big card (a document under Track Changes review, a design or ADR approval, or one the seat marks big with `decide --weight big`) is presented in `documents to review`, a quick one in `new decisions` and then `returning decisions`; his drag between `new decisions` and `documents to review` sets it. `snooze_until` is the human's: an ISO date he may type on a snoozed card, on which `watchbill decisions sweep` brings it back as returning.
+
+`processed_by`, `superseded_by` and `archived_to` (0.10.59; the copy editor's collection survey, section 10, proposals 2 and 4) are link fields an agent may set by hand: the commit or design section that absorbed a processed card, the card or record that replaces it, and where it went when archived. `watchbill decide` does not write them.

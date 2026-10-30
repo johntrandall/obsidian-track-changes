@@ -3,6 +3,7 @@ filters:
     - type == "decision"
     - system == "obsidian-track-changes"
     - file.name != "_substantive-template"
+    - file.name != "_design-decisions-template"
 properties:
   file.name:
     displayName: Decision
@@ -61,30 +62,35 @@ views:
         - status != "draft"
         - kind != "discussion"
         - _human_verdict != "processed"
+        - _human_verdict != "agents drafting"
+        - _human_verdict != "agent editing"
         - _human_verdict != "agent drafting"
     groupBy:
       property: _human_verdict
       direction: ASC
     groupOrder:
-      - to review
-      - new
-      - returning
-      - snoozed
-      - yes
+      - documents to review
+      - new decisions
+      - returning decisions
+      - yes, show me
+      - yes, just do it
       - no
-      - revise substance
-      - revise presentation
+      - revise proposal
+      - revise card
+      - snoozed
       - later
+      - after POC
+      - after MVP
       - talk
       - agent working
       - agent waiting
       - agent scheduled
     order:
       - title
+      - file.name
       - kind
       - weight
       - working_by
-      - file.name
       - asked_by
       - recommendation
       - previous_verdict
@@ -121,9 +127,14 @@ views:
         - status != "withdrawn"
         - status != "draft"
         - _human_verdict != ""
+        - _human_verdict != "agents drafting"
+        - _human_verdict != "agent editing"
         - _human_verdict != "agent drafting"
+        - _human_verdict != "documents to review"
         - _human_verdict != "to review"
+        - _human_verdict != "new decisions"
         - _human_verdict != "new"
+        - _human_verdict != "returning decisions"
         - _human_verdict != "returning"
         - _human_verdict != "snoozed"
         - _human_verdict != "agent scheduled"
@@ -177,30 +188,35 @@ views:
         - status != "draft"
         - kind == "discussion"
         - _human_verdict != "processed"
+        - _human_verdict != "agents drafting"
+        - _human_verdict != "agent editing"
         - _human_verdict != "agent drafting"
     groupBy:
       property: _human_verdict
       direction: ASC
     groupOrder:
-      - to review
-      - new
-      - returning
-      - snoozed
-      - yes
+      - documents to review
+      - new decisions
+      - returning decisions
+      - yes, show me
+      - yes, just do it
       - no
-      - revise substance
-      - revise presentation
+      - revise proposal
+      - revise card
+      - snoozed
       - later
+      - after POC
+      - after MVP
       - talk
       - agent working
       - agent waiting
       - agent scheduled
     order:
       - title
+      - file.name
       - kind
       - weight
       - working_by
-      - file.name
       - asked_by
       - recommendation
       - previous_verdict

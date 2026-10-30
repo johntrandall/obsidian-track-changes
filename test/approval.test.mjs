@@ -19,7 +19,7 @@ async function loadTs(rel) {
   return await import("data:text/javascript;base64," + Buffer.from(code).toString("base64"));
 }
 
-const { baseText, textHash, stripStatusLine, openMarkCount, approvalStamp, buildAnchor } =
+const { baseText, textHash, stripStatusLine, openMarkCount, openReviewCounts, approvalStamp, buildAnchor, approvalState, describeApproval, readApprovalFrontmatter } =
   await loadTs("../src/approval.ts");
 
 let failed = 0;
@@ -60,8 +60,22 @@ await test("status line is dropped only right after the first H1", () => {
 });
 
 await test("open marks are suggestions and comments, not highlights or AI text", () => {
-  assert.equal(openMarkCount("---\nreview: whole\n---\n{++a++} {>>c<<} {==h==} {=+ai+=}"), 2);
+  assert.equal(openMarkCount("---\nreview: whole\n---\n{++a++}\n\n{>>c<<} {==h==} {=+ai+=}"), 2);
+  // A comment right after a suggestion is that suggestion's thread: one item to decide.
+  assert.equal(openMarkCount("{++a++} {>>c<<}"), 1);
   assert.equal(openMarkCount("clean {==h==}"), 0);
+});
+
+await test("resolved comments never block approval; unresolved and agent-acknowledged ones do", () => {
+  // Defect 2026-10-23 (watchbill intake): Approve refused a note whose only marks were resolved comments.
+  const resolved = '# T\n\nProse {resolved="2026-10-23" author="Claude (editor)">>why<<}{author="R">>a reply<<} here.\n\nMore {resolved="2026-10-23">>done<<} text.\n';
+  assert.equal(openMarkCount(resolved), 0);
+  assert.deepEqual(openReviewCounts(resolved), { suggestions: 0, comments: 0 });
+  assert.equal(openMarkCount(resolved + "\nAsk {>>open question<<}\n"), 1);
+  assert.equal(openMarkCount(resolved + '\nSeen {acknowledged="2026-10-23" acknowledged-by="Claude (editor)">>seen<<}\n'), 1);
+  assert.deepEqual(openReviewCounts(resolved.replace("Prose", "Prose {++new++}")), { suggestions: 1, comments: 0 });
+  // A resolved flag on a change-anchored thread does not close the change.
+  assert.equal(openMarkCount('x {++a++}{resolved="2026-10-23">>why<<} y'), 1);
 });
 
 await test("the stamp has seconds and a numeric offset; the anchor is pending on the sha", async () => {
@@ -73,6 +87,32 @@ await test("the stamp has seconds and a numeric offset; the anchor is pending on
   assert.equal(a.approved_hash, await textHash("# T\n\nbody"));
   assert.equal((await buildAnchor("x", "", "v")).approved_by, "You");
 });
+
+await test("approval indicator: unapproved, clean, delta-open, dirty, needs-review (same order as the tool's drift)", async () => {
+  const body = "# T\n\nThe body {resolved=\"2026-10-23\">>done<<} text.\n";
+  const hash = await textHash(baseText(body));
+  const fm = (extra = "") =>
+    `---\ntitle: X\napproved_by: John Randall\napproved_at: 2026-10-23T15:42:51-04:00\napproved_via: track-changes panel\napproved_hash: ${hash}\napproved_sha: pending\n${extra}---\n`;
+  let st = await approvalState(body);
+  assert.equal(st.state, "unapproved"); assert.equal(describeApproval(st), null);
+  st = await approvalState(fm() + body);
+  assert.equal(st.state, "clean");
+  assert.equal(describeApproval(st), "Approved 2026-10-23 15:42 by John Randall · unchanged since · not yet committed");
+  st = await approvalState(fm().replace("approved_sha: pending", "approved_sha: abc1234") + body);
+  assert.equal(describeApproval(st), "Approved 2026-10-23 15:42 by John Randall · unchanged since");
+  st = await approvalState(fm() + body.replace("The body", "The body{++ more++}"));
+  assert.equal(st.state, "delta-open"); assert.equal(st.openMarks, 1);
+  assert.match(describeApproval(st), /unchanged, 1 open since/);
+  st = await approvalState(fm() + body.replace("text.", "text, edited."));
+  assert.equal(st.state, "dirty");
+  assert.equal(describeApproval(st), "Changed since approval (2026-10-23 15:42 by John Randall)");
+  st = await approvalState(fm("review: whole\n") + body);
+  assert.equal(st.state, "needs-review");
+  assert.match(describeApproval(st), /^Last approved 2026-10-23 15:42 by John Randall/);
+  // Quoted values and trailing comments read as the tool writes them.
+  assert.equal(readApprovalFrontmatter('---\napproved_by: "John Randall"   # who\n---\nx').approvedBy, "John Randall");
+});
+
 
 if (failed > 0) {
   console.log(`approval.test.mjs: ${failed} failed`);
