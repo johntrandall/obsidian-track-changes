@@ -45,7 +45,9 @@ review_marks: []          # a Track Changes review card: the suggestions it wait
 
 [fill in: one plain question, phrased so that yes accepts the recommendation; no double negatives]
 
-**Why:** [fill in: the problem this solves: why he might want it, in a sentence]
+- **Problem:** [fill in: the problem this solves: why he might want it, in a sentence]
+- **Proposal:** [fill in: what the card proposes, in a sentence: the recommendation as a change]
+- **From:** [fill in: where the question comes from (his words with the time and the channel, a card, a report), with its link; or delete this line when the card cites no source]
 
 ## Why this is being asked
 
