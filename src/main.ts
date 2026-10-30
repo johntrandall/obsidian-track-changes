@@ -18,7 +18,7 @@ import { criticDecorationsExtension } from "./editor/decorations";
 import { REVIEW_VIEW_TYPE, ReviewPanelView, confirmAction, type PanelHost } from "./panel/view";
 import { OVERVIEW_VIEW_TYPE, PendingOverviewView, type OverviewHost } from "./panel/overview";
 import { VaultIndex } from "./vault-index";
-import { describeSummary, totals } from "./pending";
+import { describeSummary, ignoreRefusal, totals } from "./pending";
 import { buildAnchor, openReviewCounts } from "./approval";
 import {
   applyEdits,
@@ -272,10 +272,13 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
         const ctx = this.cursorContext(editor);
         if (typeof ctx === "string") return;
         const items: { title: string; icon: string; run: () => void }[] = [];
+        // An ignored note (frontmatter track_changes: ignore) offers no item
+        // that changes its marks; the authoring items below still apply.
+        const ignored = ignoreRefusal(ctx.source) !== null;
         // A selection touching suggestions: accept or reject them all at once.
         const selFrom = editor.posToOffset(editor.getCursor("from"));
         const selTo = editor.posToOffset(editor.getCursor("to"));
-        if (selFrom !== selTo && changesInRange(ctx.parsed, selFrom, selTo).length > 0) {
+        if (!ignored && selFrom !== selTo && changesInRange(ctx.parsed, selFrom, selTo).length > 0) {
           const n = changesInRange(ctx.parsed, selFrom, selTo).length;
           const noun = n === 1 ? "change" : `${n} changes`;
           items.push(
@@ -283,7 +286,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
             { title: `Reject ${noun} in selection`, icon: "x", run: () => void this.applyInSelection(editor, view, "reject") },
           );
         }
-        items.push(...CURSOR_COMMANDS.filter(
+        if (!ignored) items.push(...CURSOR_COMMANDS.filter(
           (c) =>
             typeof editsAtCursor(ctx.source, ctx.parsed, ctx.offset, c.action, this.stamp()) !==
             "string",
@@ -688,6 +691,22 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
     }
   }
 
+  // ---- the ignore marker ----
+
+  /**
+   * The one check every mark-changing path makes: on a note whose frontmatter
+   * says `track_changes: ignore`, show the refusal and return true. Called
+   * at each command's entry and in approveDocument (so no confirmation dialog
+   * opens first), and again inside applyEditsToFile, so a path that forgets
+   * the entry check still cannot write.
+   */
+  private refuseIfIgnored(source: string): boolean {
+    const refusal = ignoreRefusal(source);
+    if (refusal === null) return false;
+    new Notice(refusal);
+    return true;
+  }
+
   // ---- actions at cursor (issue #44) ----
 
   /** The date stamp written when a thread is marked resolved from the editor. */
@@ -721,6 +740,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
       new Notice(ctx);
       return;
     }
+    if (this.refuseIfIgnored(ctx.source)) return;
     const from = editor.posToOffset(editor.getCursor("from"));
     const to = editor.posToOffset(editor.getCursor("to"));
     const edits = resolveChangesInRange(ctx.source, ctx.parsed, from, to, action, this.stamp());
@@ -743,6 +763,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
    */
   async approveDocument(file: TFile): Promise<void> {
     const source = await this.currentSourceOf(file);
+    if (this.refuseIfIgnored(source)) return;
     const open = openReviewCounts(source);
     if (open.suggestions + open.comments > 0) {
       const parts: string[] = [];
@@ -775,6 +796,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
   /** Strip every comment thread (and its highlight anchor) from the note, after a confirmation. */
   private async removeAllCommentsInFile(file: TFile): Promise<void> {
     const source = await this.currentSourceOf(file);
+    if (this.refuseIfIgnored(source)) return;
     const parsed = parse(source);
     const edits = removeAllComments(source, parsed);
     if (edits.length === 0) {
@@ -807,6 +829,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
   /** Accept or reject every suggestion in the note, after a confirmation naming the count. */
   private async resolveAllInFile(file: TFile, action: "accept" | "reject"): Promise<void> {
     const source = await this.currentSourceOf(file);
+    if (this.refuseIfIgnored(source)) return;
     const parsed = parse(source);
     const edits = resolveAllChanges(source, parsed, action, this.stamp());
     if (edits.length === 0) {
@@ -832,6 +855,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
     action: CursorAction,
   ): Promise<void> {
     const ctx = this.cursorContext(editor);
+    if (typeof ctx !== "string" && this.refuseIfIgnored(ctx.source)) return;
     const edits =
       typeof ctx === "string"
         ? ctx
@@ -873,6 +897,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
     // panel did some ms ago, while the user was typing or the AI was editing
     // through another channel) can't corrupt unrelated text.
     if (currentSource !== null) {
+      if (this.refuseIfIgnored(currentSource)) return false;
       const prepared = this.prepareEdits(currentSource, edits, options);
       if (!prepared.ok) {
         this.showEditFailure(prepared.reason, options);
@@ -899,9 +924,14 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
     }
 
     let processOk = false;
+    let processIgnored = false;
     let processDropped = edits.length;
     let processReason: EditFailureReason = "moved";
     const next = await this.app.vault.process(file, (latestSource) => {
+      if (ignoreRefusal(latestSource) !== null) {
+        processIgnored = true;
+        return latestSource;
+      }
       const result = this.prepareEdits(latestSource, edits, options);
       if (!result.ok) {
         processOk = false;
@@ -914,6 +944,10 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
       processDropped = result.dropped;
       return nextSource;
     });
+    if (processIgnored) {
+      this.refuseIfIgnored(next);
+      return false;
+    }
     if (!processOk) {
       this.showEditFailure(processReason, options);
       return false;
@@ -1060,6 +1094,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
   // ---- finalize ----
 
   private async runFinalize(file: TFile): Promise<void> {
+    if (this.refuseIfIgnored(await this.currentSourceOf(file))) return;
     const source = await this.app.vault.cachedRead(file);
     new FinalizeModal(
       this.app,

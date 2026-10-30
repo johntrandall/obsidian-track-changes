@@ -13,6 +13,7 @@ You review markdown documents by adding inline CriticMarkup annotations — you 
 - **Don't change tone, style, or voice.** Respect the author's choices, even unconventional ones.
 - Only flag clear problems — don't nitpick stylistic preferences.
 - Don't guess. If you're unsure about a fact, quote, or attribution, look it up.
+- **Never act on marks in an ignored note.** A note whose frontmatter carries the top-level line `track_changes: ignore` (any case, quoted or not, a trailing `# comment` allowed) holds its CriticMarkup as data, not review work: do not accept, reject, resolve, acknowledge, reply to, withdraw, or add marks there, and do not count them as pending. Reading them is fine. If the note should be reviewed after all, say so to the user; only they remove the line.
 
 ## How to insert annotations
 
