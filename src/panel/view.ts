@@ -57,7 +57,7 @@ import {
   resolveThread,
   threadStatus,
 } from "../resolution";
-import { countReviewItems, readReviewFrontmatter, type ReviewCounts } from "../pending";
+import { IGNORED_PANEL_TEXT, countReviewItems, readReviewFrontmatter, type ReviewCounts } from "../pending";
 import { approvalState, describeApproval, readApprovalFrontmatter } from "../approval";
 
 export const REVIEW_VIEW_TYPE = "tc-review-panel";
@@ -257,7 +257,7 @@ export class ReviewPanelView extends ItemView {
 
     // Skip the rebuild if nothing changed — e.g. the delayed vault `modify`
     // event after we already refreshed via refreshFromSource.
-    if (!force && source === this.currentSource && this.contentEl.querySelector(".tc-card-list, .tc-empty")) {
+    if (!force && source === this.currentSource && this.contentEl.querySelector(".tc-card-list, .tc-empty, .tc-ignored")) {
       return;
     }
 
@@ -271,6 +271,20 @@ export class ReviewPanelView extends ItemView {
     }
 
     this.contentEl.empty();
+
+    // A note whose frontmatter says `track_changes: ignore`: its marks are
+    // data, not review items. One line, no cards, counts or header buttons.
+    if (readReviewFrontmatter(source).ignore) {
+      const header = this.contentEl.createDiv({ cls: "tc-header" });
+      header.createDiv({ cls: "tc-header-title tc-scope tc-scope-note", text: file.basename });
+      const line = header.createDiv({ cls: "tc-ignored" });
+      // Backticked spans render as code, the rest as plain text.
+      IGNORED_PANEL_TEXT.split("`").forEach((part, i) => {
+        if (i % 2 === 1) line.createEl("code", { text: part });
+        else if (part) line.appendText(part);
+      });
+      return;
+    }
 
     const anchored = anchorNodeIndexes(parsed);
     const onChange = changeThreads(parsed);
