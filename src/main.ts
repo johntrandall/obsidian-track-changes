@@ -158,6 +158,12 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
     this.registerMarkdownPostProcessor(
       makeReadingPostProcessor(() => ({
         showComments: this.settings.readingShowComments,
+        // The Live Preview table-cell path (suggestion form, click to open):
+        localAuthorName: this.settings.localAuthorName ?? "",
+        getSource: (path) => this.openEditorText(path),
+        onOpenPanel: (offset) => this.handleInlineClick(offset),
+        shouldOpenPanel: (event) =>
+          this.settings.clickMarksToOpenPanel || event.metaKey || event.ctrlKey,
       })),
     );
 
@@ -630,6 +636,15 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
       }
     }
     return fallback;
+  }
+
+  /** The text of an open editor on `path` (any window), or null when none is open. */
+  private openEditorText(path: string): string | null {
+    for (const leaf of this.app.workspace.getLeavesOfType("markdown")) {
+      const view = leaf.view;
+      if (view instanceof MarkdownView && view.file?.path === path) return view.editor.getValue();
+    }
+    return null;
   }
 
   // ---- inline-click handler ----

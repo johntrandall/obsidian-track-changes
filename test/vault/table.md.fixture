@@ -1,0 +1,16 @@
+---
+title: Marks inside a table
+---
+# Marks in table cells
+
+| Item | Status | Note |
+| --- | --- | --- |
+| Addition | the {author="Claude (editor)" date="2026-10-30"++very ++}quick fox | plain |
+| Deletion | the {author="Claude (editor)" date="2026-10-30"--brown --}fox | plain |
+| Substitution | the {author="Claude (editor)" date="2026-10-30"~~quick~>fast~~} fox | plain |
+| Comment | a cell{author="Claude (checker)" date="2026-10-30">>Is this right?<<} | plain |
+| Highlight | {author="Claude (checker)" date="2026-10-30"==highlighted cell==} | plain |
+| Pipe inside | {author="Claude (editor)" date="2026-10-30"~~a \| b~>c \| d~~} | escaped pipe |
+| Line break | {author="Claude (editor)" date="2026-10-30"~~one line~>line one<br>line two~~} | br inside |
+
+Below the table: a {author="Claude (editor)" date="2026-10-30"++control ++}mark outside it.

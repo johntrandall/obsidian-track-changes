@@ -34,6 +34,15 @@ import {
   type IntersectingOp,
 } from "./reading-plan";
 import { AUTHOR_RE } from "./authors";
+import { isResolvedHighlight } from "./resolution";
+import {
+  isLivePreviewTableCell,
+  parseLiteralMark,
+  resolveCellMarkOffset,
+  cellMarkAttrs,
+  nodeIndexAt,
+  splitBreaks,
+} from "./table-cell";
 
 export interface ReadingOptions {
   showComments: boolean;
@@ -43,6 +52,16 @@ export interface ReadingOptions {
    * legacy `<Name>:`. Empty / unset falls through to the "You" sentinel.
    */
   localAuthorName?: string;
+  /**
+   * The note's current text, from an open editor on `sourcePath`, or null.
+   * Only the Live Preview table-cell path uses it: a cell has no section info,
+   * so a mark's source offset is found by matching its text in the note.
+   */
+  getSource?: (sourcePath: string) => string | null;
+  /** Open the review panel on the card at this source offset (cell marks only). */
+  onOpenPanel?: (sourceOffset: number) => void;
+  /** Whether this mousedown on a cell mark opens the panel (the inline-click setting). */
+  shouldOpenPanel?: (event: MouseEvent) => boolean;
 }
 
 // Source-level metadata prefix between the outer `{` and the mark sigil. Shared
@@ -83,6 +102,17 @@ export function makeReadingPostProcessor(getOpts: () => ReadingOptions) {
   const cache = new ParseCache();
   return (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
     const opts = getOpts();
+    // Live Preview draws a table as a widget whose cells come through here; they
+    // show suggestions, not the accepted form (see isLivePreviewTableCell).
+    const containerEl = (ctx as unknown as { containerEl?: HTMLElement }).containerEl;
+    if (isLivePreviewTableCell(el, containerEl)) {
+      try {
+        renderTableCell(el, ctx.sourcePath, cache, getOpts);
+      } catch {
+        safetyNetClean(el, opts);
+      }
+      return;
+    }
     const info = ctx.getSectionInfo(el);
     if (info) {
       try {
@@ -740,6 +770,219 @@ function nextWalkableText(root: HTMLElement, after: Text): Text | null {
   const w = makeWalker(root);
   w.currentNode = after;
   return w.nextNode() as Text | null;
+}
+
+// ---------- Live Preview table cells: suggestion form ----------
+//
+// A cell arrives with no section info, rendered from the cell's markdown: a
+// mark whose sigils are not markdown stays literal text (`{++…++}`, `{--…--}`,
+// `{>>…<<}`, `{=+…+=}`), and `{==…==}` / `{~~…~~}` come as `{<prefix>` + a
+// <mark> / <del> / <s> + `}`. A `<br>` in a cell (the only way to write a line
+// break in a table) is a <br> element, so text is read in runs of text nodes
+// and <br>s, with each <br> read back as the literal `<br>`. Each mark is
+// re-parsed from that text, rendered with the editor decorations' classes,
+// and given its source offset when exactly one mark in the note matches.
+
+function renderTableCell(
+  el: HTMLElement,
+  sourcePath: string,
+  cache: ParseCache,
+  getOpts: () => ReadingOptions,
+): void {
+  const opts = getOpts();
+  const source = opts.getSource?.(sourcePath) ?? null;
+  const parsed = source !== null ? cache.get(source) : null;
+  const local = opts.localAuthorName ?? "";
+  const doc = el.ownerDocument;
+
+  const attrsFor = (node: CriticNode, raw: string): Record<string, string> => {
+    const offset = parsed ? resolveCellMarkOffset(parsed, raw) : null;
+    return cellMarkAttrs(node, raw, offset, local);
+  };
+
+  // 1. `{<prefix>` + <mark>/<del>/<s> + `}`: highlight or substitution.
+  for (const wrap of Array.from(el.querySelectorAll("mark, del, s"))) {
+    const prev = wrap.previousSibling;
+    const next = wrap.nextSibling;
+    if (!prev || prev.nodeType !== 3 || !next || next.nodeType !== 3) continue;
+    const prevText = prev.nodeValue ?? "";
+    const nextText = next.nodeValue ?? "";
+    const open = OPEN_PREFIX_AT_END.exec(prevText);
+    if (!open || !nextText.startsWith("}")) continue;
+    const prefix = open[0].slice(1);
+    const isMark = wrap.tagName === "MARK";
+    const body = serializeWithBreaks(wrap);
+    const raw = isMark ? `{${prefix}==${body}==}` : `{${prefix}~~${body}~~}`;
+    const node = parseLiteralMark(raw);
+    if (!node || node.kind !== (isMark ? "highlight" : "substitution")) continue;
+    prev.nodeValue = prevText.slice(0, open.index);
+    next.nodeValue = nextText.slice(1);
+    const attrs = attrsFor(node, raw);
+    if (isMark) {
+      // Keep Obsidian's <mark> (and any formatting inside it); add ours on top.
+      wrap.addClass("tc-highlight");
+      if (resolvedHighlight(parsed, attrs)) wrap.addClass("tc-highlight-resolved");
+      for (const [k, v] of Object.entries(attrs)) wrap.setAttribute(k, v);
+    } else {
+      wrap.replaceWith(renderCellMark(doc, node, attrs, opts, parsed));
+    }
+  }
+
+  // 2. Literal marks in runs of text nodes and <br>s.
+  for (const run of textRuns(el)) {
+    const text = run.map((n) => (n.nodeType === 3 ? n.nodeValue ?? "" : "<br>")).join("");
+    if (!text.includes("{")) continue;
+    LITERAL_MARKUP_RE.lastIndex = 0;
+    if (!LITERAL_MARKUP_RE.test(text)) continue;
+    const frag = doc.createDocumentFragment();
+    let last = 0;
+    let m: RegExpExecArray | null;
+    LITERAL_MARKUP_RE.lastIndex = 0;
+    while ((m = LITERAL_MARKUP_RE.exec(text)) !== null) {
+      if (m.index > last) frag.appendChild(textWithBreaks(doc, text.slice(last, m.index)));
+      const node = parseLiteralMark(m[0]);
+      frag.appendChild(
+        node
+          ? renderCellMark(doc, node, attrsFor(node, m[0]), opts, parsed)
+          : textWithBreaks(doc, m[0]),
+      );
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) frag.appendChild(textWithBreaks(doc, text.slice(last)));
+    run[0].parentNode?.insertBefore(frag, run[0]);
+    for (const n of run) n.parentNode?.removeChild(n);
+  }
+
+  // A click on a mark opens its card, re-resolving the offset against the note
+  // as it is now: the table widget can outlive edits elsewhere in the note, so
+  // the offset stamped at render time may be stale. Obsidian puts the cell into
+  // edit mode on pointerdown (which also re-pads the whole table's source), so
+  // the panel opens there and the event stops; the mousedown after it is
+  // stopped too so the editor's own click handler does not act on it again.
+  const onPress = (event: MouseEvent, open: boolean): void => {
+    const target = event.target as Element | null;
+    const markEl = target?.closest?.("[data-tc-mark]");
+    if (!markEl || !el.contains(markEl)) return;
+    const now = getOpts();
+    if (!now.onOpenPanel || !now.shouldOpenPanel?.(event)) return;
+    const src = now.getSource?.(sourcePath) ?? null;
+    if (src === null) return;
+    const offset = resolveCellMarkOffset(cache.get(src), markEl.getAttribute("data-tc-mark") ?? "");
+    if (offset === null) return;
+    markEl.setAttribute("data-tc-offset", String(offset));
+    event.preventDefault();
+    event.stopPropagation();
+    if (open) now.onOpenPanel(offset);
+  };
+  el.addEventListener("pointerdown", (event) => onPress(event, true));
+  el.addEventListener("mousedown", (event) => onPress(event, false));
+}
+
+function resolvedHighlight(parsed: ParseResult | null, attrs: Record<string, string>): boolean {
+  const at = attrs["data-tc-offset"];
+  if (!parsed || at === undefined) return false;
+  const idx = nodeIndexAt(parsed, Number(at));
+  return idx >= 0 && isResolvedHighlight(parsed, idx);
+}
+
+/** One mark in suggestion form, with the editor decorations' classes. */
+function renderCellMark(
+  doc: Document,
+  node: CriticNode,
+  attrs: Record<string, string>,
+  opts: ReadingOptions,
+  parsed: ParseResult | null,
+): Node {
+  const span = (cls: string, text: string): HTMLElement => {
+    const s = doc.createElement("span");
+    s.className = cls;
+    for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v);
+    s.appendChild(textWithBreaks(doc, text));
+    return s;
+  };
+  switch (node.kind) {
+    case "addition":
+      return span("tc-addition", node.text);
+    case "deletion":
+      return span("tc-deletion", node.text);
+    case "highlight":
+      return span(resolvedHighlight(parsed, attrs) ? "tc-highlight tc-highlight-resolved" : "tc-highlight", node.text);
+    case "aitext":
+      return span("tc-aitext", node.text);
+    case "substitution": {
+      const frag = doc.createDocumentFragment();
+      frag.appendChild(span("tc-sub-old", node.oldText));
+      const arrow = span("tc-sub-arrow", " → ");
+      arrow.removeAttribute("title");
+      arrow.setAttribute("aria-label", "Open substitution in panel");
+      frag.appendChild(arrow);
+      frag.appendChild(span("tc-sub-new", node.newText));
+      return frag;
+    }
+    case "comment": {
+      // As in reading view: an icon with the comment as its tooltip, or
+      // nothing when comments are hidden there.
+      if (!opts.showComments) return doc.createDocumentFragment();
+      const icon = doc.createElement("span");
+      icon.className = "tc-rm-comment";
+      for (const [k, v] of Object.entries(attrs)) icon.setAttribute(k, v);
+      icon.removeAttribute("title");
+      setIcon(icon, "message-square-text");
+      const tip = formatComment(node, opts.localAuthorName ?? "");
+      setTooltip(icon, tip, { placement: "top" });
+      icon.setAttribute("aria-label", tip);
+      return icon;
+    }
+  }
+}
+
+/** Text with each `<br>` turned into a <br> element. */
+function textWithBreaks(doc: Document, text: string): DocumentFragment {
+  const frag = doc.createDocumentFragment();
+  splitBreaks(text).forEach((piece, i) => {
+    if (i > 0) frag.appendChild(doc.createElement("br"));
+    if (piece !== "") frag.appendChild(doc.createTextNode(piece));
+  });
+  return frag;
+}
+
+/** An element's text with each <br> read back as `<br>` (other elements give their text). */
+function serializeWithBreaks(root: Element): string {
+  let out = "";
+  const walk = (n: Node): void => {
+    if (n.nodeType === 3) out += n.nodeValue ?? "";
+    else if (n.nodeType === 1 && (n as Element).tagName === "BR") out += "<br>";
+    else n.childNodes.forEach(walk);
+  };
+  root.childNodes.forEach(walk);
+  return out;
+}
+
+/**
+ * Maximal runs of sibling text nodes and <br>s under `root`, skipping code,
+ * math, and marks this pass already rendered.
+ */
+function textRuns(root: HTMLElement): Node[][] {
+  const runs: Node[][] = [];
+  const visit = (parent: Element): void => {
+    if (parent !== root && (isSkippedElement(parent) || parent.hasAttribute("data-tc-mark"))) return;
+    let run: Node[] = [];
+    const flush = (): void => {
+      if (run.some((n) => n.nodeType === 3)) runs.push(run);
+      run = [];
+    };
+    for (const child of Array.from(parent.childNodes)) {
+      if (child.nodeType === 3 || (child.nodeType === 1 && (child as Element).tagName === "BR")) {
+        run.push(child);
+      } else {
+        flush();
+        if (child.nodeType === 1) visit(child as Element);
+      }
+    }
+    flush();
+  };
+  visit(root);
+  return runs;
 }
 
 // ---------- Safety-net DOM cleanup ----------

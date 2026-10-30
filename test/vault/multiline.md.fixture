@@ -1,0 +1,17 @@
+---
+title: Marks that span lines
+---
+# Marks that span lines
+
+An addition with a line break: {author="Claude (editor)" date="2026-10-30"++first new line
+second new line++} and on.
+
+An addition that adds a paragraph: {author="Claude (editor)" date="2026-10-30"++end of this paragraph.
+
+A whole new paragraph.++} Back to the old text.
+
+A substitution whose new text has a break: {author="Claude (editor)" date="2026-10-30"~~one line~>line one
+line two~~} done.
+
+A comment over two lines.{author="Claude (checker)" date="2026-10-30">>First line of the comment.
+Second line of the comment.<<}
