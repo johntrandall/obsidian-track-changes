@@ -1,5 +1,5 @@
 ---
-_human_verdict: new decisions
+_human_verdict: yes, just do it
 title: Release Track Changes 2.3.0-jtr.9
 type: decision
 kind: decision
@@ -13,18 +13,18 @@ unblocks: mobile harness cycle gate, criterion 5 (release and rollout)
 asked_by: trackchg-architect
 asked_at: "2026-10-23T12:38:39-0400"
 asked_via: chat
-status: open
+status: answered
 applied_at:
 applied_how:
 undo:
-source:
-recorded_where:
+source: chat
+recorded_where: chat, heard by session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2
 relayed_by:
 spawned:
 subject:
 subject_fingerprint:
-human_note:
-human_words:
+human_note: The approve fix is 30a3974, in jtr.9; shipping jtr.9 ships it.
+human_words: "I'm looking at documents that say I need to approve the version of the document, and I click approve, and I get a pop-up that says five suggestions or comments are still open, decide them before approving the document as a whole. But I'm seeing comments that have been resolved. So I should be able to approve the document and mark the document as approved even with those resolved comments in it. If those comments were unresolved, if I were to reopen the thread, then the approve this version should block. But once I check that it's been mark resolved, I should be able to approve the version. Please fix that and ship it."
 snooze_until:
 previous_verdict:
 moved_at: "2026-10-23T21:11:32-0400"
@@ -39,7 +39,7 @@ review_marks:
 # Release Track Changes 2.3.0-jtr.9
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
-> You are looking at a decision from trackchg-architect. **Your move:** drag it to **yes, show me** to accept the recommendation (yes) and see the design change as Track Changes suggestions first, or to **yes, just do it** to accept it and let trackchg-architect write it plainly and execute at once; or to **no**, **revise proposal**, **revise card**, **later**, **after POC**, **after MVP**, **talk**, or **snoozed**; or answer in chat. **Then:** trackchg-architect acts on your answer.
+> You answered **yes, just do it**. trackchg-architect picks it up next, writes any design change plainly (citing this card and your words) and executes at once; nothing more for you unless it comes back to returning.
 > Talk to [the agent that wrote this](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0) · [the seat that holds it now](http://susanbones:5465/herdr-owner#988b396b-f824-464e-83db-39e5a05961e0)
 
 > [!success] What changed · revision 3 · 2026-10-23 15:54 · trackchg-architect
@@ -90,6 +90,10 @@ Release the fork as 2.3.0-jtr.9 (the review panel's comment count fix) on GitHub
 
 ## The human's words
 
+> I'm looking at documents that say I need to approve the version of the document, and I click approve, and I get a pop-up that says five suggestions or comments are still open, decide them before approving the document as a whole. But I'm seeing comments that have been resolved. So I should be able to approve the document and mark the document as approved even with those resolved comments in it. If those comments were unresolved, if I were to reopen the thread, then the approve this version should block. But once I check that it's been mark resolved, I should be able to approve the version. Please fix that and ship it.
+
+(in chat, 2026-10-30T12:17:53-0400, recorded by 853fcbfc-75c6-4d94-88e7-97c6d1d942f2)
+
 ## Talk to the agent
 
 - [Focus the agent that asked](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
@@ -109,6 +113,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-25T23:24:03-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · replied: jtr.9 now also carries a rollover on every button in the review panel and the overview (your instruction of 2026-10-25;… (held in agent editing from new decisions, back to new decisions)
 - 2026-10-29T18:16:43-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording, and its herdr links on the bridge's host (watchbill decisions your-move, 0.10.69) (held in agent editing from new decisions, back to new decisions)
 - 2026-10-29T18:16:43-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · the Your move backfill: refreshed the card (held in agent editing from new decisions), then back in new decisions
+- 2026-10-30T12:21:18-0400 · trackchg-architect-ho2 (architect, session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2) · recorded the human's chat answer: yes, just do it (held in agent editing from new decisions, then yes, just do it) [lane: yes, just do it]
 
 ## John's comments
 
