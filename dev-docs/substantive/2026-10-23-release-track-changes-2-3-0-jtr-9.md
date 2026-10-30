@@ -1,5 +1,5 @@
 ---
-_human_verdict: yes, just do it
+_human_verdict: processed
 title: Release Track Changes 2.3.0-jtr.9
 type: decision
 kind: decision
@@ -13,9 +13,9 @@ unblocks: mobile harness cycle gate, criterion 5 (release and rollout)
 asked_by: trackchg-architect
 asked_at: "2026-10-23T12:38:39-0400"
 asked_via: chat
-status: answered
-applied_at:
-applied_how:
+status: applied
+applied_at: "2026-10-30T12:47:46-0400"
+applied_how: "Released 2.3.0-jtr.9 (deployed 25566f3) after a visual check in a throwaway vault ([[dev-docs/runs/2026-10-30-jtr9-visual/report|visual check and rollout report]]); installed in all 16 open vaults with the plugin"
 undo:
 source: chat
 recorded_where: chat, heard by session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2
@@ -26,9 +26,9 @@ subject_fingerprint:
 human_note: The approve fix is 30a3974, in jtr.9; shipping jtr.9 ships it.
 human_words: "I'm looking at documents that say I need to approve the version of the document, and I click approve, and I get a pop-up that says five suggestions or comments are still open, decide them before approving the document as a whole. But I'm seeing comments that have been resolved. So I should be able to approve the document and mark the document as approved even with those resolved comments in it. If those comments were unresolved, if I were to reopen the thread, then the approve this version should block. But once I check that it's been mark resolved, I should be able to approve the version. Please fix that and ship it."
 snooze_until:
-previous_verdict:
-moved_at: "2026-10-23T21:11:32-0400"
-moved_by: watchbill systems init --refresh-bases
+previous_verdict: yes, just do it
+moved_at: "2026-10-30T12:47:46-0400"
+moved_by: trackchg-architect-ho2
 working_by:
 waiting_on:
 revisit_when:
@@ -39,7 +39,7 @@ review_marks:
 # Release Track Changes 2.3.0-jtr.9
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
-> You answered **yes, just do it**. trackchg-architect picks it up next, writes any design change plainly (citing this card and your words) and executes at once; nothing more for you unless it comes back to returning.
+> Done: applied (Released 2.3.0-jtr.9 (deployed 25566f3) after a visual check in a throwaway vault (dev-docs/runs/2026-10-30-jtr9-visual…).
 > Talk to [the agent that wrote this](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0) · [the seat that holds it now](http://susanbones:5465/herdr-owner#988b396b-f824-464e-83db-39e5a05961e0)
 
 > [!success] What changed · revision 3 · 2026-10-23 15:54 · trackchg-architect
@@ -114,6 +114,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-29T18:16:43-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording, and its herdr links on the bridge's host (watchbill decisions your-move, 0.10.69) (held in agent editing from new decisions, back to new decisions)
 - 2026-10-29T18:16:43-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · the Your move backfill: refreshed the card (held in agent editing from new decisions), then back in new decisions
 - 2026-10-30T12:21:18-0400 · trackchg-architect-ho2 (architect, session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2) · recorded the human's chat answer: yes, just do it (held in agent editing from new decisions, then yes, just do it) [lane: yes, just do it]
+- 2026-10-30T12:47:46-0400 · trackchg-architect-ho2 (architect, session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2) · applied: Released 2.3.0-jtr.9 (deployed 25566f3) after a visual check in a throwaway vault ([[dev-docs/runs/2026-10-30-jtr9-visual/report|visual check and rollout report]]); installed in all 16 open vaults with the plugin; moved to processed (held in agent editing from yes, just do it, then processed) [lane: processed]
 
 ## John's comments
 
@@ -122,5 +123,9 @@ Type under the last *John* heading, or answer in chat; drag the card to **revise
 ### trackchg-architect · 2026-10-25 23:24
 
 jtr.9 now also carries a rollover on every button in the review panel and the overview (your instruction of 2026-10-25; landed 5398bd5, [[dev-docs/substantive/2026-10-25-rollover-help-on-every-button|its card]]). Four changes ride in this release: the comment-count fix, Approve with resolved comments, the approval indicator, and the rollovers.
+
+### trackchg-architect-ho2 · 2026-10-30 12:47
+
+Applied: Released 2.3.0-jtr.9 (deployed 25566f3) after a visual check in a throwaway vault ([[dev-docs/runs/2026-10-30-jtr9-visual/report|visual check and rollout report]]); installed in all 16 open vaults with the plugin
 
 ### John

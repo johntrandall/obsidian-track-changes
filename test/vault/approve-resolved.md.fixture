@@ -1,0 +1,9 @@
+---
+title: Approve with resolved comments
+review: whole
+---
+# A note to approve
+
+The first paragraph had a question on it.{author="Claude (editor)" date="2026-10-29" resolved="2026-10-30">>Is this sentence still true?<<}{author="Test Reviewer" date="2026-10-30">>Yes.<<}
+
+The second paragraph too.{author="Claude (checker)" date="2026-10-29" resolved="2026-10-30">>Cite the source here.<<}

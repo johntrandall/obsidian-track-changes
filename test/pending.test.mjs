@@ -15,7 +15,7 @@ const out = await build({
 const mod = await import(
   "data:text/javascript;base64," + Buffer.from(out.outputFiles[0].text).toString("base64")
 );
-const { summarizeSource, sortRows, filterRows, totals, pendingCount, describeSummary, readReviewFrontmatter, markCount } = mod;
+const { summarizeSource, sortRows, filterRows, totals, pendingCount, describeSummary, readReviewFrontmatter, markCount, isIgnored, ignoreRefusal, IGNORED_PANEL_TEXT } = mod;
 const counts = (s) => ({ suggestions: s.suggestions, comments: s.comments, highlights: s.highlights });
 
 // ---- summarizeSource mirrors the panel header ----
@@ -69,14 +69,14 @@ assert.equal(markCount({ suggestions: 0, comments: 0, highlights: 0, reviewWhole
 
 // ---- frontmatter review flag (watchbill review-modes contract) ----
 
-assert.deepEqual(readReviewFrontmatter("no frontmatter {>>c<<}"), { review: null, approvedAt: null });
+assert.deepEqual(readReviewFrontmatter("no frontmatter {>>c<<}"), { review: null, approvedAt: null, ignore: false });
 assert.deepEqual(
   readReviewFrontmatter('---\ntitle: X\nreview: Whole   # set by watchbill\napproved_at: "2026-10-22T13:20:00-04:00"\nopen_marks: 6\n---\nbody'),
-  { review: "whole", approvedAt: "2026-10-22T13:20:00-04:00" },
+  { review: "whole", approvedAt: "2026-10-22T13:20:00-04:00", ignore: false },
 );
-assert.deepEqual(readReviewFrontmatter("---\nreview: delta\n---\n"), { review: "delta", approvedAt: null });
+assert.deepEqual(readReviewFrontmatter("---\nreview: delta\n---\n"), { review: "delta", approvedAt: null, ignore: false });
 // Unterminated frontmatter is not frontmatter.
-assert.deepEqual(readReviewFrontmatter("---\nreview: whole\nbody"), { review: null, approvedAt: null });
+assert.deepEqual(readReviewFrontmatter("---\nreview: whole\nbody"), { review: null, approvedAt: null, ignore: false });
 // A flagged note with no marks is pending (one item); delta is the plugin's own business and adds nothing.
 const flagged = summarizeSource("---\nreview: whole\napproved_at: 2026-10-01\n---\nclean prose");
 assert.equal(flagged.reviewWhole, true);
@@ -86,6 +86,74 @@ assert.equal(summarizeSource("---\nreview: delta\n---\n{++a++}").reviewWhole, fa
 // Flagged AND marked: both counted, shown once by the overview.
 const both = summarizeSource("---\nreview: whole\n---\n{++a++}\n\n{>>c<<}");
 assert.deepEqual([both.reviewWhole, both.suggestions, both.comments], [true, 1, 1]);
+
+// ---- the ignore marker: track_changes: ignore (watchbill's request, 2026-10-30) ----
+
+const ig = (fm) => readReviewFrontmatter(`---\n${fm}\n---\n{++a++}`).ignore;
+assert.equal(ig("track_changes: ignore"), true);
+// Value case-insensitive, quotes allowed, trailing comment ignored, spaces around it.
+assert.equal(ig("track_changes: IGNORE"), true);
+assert.equal(ig("track_changes: Ignore"), true);
+assert.equal(ig('track_changes: "ignore"'), true);
+assert.equal(ig("track_changes: 'Ignore'"), true);
+assert.equal(ig("track_changes: ignore   # frozen fixture, marks are data"), true);
+assert.equal(ig('track_changes: "ignore" # quoted, then a comment'), true);
+assert.equal(ig("track_changes:\tignore\t"), true);
+// Any other value, an empty value, a comment alone, or no key: a normal note.
+assert.equal(ig("track_changes: review"), false);
+assert.equal(ig("track_changes: ignored"), false);
+assert.equal(ig("track_changes: no"), false);
+assert.equal(ig('track_changes: "ignore me"'), false);
+assert.equal(ig("track_changes:"), false);
+assert.equal(ig("track_changes: # ignore"), false);
+assert.equal(ig("title: x"), false);
+// Top level only: an indented key belongs to some other mapping; key names are case-sensitive.
+assert.equal(ig("meta:\n  track_changes: ignore"), false);
+assert.equal(ig("Track_Changes: ignore"), false);
+// Front matter only: the same line in the body, or unterminated front matter, is not the marker.
+assert.equal(readReviewFrontmatter("prose\ntrack_changes: ignore\n{++a++}").ignore, false);
+assert.equal(readReviewFrontmatter("---\ntrack_changes: ignore\nno closing fence {++a++}").ignore, false);
+// Windows line endings read the same (every key, not only this one).
+assert.deepEqual(
+  readReviewFrontmatter("---\r\ntrack_changes: ignore\r\nreview: whole\r\napproved_at: 2026-10-01\r\n---\r\nbody"),
+  { review: "whole", approvedAt: "2026-10-01", ignore: true },
+);
+// The other keys still read beside it.
+assert.deepEqual(
+  readReviewFrontmatter("---\ntrack_changes: ignore\nreview: whole\n---\n"),
+  { review: "whole", approvedAt: null, ignore: true },
+);
+
+// summarizeSource: ignored, every count zero, nothing pending, even with review: whole.
+{
+  const marked = "---\ntrack_changes: ignore\n---\n{++add++} {--del--}\n\n{>>c<<}\n\n{==hl==} x";
+  const s = summarizeSource(marked);
+  assert.equal(s.ignored, true);
+  assert.deepEqual(counts(s), { suggestions: 0, comments: 0, highlights: 0 });
+  assert.equal(s.reviewWhole, false);
+  assert.equal(pendingCount(s), 0);
+  const whole = summarizeSource("---\nreview: whole\ntrack_changes: ignore\napproved_at: 2026-10-01\n---\n{++a++}");
+  assert.equal(whole.ignored, true);
+  assert.equal(whole.reviewWhole, false);
+  assert.equal(pendingCount(whole), 0);
+  // The same marks without the key count as usual and are not ignored.
+  const normal = summarizeSource("---\ntrack_changes: review\n---\n{++add++} {--del--}\n\n{>>c<<}\n\n{==hl==} x");
+  assert.equal(normal.ignored, false);
+  assert.deepEqual(counts(normal), { suggestions: 2, comments: 1, highlights: 1 });
+}
+
+// The one guard every mark-changing path calls.
+assert.equal(isIgnored("---\ntrack_changes: ignore\n---\n"), true);
+assert.equal(isIgnored("{++a++}"), false);
+assert.equal(ignoreRefusal("{++a++}"), null);
+assert.equal(ignoreRefusal("---\ntrack_changes: other\n---\n{++a++}"), null);
+{
+  const r = ignoreRefusal("---\ntrack_changes: ignore\n---\n{++a++}");
+  assert.equal(typeof r, "string");
+  assert.match(r, /track_changes: ignore/);
+}
+assert.match(IGNORED_PANEL_TEXT, /^Ignored: .*`track_changes: ignore`.*Remove the line to review them\.$/);
+
 // Whole-review rows sort first; never-approved before dirty (approved_at set).
 assert.deepEqual(
   sortRows([

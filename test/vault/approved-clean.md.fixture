@@ -1,0 +1,13 @@
+---
+title: Approved clean
+status: accepted
+approved_by: Test Reviewer
+approved_at: "2026-10-30T12:24:05-04:00"
+approved_via: test
+approved_sha: pending
+approved_hash: "sha256:3623fc6527b54b37"
+approved_whole_sha: pending
+---
+# Approved
+
+Plain text, approved.

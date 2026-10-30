@@ -8,6 +8,7 @@ What this plugin offers watchbill (the consumer), the exact fields read and writ
 |---|---|---|
 | `review: whole` | note frontmatter, top level | the note is listed in the vault-wide overview under *Needs review* (no `approved_at`) or *Dirty: approved, changed since* (`approved_at` present), counts as one pending item for the status bar; the review panel header shows *Needs whole review* with *Approve this version* |
 | `approved_at` | note frontmatter | shown on the row; decides Needs review vs Dirty |
+| `track_changes: ignore` | note frontmatter, top level; value case-insensitive, quotes and a trailing `# comment` allowed; any other value means a normal note | the note's marks are data, not review items: it has no row in the overview and adds nothing to the status bar (wins over `review: whole`), the review panel shows one *Ignored* line and no cards, counts or buttons, and every mark-changing command and Approve refuses with a notice; marks still render inline, *Copy clean markdown* and the authoring commands still work. The agent tool honours the same key (refuses to act without `--despite-ignore`, `agent_suggestions` returns nothing). Asked for by watchbill, 2026-10-30 |
 | `review: delta`, `open_marks` | ignored: the plugin counts marks itself | |
 
 ## Keys the plugin writes (only on the human's click on Approve)

@@ -14,6 +14,13 @@ import { resolvedHighlightIndexes, resolvedThreadIndexes } from "./resolution";
 
 export interface FileSummary {
   /**
+   * Frontmatter `track_changes: ignore` (watchbill's request, 2026-10-30):
+   * the note's marks are data, not review work. Every count is zero, so the
+   * vault index keeps no row and nothing in the plugin acts on its marks.
+   * Wins over `review: whole`.
+   */
+  ignored?: boolean;
+  /**
    * Frontmatter flag `review: whole` (watchbill's review-modes contract,
    * 2026-10-22): the note needs reading as a whole, marks or not. The plugin
    * only reads it; whoever set it clears it.
@@ -34,6 +41,7 @@ export interface FileRow extends FileSummary {
 }
 
 export const EMPTY_SUMMARY: FileSummary = {
+  ignored: false,
   reviewWhole: false,
   approvedAt: null,
   suggestions: 0,
@@ -51,26 +59,70 @@ export function markCount(s: FileSummary): number {
   return s.suggestions + s.comments + s.highlights;
 }
 
+/** What the review keys in a note's frontmatter say. */
+export interface ReviewFrontmatter {
+  /** `review:` lowercased, or null. */
+  review: string | null;
+  /** `approved_at:` as written, or null. */
+  approvedAt: string | null;
+  /** True when `track_changes:` is `ignore` (any case): the note's marks are data, not review items. */
+  ignore: boolean;
+}
+
 /**
- * The two review keys from a leading YAML frontmatter block, read with a
- * plain scan (top-level `key: value` lines only) so the index never waits on
- * Obsidian's metadata cache. Values are unquoted; `review` is lowercased.
+ * One frontmatter scalar: a quoted value up to its closing quote, otherwise
+ * the text before a ` #` comment; surrounding quotes and whitespace dropped.
  */
-export function readReviewFrontmatter(source: string): { review: string | null; approvedAt: string | null } {
-  const out: { review: string | null; approvedAt: string | null } = { review: null, approvedAt: null };
+function frontmatterScalar(raw: string): string {
+  const q = raw[0];
+  if (q === '"' || q === "'") {
+    const close = raw.indexOf(q, 1);
+    if (close !== -1) return raw.slice(1, close).trim();
+  }
+  return raw.replace(/(^|\s)#.*$/, "").replace(/^["']|["']$/g, "").trim();
+}
+
+/**
+ * The review keys from a leading YAML frontmatter block, read with a plain
+ * scan (top-level `key: value` lines only) so the index never waits on
+ * Obsidian's metadata cache. Values may be quoted and carry a trailing
+ * `# comment`; `review` is lowercased; `track_changes` matches `ignore` in
+ * any case, and any other value means a normal note.
+ */
+export function readReviewFrontmatter(source: string): ReviewFrontmatter {
+  const out: ReviewFrontmatter = { review: null, approvedAt: null, ignore: false };
   if (!source.startsWith("---")) return out;
   const end = source.indexOf("\n---", 3);
   if (end === -1) return out;
   const block = source.slice(3, end);
-  for (const line of block.split("\n")) {
-    const m = /^(review|approved_at):[ \t]*(.*?)[ \t]*$/.exec(line);
+  for (const line of block.split(/\r?\n/)) {
+    const m = /^(review|approved_at|track_changes):[ \t]*(.*?)[ \t\r]*$/.exec(line);
     if (!m) continue;
-    const value = m[2].replace(/^["']|["']$/g, "").replace(/\s+#.*$/, "").trim();
+    const value = frontmatterScalar(m[2]);
     if (value === "") continue;
     if (m[1] === "review") out.review = value.toLowerCase();
-    else out.approvedAt = value;
+    else if (m[1] === "approved_at") out.approvedAt = value;
+    else out.ignore = value.toLowerCase() === "ignore";
   }
   return out;
+}
+
+/** True when the note's frontmatter says `track_changes: ignore`. */
+export function isIgnored(source: string): boolean {
+  return readReviewFrontmatter(source).ignore;
+}
+
+/** The review panel's one line for an ignored note. */
+export const IGNORED_PANEL_TEXT =
+  "Ignored: this note's front matter says `track_changes: ignore`, so its marks are data, not review items. Remove the line to review them.";
+
+/**
+ * The one guard every mark-changing path calls: the Notice text refusing the
+ * action on an ignored note, or null when the note is a normal one.
+ */
+export function ignoreRefusal(source: string): string | null {
+  if (!isIgnored(source)) return null;
+  return "Refused: this note's front matter says track_changes: ignore, so its marks are data, not review items. Remove the line to act on them.";
 }
 
 /**
@@ -79,6 +131,9 @@ export function readReviewFrontmatter(source: string): { review: string | null; 
  */
 export function summarizeSource(source: string): FileSummary {
   const fm = readReviewFrontmatter(source);
+  // Ignore wins over everything: no counts, no whole-review flag, so the
+  // vault index keeps no row for the note.
+  if (fm.ignore) return { ...EMPTY_SUMMARY, ignored: true };
   const base: FileSummary = { ...EMPTY_SUMMARY, reviewWhole: fm.review === "whole", approvedAt: fm.approvedAt };
   if (!source.includes("{")) return base;
   const parsed = parse(source);

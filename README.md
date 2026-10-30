@@ -49,6 +49,7 @@ Your agent needs to know the mark format. Two starting points:
 - **Remove comments / Copy clean markdown** — a header button and command delete every comment thread in the note (after confirmation; suggestions stay), and *Copy clean markdown* puts a fully resolved, comment-free copy on the clipboard without touching the note
 - **Finalize for publish** — resolves all remaining markup in one pass
 - **Pending changes overview** — a vault-wide list of every note that still has suggestions, comments or highlights, most to review first, with per-file counts; click a row to open the note and its review panel. A note whose frontmatter says `review: whole` (set by a reviewing system such as watchbill; the plugin only reads it) is listed first: under *Needs review* when it has never been approved, under *Dirty: approved, changed since* when the frontmatter also carries `approved_at` (shown), then the notes with open marks. Each of those rows, and the review panel's header while the flag is set, offers **Approve**: it records your approval of that version in the note's frontmatter (`status: accepted`, who, when, `approved_hash` of the text as approved, `approved_sha: pending` until a commit holds it), refusing while suggestions or unresolved comments are still open (resolved comments stay in the note and never block). Once a note is approved, the review panel's header keeps showing it: approved when and by whom and unchanged since, *unchanged, N open since* when suggestions or comments were added after the approval but the approved text is intact, or *Changed since approval* once the text differs. The agent tool's `drift` then tells any system whether the note is clean, has suggestions open, or changed since you approved it. A status-bar item shows the vault-wide total (hidden when there is nothing to review) and opens the overview
+- **Ignore a note's marks** — a top-level frontmatter line `track_changes: ignore` (any case, quotes and a trailing `# comment` allowed) says the note's CriticMarkup is data, not review work, as in a frozen copy kept as a test fixture: the note never appears in the overview or the status-bar count (even with `review: whole`), the review panel shows one *Ignored* line instead of cards, counts and buttons, and every command that would accept, reject, resolve, remove, finalize or approve refuses with a notice (the right-click menu leaves those items out); the marks still render inline, *Copy clean markdown* and the authoring commands still work, and removing the line makes it a normal note again
 - **Accept and Reject stay put** — on every suggestion card the two decision buttons sit in a fixed slot at the right edge, with Comment to their left, so they never shift between cards
 - **Every button says what it does** — hover any button in the review panel or the overview for one or two sentences on what the click does, what stays, and what it does not do (Accept all never approves the note)
 - **Review from the keyboard** — accept, reject, resolve, reopen, remove a highlight or delete a comment at the cursor (bind hotkeys), or every suggestion in a selection; see Commands
@@ -63,6 +64,19 @@ Your agent needs to know the mark format. Two starting points:
 - **⌘/Ctrl-click a mark** (or set *Click highlighted text to open in panel*) opens the side panel instead.
 - **Click a panel card** to jump the editor to its chip.
 - **Source Mode** shows raw markup verbatim.
+
+## Testing by eye in the test vault
+
+The first place to look at a change is the project's own Obsidian test vault, a folder in `/private/tmp` rebuilt from the notes in `test/vault/` (kept as `*.md.fixture`, so no real vault lists them as review work). It opens in its own window and touches no other vault:
+
+```sh
+scripts/test-vault.sh up                   # build, reset the notes, open the vault, load the build
+scripts/test-vault.sh open approve-open.md # a note with the review panel beside it
+scripts/test-vault.sh shot approve-open    # screenshot to dev-docs/runs/<date>-test-vault/; look at it
+scripts/test-vault.sh down                 # close the window
+```
+
+The notes cover every mark kind, approving with resolved and with open comments, and the three approval states (unchanged, suggestions open since, changed since). Add a note to `test/vault/` when a change needs one. Use the VM below only for what the test vault cannot show (a clean install, mobile emulation at iPad sizes).
 
 ## Testing by eye in a VM
 

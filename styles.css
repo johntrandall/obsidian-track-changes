@@ -399,6 +399,12 @@ body {
   color: var(--text-muted);
   font-size: 0.85em;
 }
+/* A note whose frontmatter says track_changes: ignore: one muted line, no cards. */
+.tc-ignored {
+  color: var(--text-muted);
+  font-size: 0.85em;
+  margin-top: 4px;
+}
 
 .tc-card-list {
   display: flex;

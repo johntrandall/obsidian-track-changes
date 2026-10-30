@@ -13,3 +13,7 @@ Start here: John's rule is visual confirmation before any release that changes w
 | 09 | pending overview beside the panel | pass |
 
 Hover text: Obsidian draws a tooltip only on a real pointer, so it was checked in the DOM instead: all 14 buttons in the review panel and the overview carry an `aria-label` (none missing).
+
+## Release and rollout
+
+Released 2026-10-30 12:38 EDT: `deployed` 25566f3, tag `2.3.0-jtr.9`, GitHub release "2.3.0-jtr.9 (fork build)" (Latest, assets main.js, manifest.json, styles.css; the fork has no release workflow, so `gh release create` after `make release`). Rolled into all 16 open vaults that have the plugin with `scripts/update-open-vaults.sh` (no window raised; BRAT left as found, unlike the old script, which switched it off): every one reports manifest 2.3.0-jtr.9 and, where the plugin is enabled, running 2.3.0-jtr.9 (`decisions` has the plugin off, as before). The first pass timed out on six vaults because the `~/dev` vault's window did not answer scripts and the lookup waited on it; a 3-second per-window timeout fixed that. Closed vaults: BRAT updates them at their next open only where BRAT is enabled (18 of 48 vaults with the plugin; the old script disabled it in the others).
