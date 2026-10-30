@@ -1,0 +1,13 @@
+# Brief: builder, suggestions visible inside tables in Live Preview
+
+You are crew of trackchg-architect-ho2 (session 853fcbfc), model opus. Read `dev-docs/runs/2026-10-30-table-spike/report.md` (the spike) and CLAUDE.md first. Work and commit only in the worktree `/Users/johnrandall/dev/obsidian-track-changes-tables`, branch `build/table-suggestions` (off feat/bulk-accept); never in the primary checkout.
+
+Done means:
+1. In Live Preview, marks inside a table cell render in **suggestion form**, not accepted form: insertion visible and styled as an addition, deletion visible and styled as a deletion (struck), substitution as old (deletion style) then new (addition style), highlight and comment icon as today, AI text as today. Reuse the existing CSS classes and colour variables the editor decorations use; add classes only where needed. Each rendered mark carries `data-tc-offset` (source offset of the mark) so a click opens its panel card the way inline chips do, if the post-processor context gives you the source position (`ctx.getSectionInfo`); if it cannot be made reliable, say so and skip the click.
+2. Reading view is unchanged (accepted form). Decide "Live Preview table widget" from where the element lives (inside the editor's source view / a `.cm-` table widget) rather than a setting; put that test in one helper with a comment.
+3. Tests (plain Node `.mjs`, follow an existing one) for any pure helper you add; `npm run typecheck && npm test && npm run build` green; `npm run test:webkit` green.
+4. Look at it: `scripts/test-vault.sh up` (from the WORKTREE: `TEST_VAULT` default is fine, but run the worktree's copy so it builds the worktree), `open table.md`, `shot <name> <dir>`, `down`; read the PNGs yourself and say what each shows. The note `test/vault/table.md.fixture` is the case; the control mark under the table must look the same as the cell marks.
+5. Docs: CLAUDE.md (reading post-processor paragraph), README Features (one line: suggestions show inside tables). One line per paragraph, Oxford commas.
+6. Commit with trailers `Claude-Session-Id: 853fcbfc-75c6-4d94-88e7-97c6d1d942f2`, `Resume: claude --resume 853fcbfc-75c6-4d94-88e7-97c6d1d942f2`, `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. No version bump, tag, push, release, or any vault other than the test vault. Stop a process only by its PID.
+
+If it turns out too complicated (more than about a day, or fragile against Obsidian's table widget), stop and report why instead of forcing it: John's fallback is to avoid tables. Report: commit SHA, files, test tails, the screenshots' paths and what they show, and any doubt.
