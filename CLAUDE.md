@@ -62,6 +62,6 @@ A thread is a run of `{>>…<<}` blocks with only inline whitespace (no blank li
 
 ## Releases
 
-Bump `manifest.json`, add the version to `versions.json`, commit `release: <version>`, then `make release` (tags HEAD and pushes; the tag triggers the release workflow). Afterwards set the GitHub release notes with `gh release edit <version> --notes …`.
+Bump `manifest.json`, add the version to `versions.json`, commit `release: <version>`, then `make release` (tags HEAD and pushes). Upstream's tag triggers a release workflow; the fork's (`johntrandall/obsidian-track-changes`, released from the `deployed` branch as `2.3.0-jtr.N`) runs none, so create the release yourself: `gh release create <version> main.js manifest.json styles.css --verify-tag --title "<version> (fork build)" --notes …`. Fork releases need John's yes in chat and a test-vault screenshot pass first; roll them into the open vaults with `scripts/update-open-vaults.sh <vault>…` (no window raised; BRAT left as found).
 
 Release notes are short, one line per change, in the form `Added: …` / `Fixed: …` / `Changed: …`, phrased for users (what they'll notice, not how it works). Append the issue number when there is one. No headings, no paragraphs, no rationale.
