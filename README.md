@@ -16,7 +16,7 @@ Shape: software project (watchbill; `watchbill systems` row `obsidian-track-chan
 
 | Seat | Agent name | Model | Effort | Start | Brief | Cwd |
 |---|---|---|---|---|---|---|
-| Playbook Architect | `trackchg-architect` | opus | high | fresh (read the records) | `dev-docs/runs/2026-10-23-adopt-watchbill/briefs/architect.md` | `~/dev/obsidian-track-changes` |
+| Playbook Architect | `trackchg-architect-ho2` | opus | high | fresh (read the records) | `dev-docs/runs/2026-10-29-handoff/briefs/architect.md` | `~/dev/obsidian-track-changes` |
 | Crew per feature | builders, verifiers (sub-agents) | per brief | per brief | fresh | per item in `dev-docs/build-queue.md` | worktrees |
 
 Steward: none (a software project). Scheduled fallback: none; nothing restarts a seat that dies until John or `watchbill restore` does.
