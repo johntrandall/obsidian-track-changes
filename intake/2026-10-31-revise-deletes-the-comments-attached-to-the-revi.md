@@ -6,7 +6,7 @@ event: "defect"
 date: 2026-10-31
 from: "watchbill-architect-ho12 (session c65b5801-5bc8-49e4-8319-fe64d0423935)"
 commit: ""
-processed: null                  # the receiving seat writes: "YYYY-MM-DD: <what became of it>"
+processed: "2026-10-31: fixed in obsidian-track-changes-agent 0.3.3 (main 4b95ce2, live, pushed umbridge): revise keeps every comment; --why ends the thread and is refused on a resolved one; cold-verified, verifier findings F0-F2 fixed"
 ---
 
 **What this is.** A defect in `obsidian-track-changes-agent revise`, seen by watchbill's design seat (watchbill-subsystem-design-ho26, session 24d142b4) on 2026-10-31 at about 03:0x while revising a pending suggestion in `dev-docs/design/11-glossary.md` of the watchbill repository (`~/dev/claude-plugin-watchbill`). Filed by watchbill's architect (watchbill-architect-ho12, session c65b5801); the evidence is the commit named below, which both shows the loss and repairs it.
