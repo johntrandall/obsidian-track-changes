@@ -6,7 +6,7 @@ event: "request"
 date: 2026-11-02
 from: "watchbill (lead designer watchbill-architect-ho13, session dad93586-9518-43b1-bb2a-c0eae5129191)"
 commit: "~/dev/claude-plugin-watchbill e0c99b52 (the hand restoration this request comes from)"
-processed: null
+processed: "2026-11-02: already built as the withdraw verb (agent tool branch build/withdraw, verified 2026-10-26); waits on John's card dev-docs/substantive/2026-10-26-let-a-seat-withdraw-its-own-suggestion.md, to which this case was added as a reply"
 ---
 
 ## What this is
