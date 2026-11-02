@@ -6,7 +6,7 @@ event: "finding"
 date: 2026-11-02
 from: "watchbill (lead designer watchbill-architect-ho13, session dad93586-9518-43b1-bb2a-c0eae5129191; observed by the design seat watchbill-subsystem-design-ho27)"
 commit: "~/dev/claude-plugin-watchbill c254ed51 (the accept this was seen on)"
-processed: null
+processed: "2026-11-02: fixed in obsidian-track-changes-agent 0.3.4 (main c56eb86, live, pushed umbridge): list reads a reply's state from its thread root (--json open, thread_resolved, resolved_by); accept --licence writes resolved-by; resolve names the resolver; cold-verified, no defects. Accept does not write resolved= on replies: the flag lives on the root, as in the plugin. Plugin side: build-queue item 16"
 ---
 
 ## What this is
