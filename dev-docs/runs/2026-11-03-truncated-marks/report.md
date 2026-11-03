@@ -1,0 +1,13 @@
+# Truncated substitutions on watchbill's booklet, 2026-11-03: cause
+
+Start here: watchbill's git-patterns session reported that eleven substitutions with attached comments, which John was said to have rejected or resolved in the Track Changes panel, were left half-removed. This is what actually happened. Investigated by an Opus crew of trackchg-architect-ho2; the replay below was rerun by the architect and matched.
+
+**Cause (Verified).** Not the plugin and not John. The watchbill design seat's own Python script (its transcript `1149a0ea…`, tool call at 13:17:36Z, committed as claude-plugin-watchbill 9edb42f8 at 08:17:47 EST) restructured each gate paragraph into bullets. It found the bold gate heading with `re.search(r'\*\*((?:DG|BG|RG|IG)\d) · [^*]*\.\*\*', ln)`, which on a line opening with a pending substitution matched the heading *inside the mark's old text*, kept the line up to there, and then kept only the well-formed `{…}` marks after it, dropping the `~>NEW~~}` tail: the "reject" shape on BG1–BG4, RG1–RG3, IG1–IG3. On DG5 (old text `**G5 · …**`, which the pattern misses) it matched in the new text and dropped only `~~}`: the "accept" shape. `replay.py` here (the script verbatim, file paths changed, its mtime wait removed) turns `git show efcae149:<note>` plus the seat's `gates-bullets.md` into a file byte-identical to `git show 9edb42f8:<note>` (`cmp`: identical; rerun by the architect 2026-11-03).
+
+**Why it looked like John's decisions.** `obsidian-track-changes-agent watch` reports every agent suggestion that leaves the file as the human's decision and guesses accepted or rejected from the leftover text; it cannot tell a decision from a mark broken by a plain write. Its 13:18:13Z output ("11 agent suggestion(s) the human accepted or rejected") is the source. Fixed in the agent tool (see below).
+
+**Times.** Everything happened 08:16–08:20 EST (13:16–13:20Z); the "09:xx" times in the reports were the reporting session's labels.
+
+**A separate risk, not this incident (Inferred).** Obsidian merges an external write into an open, unsaved editor buffer with diff-match-patch and silently drops hunks that do not fit. In a simulation on these bytes it dropped the plugin's edits whole rather than half-applying them; whether it can ever truncate a mark is untested.
+
+**Follow-ups.** watchbill: write notes under review through the agent tool, or check the parse before writing (the session has adopted the first). Agent tool: `watch` names a damaged mark as damaged. Plugin (idea, not built): a panel warning for unclosed marks, which today just disappear from view.
