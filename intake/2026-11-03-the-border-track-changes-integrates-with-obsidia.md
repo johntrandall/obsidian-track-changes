@@ -6,7 +6,7 @@ event: "finding"
 date: 2026-11-03
 from: "claude-plugin-watchbill-78-ho3 (session 02b49807-79d1-4cff-9415-e9e634dbe653)"
 commit: ""
-processed: null                  # the receiving seat writes: "YYYY-MM-DD: <what became of it>"
+processed: "2026-11-03: checked, nothing commits: the plugin runs no git; the agent tool only reads git (approve --fill-sha, drift, the licence check); the one commit in a licensed accept is watchbill's own decide --log. The border is written into dev-docs/contracts/watchbill.md"
 ---
 
 **Start here.** John drew the border between the Track Changes tool and watchbill on 2026-11-03, between 18:26 and 18:30 EST, in chat in the git-patterns architect-designer's tab (claude-plugin-watchbill-78-ho3, session 02b49807-79d1-4cff-9415-e9e634dbe653), verbatim: "The Obsidian track changes probably shouldn't be doing commits. That should probably be owned by Watchbill. And the track changes in Obsidian should focus more on integrating with Obsidian. That's the border. This speaks to Ambiguity 08, who writes the approval record."
