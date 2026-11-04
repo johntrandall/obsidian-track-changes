@@ -6,7 +6,9 @@ import { build } from "esbuild";
 
 class View {}
 class FileView extends View {}
-class MarkdownView extends FileView {}
+class MarkdownView extends FileView {
+  getMode() { return this.mode ?? "source"; } // "preview" is reading mode
+}
 class ItemView extends View {
   constructor(leaf) {
     super();
@@ -239,6 +241,40 @@ for (const mode of ["cm", "plain", "vault"]) {
     if (mode !== "vault") assert.equal(source, "x");
   });
 }
+
+await test("a note in reading mode reads and writes through the vault, not its hidden editor", async () => {
+  // Reading mode leaves the editor at stale text: Obsidian reloads external
+  // writes into the reading view only (test vault, 2026-11-04).
+  const f = fixture();
+  let staleDispatched = false;
+  f.main.view.mode = "preview";
+  f.main.view.editor = {
+    getValue: () => "stale",
+    cm: { state: { doc: { toString: () => "stale" } }, dispatch: () => { staleDispatched = true; } },
+  };
+  await f.plugin.openReviewPanel(f.main);
+  const panel = f.plugin.getReviewView(f.main);
+  assert.equal(panel.host.getCurrentSource(fileA), null);
+  let written;
+  f.plugin.app.vault.process = async (_file, fn) => (written = fn("{++x++}"));
+  await panel.host.applyEdits(fileA, [{ from: 0, to: 7, expected: "{++x++}", insert: "x" }]);
+  assert.equal(staleDispatched, false);
+  assert.equal(written, "x");
+  f.main.view.mode = "source";
+  assert.equal(panel.host.getCurrentSource(fileA), "stale");
+});
+
+await test("the panel re-renders when its own file's editor changes, not another's", async () => {
+  const f = fixture();
+  await f.plugin.openReviewPanel(f.main);
+  const panelLeaf = f.workspace.getLeavesOfType(REVIEW_VIEW_TYPE)[0];
+  const [onEditorChange] = f.events.get("editor-change");
+  panelLeaf.refreshes.length = 0;
+  onEditorChange({}, { file: fileB });
+  assert.equal(panelLeaf.refreshes.length, 0);
+  onEditorChange({}, { file: fileA });
+  assert.equal(panelLeaf.refreshes.length, 1);
+});
 
 await test("both settings refresh paths rebuild every panel", async () => {
   const f = fixture();

@@ -564,7 +564,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
         return file && file.extension === "md" ? file : null;
       },
       getCurrentSource: (file) => {
-        const editor = this.findEditorForFile(file, leaf);
+        const editor = this.findEditorForFile(file, leaf, { editable: true });
         if (!editor) return null;
         const cm = (editor as unknown as { cm?: EditorView }).cm;
         return cm ? cm.state.doc.toString() : editor.getValue();
@@ -803,7 +803,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
 
   /** The note's current text: the live editor when open, else the vault. */
   private async currentSourceOf(file: TFile): Promise<string> {
-    const editor = this.findEditorForFile(file);
+    const editor = this.findEditorForFile(file, undefined, { editable: true });
     const cm = (editor as unknown as { cm?: EditorView } | null)?.cm;
     return editor ? (cm ? cm.state.doc.toString() : editor.getValue()) : this.app.vault.cachedRead(file);
   }
@@ -901,7 +901,7 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
     targetLeaf = this.getActiveLeaf(),
   ): Promise<boolean> {
     if (edits.length === 0) return true;
-    const editor = options.editor ?? this.findEditorForFile(file, targetLeaf);
+    const editor = options.editor ?? this.findEditorForFile(file, targetLeaf, { editable: true });
     // `editor.cm` is undocumented but stable across Obsidian releases; it
     // exposes the underlying CM6 EditorView so our dispatch coalesces with
     // the user's normal undo stack.
@@ -1011,12 +1011,25 @@ export default class TrackChangesCriticMarkupPlugin extends Plugin {
     }
   }
 
-  private findEditorForFile(file: TFile, targetLeaf = this.getActiveLeaf()): Editor | null {
+  /**
+   * The editor showing `file`, preferring `targetLeaf`'s window. `editable`:
+   * only a view in editing mode (Live Preview or Source). A view in reading
+   * mode keeps its hidden editor at the text it held when the mode switched or
+   * the note opened: Obsidian reloads external writes into the reading view
+   * (`view.data`) but not into that editor, so reading it showed stale marks
+   * and dispatching into it lost the edit (test vault, 2026-11-04). Callers
+   * that read or write the note's text pass `editable` and fall back to the vault.
+   */
+  private findEditorForFile(
+    file: TFile,
+    targetLeaf = this.getActiveLeaf(),
+    { editable = false }: { editable?: boolean } = {},
+  ): Editor | null {
     const leaves = this.app.workspace.getLeavesOfType("markdown");
     let fallback: Editor | null = null;
     for (const leaf of leaves) {
       const view = leaf.view;
-      if (view instanceof MarkdownView && view.file === file) {
+      if (view instanceof MarkdownView && view.file === file && (!editable || view.getMode() === "source")) {
         if (view.containerEl.ownerDocument === targetLeaf?.view.containerEl.ownerDocument) {
           return view.editor;
         }

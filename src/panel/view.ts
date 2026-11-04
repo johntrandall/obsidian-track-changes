@@ -6,7 +6,8 @@
 //   - For threads: render messages, allow reply, allow delete (per message
 //     and whole thread).
 //   - For suggestions: show diff + accept/reject/comment buttons.
-//   - Stay in sync with the active file (debounced re-render on modify).
+//   - Stay in sync with the active file (debounced re-render on modify and
+//     on editor-change for that file).
 //   - Clicking a card scrolls the editor to the anchor and flashes a
 //     highlight.
 
@@ -67,10 +68,12 @@ export interface PanelHost {
   /** Get the file the panel should display in its window, or null if none. */
   getActiveFile(): TFile | null;
   /**
-   * Get the current source for a file from the live editor if one is open,
-   * else null. The panel prefers this over `vault.cachedRead` because the
-   * cache can briefly return pre-edit content immediately after the host
-   * dispatches a CM transaction (Obsidian's editor→vault sync is debounced).
+   * Get the current source for a file from the live editor if one is open in
+   * editing mode, else null (a note in reading mode reads from the vault: its
+   * hidden editor is not kept current). The panel prefers this over
+   * `vault.cachedRead` because the cache can briefly return pre-edit content
+   * immediately after the host dispatches a CM transaction (Obsidian's
+   * editor→vault sync is debounced).
    */
   getCurrentSource(file: TFile): string | null;
   /** Apply a list of edits to a file, preserving undo history when possible. */
@@ -155,6 +158,14 @@ export class ReviewPanelView extends ItemView {
         if (file instanceof TFile && file === this.currentFile) {
           this.rerender();
         }
+      }),
+    );
+    // Follow the editor buffer too: typing, and an external write that
+    // Obsidian reloads into the open editor after `modify` has fired. The
+    // skip-if-unchanged guard in refresh() makes the panel's own edits a no-op.
+    this.registerEvent(
+      this.app.workspace.on("editor-change", (_editor, info) => {
+        if (info.file && info.file === this.currentFile) this.rerender();
       }),
     );
     this.onActiveFileChanged();
