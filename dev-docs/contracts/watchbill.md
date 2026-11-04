@@ -26,3 +26,12 @@ What this plugin offers watchbill (the consumer), the exact fields read and writ
 ## What the plugin shows (reads only)
 
 The review panel header's approval line uses the same states and order as `drift`: `clean`, `delta-open`, `dirty`, `needs-review` (and nothing when there is no `approved_hash`). Watchbill's tools read the same answer from `obsidian-track-changes-agent drift <note> --json` (`state`, `approved_sha`, `open_marks`); no separate verb.
+
+## The border (John, 2026-11-03)
+
+John, 2026-11-03 18:26–18:30 EST, in watchbill's git-patterns tab (relayed verbatim in [[intake/2026-11-03-the-border-track-changes-integrates-with-obsidia|watchbill's intake]]): "The Obsidian track changes probably shouldn't be doing commits. That should probably be owned by Watchbill. And the track changes in Obsidian should focus more on integrating with Obsidian. That's the border."
+
+As checked 2026-11-03 (plugin jtr.10, agent tool 0.3.7), this system already sits on its side of it:
+- **The plugin** writes marks, comments, resolution flags and the Approve fields to the note through Obsidian, and runs no git command.
+- **The agent tool** writes marks and front-matter fields to files and makes no commit. It reads git only: `approve --fill-sha` and `drift` read history to find the commit that holds an approved text, and `accept --licence` checks that its card is committed. The one commit in a licensed accept is made by watchbill's own `watchbill decide --log`, which the tool calls to log the accept on the card.
+- **Commits, trailers and the approval record's commit** are watchbill's. A change that would make either tool commit needs watchbill's architect asked first and John's word.

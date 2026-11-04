@@ -1,5 +1,5 @@
 ---
-_human_verdict: new decisions
+_human_verdict: processed
 title: Ship the ignore marker
 type: decision
 kind: decision
@@ -13,21 +13,21 @@ unblocks: agent tool 0.3.3 to main; the plugin change into the next fork release
 asked_by: trackchg-architect-ho2
 asked_at: "2026-10-30T11:07:04-0400"
 asked_via: chat
-status: open
-applied_at:
-applied_how:
+status: applied
+applied_at: "2026-11-02T10:39:26-0500"
+applied_how: "Shipped: Track Changes 2.3.0-jtr.10 (deployed f99dc0e, GitHub release) and obsidian-track-changes-agent 0.3.5 (main 0f9ca2f); checked by eye in the test vault ([[dev-docs/runs/2026-10-30-ignore-marker/visual-check|visual check]])"
 undo:
-source:
-recorded_where:
+source: chat
+recorded_where: chat, heard by session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2
 relayed_by:
 spawned:
 subject:
 subject_fingerprint:
-human_note:
-human_words:
+human_note: Auto release mode (decisions.md, 2026-11-02) covers this card.
+human_words: You can ship freely now in uh auto release mode.
 snooze_until:
-previous_verdict:
-moved_at: "2026-10-30T11:07:42-0400"
+previous_verdict: yes, just do it
+moved_at: "2026-11-02T10:39:26-0500"
 moved_by: trackchg-architect-ho2
 working_by:
 waiting_on:
@@ -39,7 +39,7 @@ review_marks:
 # Ship the ignore marker
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect-ho2
-> You are looking at a decision from trackchg-architect-ho2. **Your move:** drag it to **yes, show me** to accept the recommendation (Yes: you asked for it in watchbill's tab this morning; this card is the confirmation a relay from another system needs. The agent tool part is built and tested on a branch; the plugin part is being built; the fork release still goes through its own card.) and see the design change as Track Changes suggestions first, or to **yes, just do it** to accept it and let trackchg-architect-ho2 write it plainly and execute at once; or to **no**, **revise proposal**, **revise card**, **later**, **after POC**, **after MVP**, **talk**, or **snoozed**; or answer in chat. **Then:** trackchg-architect-ho2 acts on your answer.
+> Done: applied (Shipped: Track Changes 2.3.0-jtr.10 (deployed f99dc0e, GitHub release) and obsidian-track-changes-agent 0.3.5 (main 0f9…).
 > Talk to [the agent that wrote this](http://susanbones:5465/herdr-jump#853fcbfc-75c6-4d94-88e7-97c6d1d942f2) · [the seat that holds it now](http://susanbones:5465/herdr-owner#853fcbfc-75c6-4d94-88e7-97c6d1d942f2)
 
 ## The question
@@ -95,6 +95,10 @@ Design: [[dev-docs/runs/2026-10-30-ignore-marker/design|the ignore marker design
 
 ## The human's words
 
+> You can ship freely now in uh auto release mode.
+
+(in chat, 2026-11-02T10:37:22-0500, recorded by 853fcbfc-75c6-4d94-88e7-97c6d1d942f2)
+
 ## Talk to the agent
 
 - [Focus the agent that asked](http://susanbones:5465/herdr-jump#853fcbfc-75c6-4d94-88e7-97c6d1d942f2)
@@ -106,9 +110,15 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 
 - 2026-10-30T11:07:04-0400 · trackchg-architect-ho2 (architect, session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2) · created the card [lane: agents drafting]
 - 2026-10-30T11:07:42-0400 · trackchg-architect-ho2 (architect, session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2) · moved agents drafting → new decisions [lane: new decisions]
+- 2026-11-02T10:39:13-0500 · trackchg-architect-ho2 (architect, session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2) · recorded the human's chat answer: yes, just do it (held in agent editing from new decisions, then yes, just do it) [lane: yes, just do it]
+- 2026-11-02T10:39:26-0500 · trackchg-architect-ho2 (architect, session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2) · applied: Shipped: Track Changes 2.3.0-jtr.10 (deployed f99dc0e, GitHub release) and obsidian-track-changes-agent 0.3.5 (main 0f9ca2f); checked by eye in the test vault ([[dev-docs/runs/2026-10-30-ignore-marker/visual-check|visual check]]); moved to processed (held in agent editing from yes, just do it, then processed) [lane: processed]
 
 ## John's comments
 
 Type under the last *John* heading, or answer in chat; drag the card to **revise** when you want the agent to act on what you wrote.
+
+### trackchg-architect-ho2 · 2026-11-02 10:39
+
+Applied: Shipped: Track Changes 2.3.0-jtr.10 (deployed f99dc0e, GitHub release) and obsidian-track-changes-agent 0.3.5 (main 0f9ca2f); checked by eye in the test vault ([[dev-docs/runs/2026-10-30-ignore-marker/visual-check|visual check]])
 
 ### John

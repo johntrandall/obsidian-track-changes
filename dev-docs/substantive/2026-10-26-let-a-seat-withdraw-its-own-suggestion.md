@@ -98,9 +98,14 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-26T13:29:36-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agents drafting → new decisions [lane: new decisions]
 - 2026-10-29T18:16:43-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · rewrote the Your move callout to the current wording, and its herdr links on the bridge's host (watchbill decisions your-move, 0.10.69) (held in agent editing from new decisions, back to new decisions)
 - 2026-10-29T18:16:43-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · the Your move backfill: refreshed the card (held in agent editing from new decisions), then back in new decisions
+- 2026-11-02T09:17:45-0500 · trackchg-architect-ho2 (architect, session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2) · replied: A second case, 2026-11-02, filed by watchbill's lead designer (intake/2026-11-02-no-verb-withdraws-an-agent-s-own-pendi… (held in agent editing from new decisions, back to new decisions)
 
 ## John's comments
 
 Type under the last *John* heading, or answer in chat; drag the card to **revise** when you want the agent to act on what you wrote.
+
+### trackchg-architect-ho2 · 2026-11-02 09:17
+
+A second case, 2026-11-02, filed by watchbill's lead designer ([[intake/2026-11-02-no-verb-withdraws-an-agent-s-own-pending-suggestion|intake]]): you moved a matter to a later card, and watchbill's design seat had to restore a line by hand (claude-plugin-watchbill e0c99b52), because no verb takes back its own pending suggestion and `block` would have rewritten the whole line. The withdraw verb this card proposes is already built and verified (branch build/withdraw); a yes here ships it, rebased onto the current tool (0.3.3), with the same refusals the intake asks for: another role's mark, a settled one, or one you have commented on.
 
 ### John

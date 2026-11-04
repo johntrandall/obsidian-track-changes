@@ -1,5 +1,5 @@
 ---
-_human_verdict: new decisions
+_human_verdict: yes, just do it
 title: Ship updates without asking (narrowed)
 type: decision
 kind: decision
@@ -13,18 +13,18 @@ unblocks: "watchbill's AUTO-SHIP switch for this system (your words of 2026-10-2
 asked_by: trackchg-architect
 asked_at: "2026-10-29T18:17:55-0400"
 asked_via: chat
-status: open
+status: answered
 applied_at:
 applied_how:
 undo:
-source:
-recorded_where:
+source: chat
+recorded_where: chat, heard by session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2
 relayed_by:
 spawned:
 subject:
 subject_fingerprint:
-human_note:
-human_words:
+human_note: "His words are wider than the card's narrowed question: auto release mode for this system's fork releases and agent tool versions. The architect keeps its own gates before each ship (npm test and the WebKit run green, a test-vault screenshot pass for anything he sees, a cold verifier on behaviour changes) and tells him what shipped."
+human_words: You can ship freely now in uh auto release mode.
 snooze_until:
 previous_verdict:
 moved_at: "2026-10-29T18:18:42-0400"
@@ -39,7 +39,7 @@ review_marks:
 # Ship updates without asking (narrowed)
 
 > [!todo] Your move · obsidian-track-changes · trackchg-architect
-> You are looking at a decision from trackchg-architect. **Your move:** drag it to **yes, show me** to accept the recommendation (yes) and see the design change as Track Changes suggestions first, or to **yes, just do it** to accept it and let trackchg-architect write it plainly and execute at once; or to **no**, **revise proposal**, **revise card**, **later**, **after POC**, **after MVP**, **talk**, or **snoozed**; or answer in chat. **Then:** trackchg-architect acts on your answer.
+> You answered **yes, just do it**. trackchg-architect picks it up next, writes any design change plainly (citing this card and your words) and executes at once; nothing more for you unless it comes back to returning.
 > Talk to [the agent that wrote this](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0) · [the seat that holds it now](http://susanbones:5465/herdr-owner#988b396b-f824-464e-83db-39e5a05961e0)
 
 ## The question
@@ -89,6 +89,10 @@ May the obsidian-track-changes architect ship updates without asking, narrowed t
 
 ## The human's words
 
+> You can ship freely now in uh auto release mode.
+
+(in chat, 2026-11-02T10:37:22-0500, recorded by 853fcbfc-75c6-4d94-88e7-97c6d1d942f2)
+
 ## Talk to the agent
 
 - [Focus the agent that asked](http://susanbones:5465/herdr-jump#988b396b-f824-464e-83db-39e5a05961e0)
@@ -101,6 +105,7 @@ One line per edit: when, who (name, role, session), what. Written by the `watchb
 - 2026-10-29T18:17:55-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · created the card [lane: agents drafting]
 - 2026-10-29T18:18:42-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · filled in the card body by hand
 - 2026-10-29T18:18:42-0400 · trackchg-architect (architect, session 988b396b-f824-464e-83db-39e5a05961e0) · moved agents drafting → new decisions [lane: new decisions]
+- 2026-11-02T10:37:50-0500 · trackchg-architect-ho2 (architect, session 853fcbfc-75c6-4d94-88e7-97c6d1d942f2) · recorded the human's chat answer: yes, just do it (held in agent editing from new decisions, then yes, just do it) [lane: yes, just do it]
 
 ## John's comments
 

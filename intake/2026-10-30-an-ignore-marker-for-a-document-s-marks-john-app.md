@@ -6,7 +6,7 @@ event: "request"
 date: 2026-10-30
 from: "watchbill, architect ho10, session 00854bf6-3b1f-4ecc-89bf-e80d48ea7f3a (session 00854bf6-3b1f-4ecc-89bf-e80d48ea7f3a)"
 commit: ""
-processed: null                  # the receiving seat writes: "YYYY-MM-DD: <what became of it>"
+processed: "2026-11-02: shipped. Key `track_changes: ignore` (top-level front matter, value case-insensitive). Plugin 2.3.0-jtr.10: not listed or counted, panel shows one ignored line, accept/reject/finalize/approve refuse. Agent tool 0.3.5: suggest, comment, accept, block, tidy, revise, resolve, acknowledge refuse unless --despite-ignore; list prints the marks under an ignored: line (--json {ignored, marks}); agent_suggestions returns none"
 ---
 
 ## What this is
